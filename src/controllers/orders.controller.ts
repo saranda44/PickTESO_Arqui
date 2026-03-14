@@ -20,24 +20,27 @@ function handleError(err: any, res: Response): void {
 export const OrderController = {
     createOrder,
     updateOrderStatus,
+    confirmPayment,
     deleteOrder,
     getMyOrders,
     getOrdersByStore,
-    getOrderById
+    getOrderById,
+    getOrderByIdClient
 };
 
   
-// POST /orders
+// POST /user/stores/:idStore/orders
 // Creates a new order for the authenticated user
-// Body: { store_id, items: [{ product_id, quantity }] }
+// Body: { items: [{ product_id, quantity }] }
 async function createOrder(req: Request, res: Response) {
     try {
         const userId = (req as any).user.id;
+        const idStore = Number(req.params.idStore);
         const body = req.body as CreateOrderDTO;
 
         // validation
-        if (!body.store_id || typeof body.store_id !== 'number') {
-            res.status(400).json({ error: 'store_id is required and must be a number' });
+        if (isNaN(idStore)) {
+            res.status(400).json({ error: 'Invalid idStore' });
             return;
         }
 
@@ -57,7 +60,7 @@ async function createOrder(req: Request, res: Response) {
             }
         }
 
-        const order = await OrderService.createOrder(userId, body);
+        const order = await OrderService.createOrder(userId, idStore, body);
         res.status(201).json({ order });
     } catch (err) {
         handleError(err, res);
@@ -65,12 +68,14 @@ async function createOrder(req: Request, res: Response) {
 }
 
 
-// PATCH /orders/:id/status
+// PATCH /stores/:idStore/orders/:id/status
 // Updates the status of an order
 // Body: { status }
 async function updateOrderStatus(req: Request, res: Response) {
     try {
         const orderId = Number(req.params.id);
+        const storeId = Number(req.params.idStore);
+        const userId = (req as any).user.id;
         if (isNaN(orderId)) {
             res.status(400).json({ error: 'Invalid order id' });
             return;
@@ -85,7 +90,7 @@ async function updateOrderStatus(req: Request, res: Response) {
         return;
         }
 
-        const order = await OrderService.updateOrderStatus(orderId, { status });
+        const order = await OrderService.updateOrderStatus(orderId, { status }, storeId, userId);
         res.json({ order });
     } catch (err) {
         handleError(err, res);
@@ -93,7 +98,19 @@ async function updateOrderStatus(req: Request, res: Response) {
 }
 
 
-// DELETE /orders/:id
+// PATCH /orders/:id/pay
+// Updates the status of an order
+async function confirmPayment(req: Request, res: Response) {
+    try {
+        const orderId = Number(req.params.id);
+        const order = await OrderService.confirmPayment(orderId);
+        res.json({ order });
+    } catch (err) {
+        handleError(err, res);
+    }
+}
+
+// DELETE /orders/:id/cancel
 // Cancels an order
 async function deleteOrder(req: Request, res: Response) {
     try {
@@ -109,8 +126,9 @@ async function deleteOrder(req: Request, res: Response) {
     }
 }
 
+//============================================================================================================
 
-// GET /orders/my
+// GET /user/orders
 // Returns all orders for the authenticated user
 async function getMyOrders(req: Request, res: Response) {
     try {
@@ -123,16 +141,17 @@ async function getMyOrders(req: Request, res: Response) {
 }
 
 
-// GET /orders/store/:storeId
+// GET /stores/:storeId/orders
 // Returns all orders for a store (store_admin only)
 async function getOrdersByStore(req: Request, res: Response) {
     try {
-        const storeId = Number(req.params.storeId);
+        const userId = (req as any).user.id;
+        const storeId = Number(req.params.idStore);
         if (isNaN(storeId)) {
             res.status(400).json({ error: 'Invalid storeId' });
             return;
         }
-        const orders = await OrderService.getOrdersByStore(storeId);
+        const orders = await OrderService.getOrdersByStore(storeId, userId);
         res.json({ orders });
     } catch (err) {
         handleError(err, res);
@@ -140,18 +159,43 @@ async function getOrdersByStore(req: Request, res: Response) {
 }
 
 
-// GET /orders/:id
+// GET /stores/:idStore/orders/:id
 // Returns a single order with its products
 async function getOrderById(req: Request, res: Response) {
     try {
         const orderId = Number(req.params.id);
+        const storeId = Number(req.params.idStore);
+        const userId = (req as any).user.id;
         if (isNaN(orderId)) {
             res.status(400).json({ error: 'Invalid order id' });
             return;
         }
-        const order = await OrderService.getOrderById(orderId);
+        if (isNaN(storeId)) {
+            res.status(400).json({ error: 'Invalid store id' });
+            return;
+        }
+        const order = await OrderService.getOrderById(orderId, storeId, userId);
         res.json({ order });
     } catch (err) {
+        handleError(err, res);
+    }
+}
+
+
+// GET /user/orders/:id
+// Returns a single order with its products for a client
+async function getOrderByIdClient(req: Request, res: Response) {
+    try {
+        const orderId = Number(req.params.id);
+        const userId = (req as any).user.id;
+        if (isNaN(orderId)) {
+            res.status(400).json({ error: 'Invalid order id' });
+            return;
+        }
+        const order = await OrderService.getOrderByIdClient(orderId, userId);
+        res.json({ order });
+    } catch (err) {
+        console.log(err);
         handleError(err, res);
     }
 }

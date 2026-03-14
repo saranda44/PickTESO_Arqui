@@ -33,7 +33,6 @@ export interface CreateOrderItemDTO {
 }
 
 export interface CreateOrderDTO {
-  store_id: number;
   items: CreateOrderItemDTO[];
 }
 

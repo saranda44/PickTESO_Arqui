@@ -18,6 +18,7 @@ export interface CatalogStore {
   active: boolean;
   opening_time: string;
   closing_time: string;
+  admin_id?: number;
 }
 
 // Fetch a single product from the catalog service
