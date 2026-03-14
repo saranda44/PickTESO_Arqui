@@ -6,7 +6,7 @@ app.use(express.json());
 // Simula catalog service
 app.get('/products/:id', (req, res) => {
   res.json({
-    id: parseInt(req.params.id),
+    id: Number(req.params.id),
     store_id: 1,
     name: 'Producto test',
     price: 65.00,
@@ -20,7 +20,8 @@ app.get('/stores/:id', (req, res) => {
     name: 'Cafetería test',
     active: true,
     opening_time: '07:00',
-    closing_time: '21:00'
+    closing_time: '21:00',
+    admin_id: 2
   });
 });
 
@@ -30,6 +31,13 @@ app.get('/product/:id/stock', (req, res) => {
 });
 
 app.post('/product/:id/stock', (req, res) => {
+  res.json({ ok: true });
+});
+
+
+// Simula payments service
+app.post('/payments/:orderId/refund', (req, res) => {
+  console.log(`Refund requested for order ${req.params.orderId}`);
   res.json({ ok: true });
 });
 
