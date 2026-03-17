@@ -41,4 +41,20 @@ app.post('/payments/:orderId/refund', (req, res) => {
   res.json({ ok: true });
 });
 
+// Simular notifications service
+app.post('/notifications/order-confirmed', (req, res) => {
+  console.log(`[notifications] order-confirmed — order_id: ${req.body.order_id}`);
+  res.json({ ok: true });
+});
+
+app.post('/notifications/order-status-updated', (req, res) => {
+  console.log(`[notifications] order-status-updated — order_id: ${req.body.order_id}, status: ${req.body.status}`);
+  res.json({ ok: true });
+});
+
+app.post('/notifications/order-cancelled', (req, res) => {
+  console.log(`[notifications] order-cancelled — order_id: ${req.body.order_id}`);
+  res.json({ ok: true });
+});
+
 app.listen(3099, () => console.log('Mock server en puerto 3099'));

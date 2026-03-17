@@ -2,6 +2,7 @@ import { OrderRepository } from '../repositories/order.repository';
 import { getProductFromCatalog, getStoreFromCatalog } from './catalog.service';
 import {getProductStock, deductInventory, restoreInventory} from './store-admin.service'
 import { requestRefund } from './payment.service';
+import { notifyOrderCancelled, notifyOrderConfirmed, notifyOrderStatusUpdated } from './notification.service';
 import {
   CreateOrderDTO,
   Order,
@@ -193,12 +194,14 @@ async function updateOrderStatus(orderId: number,dto: UpdateOrderStatusDTO, stor
         existing.status
     );
 
-
     if (!updated) {
         const err: any = new Error('Unable to change order status, please retry');
         err.statusCode = 409;
         throw err;
     }
+
+    // Notify customer about status update
+    notifyOrderStatusUpdated(orderId, dto.status);
 
     // If the store cancelled a paid order, restore inventory
     if (dto.status === 'cancelled') {
@@ -240,6 +243,9 @@ async function confirmPayment(orderId: number): Promise<Order> {
         throw err;
     }
 
+    //notify store and customer that payment was confirmed and order is now paid
+    notifyOrderConfirmed(orderId);
+
     return updated;
 }
 
@@ -272,6 +278,9 @@ async function deleteOrder(orderId: number): Promise<Order> {
         err.statusCode = 400;
         throw err;
     }
+
+    //notify customer that order was cancelled due to payment failure
+    notifyOrderCancelled(orderId);
 
     // Restore inventory for all products in the cancelled order
     const orderWithProducts = await OrderRepository.findByIdWithProducts(orderId);
