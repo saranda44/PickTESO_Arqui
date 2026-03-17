@@ -1,6 +1,6 @@
 import { Router, json } from "express";
 import { OrderController } from "../controllers/orders.controller";
-import { authMiddleware, requireRole } from "../middlewares/auth.middleware";
+import { validateOrderIdParam } from '../middlewares/orders.validation.middleware';
 
 import customerOrderRoutes from './orders.customer.routes';
 import storeOrderRoutes from './orders.store.route';
@@ -15,10 +15,10 @@ router.use(json());
 
 //PATCH /orders/:id/pay — update status to paid
 // only payment service can update to paid
-router.patch('/orders/:id/pay', OrderController.confirmPayment);
+router.patch('/orders/:id/pay', validateOrderIdParam, OrderController.confirmPayment);
 
 // DELETE /orders/:id/cancel — cancel an order (called by payment service when payment fails)
-router.delete('/orders/:id/cancel', OrderController.deleteOrder);
+router.delete('/orders/:id/cancel', validateOrderIdParam, OrderController.deleteOrder);
 
 
 router.use('/stores', storeOrderRoutes);
