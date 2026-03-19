@@ -1,0 +1,1 @@
+# PickTESO_frontend - Sellers Service
