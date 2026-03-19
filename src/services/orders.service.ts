@@ -10,6 +10,12 @@ import {
   OrderWithProducts,
   UpdateOrderStatusDTO,
 } from '../models/order.model';
+import {
+        BadRequestError,
+        ConflictError,
+        ForbiddenError,
+        NotFoundError,
+} from '../errors';
 
 
 // Valid status transitions for store_admin role
@@ -31,14 +37,10 @@ async function validateStoreOwner(storeId: number, userId: number): Promise<void
     // validate store exists and belongs to the user (store_admin)
     const store = await getStoreFromCatalog(storeId);
     if (!store) {
-        const err: any = new Error('Store not found or inactive');
-        err.statusCode = 404;
-        throw err;
+        throw new NotFoundError('Store not found or inactive');
     }
     if (Number(store.admin_id) !== userId) {
-        const err: any = new Error('Unauthorized - store does not belong to this user');
-        err.statusCode = 403;
-        throw err;
+        throw new ForbiddenError('Unauthorized - store does not belong to this user');
     }
 }
 
@@ -67,9 +69,7 @@ async function createOrder(userId: number, idStore:number, dto: CreateOrderDTO):
     // 1. Validate store
     const store = await getStoreFromCatalog(idStore);
     if (!store) {
-        const err: any = new Error('Store not found or inactive');
-        err.statusCode = 404;
-        throw err;
+        throw new NotFoundError('Store not found or inactive');
     }
 
     // 2. Validate products and build items with prices
@@ -84,28 +84,20 @@ async function createOrder(userId: number, idStore:number, dto: CreateOrderDTO):
 
         //validate product exists
         if (!product) {
-            const err: any = new Error(`Product ${item.product_id} not found or inactive`);
-            err.statusCode = 404;
-            throw err;
+            throw new NotFoundError(`Product ${item.product_id} not found or inactive`);
         }
 
         //validate product belongs to the store
         if (product.store_id !== idStore) {
-            const err: any = new Error(
+            throw new BadRequestError(
             `Product ${item.product_id} does not belong to store ${idStore}`
             );
-            err.statusCode = 400;
-            throw err;
         }
 
         //validate stock availability in store-admin service
         const inventoryLevels = await getProductStock(item.product_id);
         if (inventoryLevels < item.quantity) {
-            const err: any = new Error(
-            `Insufficient inventory for product ${item.product_id}`
-            );
-            err.statusCode = 400;
-            throw err;
+            throw new BadRequestError(`Insufficient inventory for product ${item.product_id}`);
         }
 
         // If all good, add to resolved items with price from catalog
@@ -173,18 +165,12 @@ async function updateOrderStatus(orderId: number,dto: UpdateOrderStatusDTO, stor
     //validate order exists
     const existing = await OrderRepository.findById(orderId);
     if (!existing) {
-        const err: any = new Error('Order not found');
-        err.statusCode = 404;
-        throw err;
+        throw new NotFoundError('Order not found');
     }
 
     //validate status transition is allowed
     if (!isValidTransition(existing.status, dto.status)) {
-        const err: any = new Error(
-            `Invalid status transition: ${existing.status} → ${dto.status}`
-        );
-        err.statusCode = 400;
-        throw err;
+        throw new BadRequestError(`Invalid status transition: ${existing.status} -> ${dto.status}`);
     }
 
     //uptade status
@@ -195,9 +181,7 @@ async function updateOrderStatus(orderId: number,dto: UpdateOrderStatusDTO, stor
     );
 
     if (!updated) {
-        const err: any = new Error('Unable to change order status, please retry');
-        err.statusCode = 409;
-        throw err;
+        throw new ConflictError('Unable to change order status, please retry');
     }
 
     // Notify customer about status update
@@ -232,15 +216,11 @@ async function confirmPayment(orderId: number): Promise<Order> {
     if (!updated) {
         const existing = await OrderRepository.findById(orderId);
         if (!existing) {
-            const err: any = new Error('Order not found');
-            err.statusCode = 404;
-            throw err;
+            throw new NotFoundError('Order not found');
         }
-        const err: any = new Error(
-            `Cannot confirm payment for order in status '${existing.status}' — only pending orders can be confirmed`
+        throw new BadRequestError(
+            `Cannot confirm payment for order in status '${existing.status}' - only pending orders can be confirmed`
         );
-        err.statusCode = 400;
-        throw err;
     }
 
     //notify store and customer that payment was confirmed and order is now paid
@@ -267,16 +247,12 @@ async function deleteOrder(orderId: number): Promise<Order> {
         //if order doesn't exist
         const existing = await OrderRepository.findById(orderId);
         if (!existing) {
-            const err: any = new Error('Order not found');
-            err.statusCode = 404;
-            throw err;
+            throw new NotFoundError('Order not found');
         }
         //if status transition was not allowed (not pending)
-        const err: any = new Error(
-            `Cannot cancel order in status '${existing.status}' — only pending orders can be cancelled by the payment service`
+        throw new BadRequestError(
+            `Cannot cancel order in status '${existing.status}' - only pending orders can be cancelled by the payment service`
         );
-        err.statusCode = 400;
-        throw err;
     }
 
     //notify customer that order was cancelled due to payment failure
@@ -316,14 +292,10 @@ async function getOrderById(orderId: number, idStore: number, userId: number): P
     // Validate store ownership and order existence
     await validateStoreOwner(idStore, userId);
     if (!order) {
-        const err: any = new Error('Order not found');
-        err.statusCode = 404;
-        throw err;
+        throw new NotFoundError('Order not found');
     }
     if(Number(order.store_id) !== idStore){
-        const err: any = new Error('Unauthorized - order does not belong to this store');
-        err.statusCode = 403;
-        throw err;
+        throw new ForbiddenError('Unauthorized - order does not belong to this store');
     }
     return order;
 }
@@ -332,15 +304,11 @@ async function getOrderById(orderId: number, idStore: number, userId: number): P
 async function getOrderByIdClient(orderId: number, userId: number): Promise<OrderWithProducts> {
     const order = await OrderRepository.findByIdWithProducts(orderId);
     if (!order) {
-        const err: any = new Error('Order not found');
-        err.statusCode = 404;
-        throw err;
+        throw new NotFoundError('Order not found');
     }
     if(Number(order.user_id) !== userId){
         console.log(`Unauthorized access attempt by user ${userId} to order ${orderId} belonging to user ${order.user_id}`);
-        const err: any = new Error('Unauthorized - order does not belong to this user');
-        err.statusCode = 403;
-        throw err;
+        throw new ForbiddenError('Unauthorized - order does not belong to this user');
     }
     return order;
 }
