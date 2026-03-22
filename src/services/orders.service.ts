@@ -1,38 +1,46 @@
 import { OrderRepository } from '../repositories/order.repository';
-import { getProductFromCatalog, getStoreFromCatalog } from './catalog.service';
-import {getProductStock, deductInventory, restoreInventory} from './store-admin.service'
-import { requestRefund } from './payment.service';
-import { notifyOrderCancelled, notifyOrderConfirmed, notifyOrderStatusUpdated } from './notification.service';
+import { getProductFromCatalog, getStoreFromCatalog } from '../clients/catalog.client';
+import { getProductStock, deductInventory, restoreInventory } from '../clients/store-admin.client'
+import { requestRefund } from '../clients/payment.client';
 import {
-  CreateOrderDTO,
-  Order,
-  OrderStatus,
-  OrderWithProducts,
-  UpdateOrderStatusDTO,
+    notifyOrderConfirmed,
+    notifyOrderStatusUpdated,
+    notifyOrderCancelledByStore,
+    notifyOrderCancelledByPayment,
+} from '../clients/notification.client';
+import {
+    CreateOrderDTO,
+    Order,
+    OrderStatus,
+    OrderWithItems,
+    OrderWithProducts,
+    UpdateOrderStatusDTO,
 } from '../models/order.model';
 import {
-        BadRequestError,
-        ConflictError,
-        ForbiddenError,
-        NotFoundError,
+    BadRequestError,
+    ConflictError,
+    ForbiddenError,
+    NotFoundError,
 } from '../errors';
+import { generateOTP, validateOTP } from '../helpers/otp.helper';
 
 
 // Valid status transitions for store_admin role
 // Prevents illegal state changes (going from completed → preparing)
 const STORE_ADMIN_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
-    pending:    [],                      // store cannot touch a pending (unpaid) order
-    paid:       [OrderStatus.PREPARING, OrderStatus.CANCELLED],
-    preparing:  [OrderStatus.READY],
-    ready:      [OrderStatus.COMPLETED],
-    completed:  [],
-    cancelled:  [],
+    pending: [],                      // store cannot touch a pending (unpaid) order
+    paid: [OrderStatus.PREPARING, OrderStatus.CANCELLED],
+    preparing: [OrderStatus.READY],
+    ready: [OrderStatus.COMPLETED],
+    completed: [],
+    cancelled: [],
 };
 
 function isValidTransition(current: OrderStatus, next: OrderStatus): boolean {
     return STORE_ADMIN_TRANSITIONS[current]?.includes(next) ?? false;
 }
 
+// Helper function to validate that a store exists and belongs to the user (store_admin)
 async function validateStoreOwner(storeId: number, userId: number): Promise<void> {
     // validate store exists and belongs to the user (store_admin)
     const store = await getStoreFromCatalog(storeId);
@@ -44,6 +52,16 @@ async function validateStoreOwner(storeId: number, userId: number): Promise<void
     }
 }
 
+// Helper function to restore inventory for all products in an order (used when cancelling a paid order)
+async function restoreInventoryForOrder(orderId: number): Promise<void> {
+    const order = await OrderRepository.findByIdWithProducts(orderId);
+    if (!order || order.items.length === 0) return;
+
+    await restoreInventory(
+        order.items.map((i) => ({ product_id: i.product_id, quantity: i.quantity }))
+    );
+}
+
 
 export const OrderService = {
     createOrder,
@@ -53,8 +71,9 @@ export const OrderService = {
     getOrdersByUser,
     getOrdersByStore,
     getOrderById,
-    getOrderByIdClient
-} 
+    getOrderByIdClient,
+    validateOTPAndComplete
+}
 
 
 
@@ -65,7 +84,7 @@ export const OrderService = {
 //   3. Calculate total using prices from catalog
 //   4. Persist order + order_products in a transaction
 //   5. Deduct inventory (store-admin service)
-async function createOrder(userId: number, idStore:number, dto: CreateOrderDTO): Promise<OrderWithProducts> {
+async function createOrder(userId: number, idStore: number, dto: CreateOrderDTO): Promise<OrderWithItems> {
     // 1. Validate store
     const store = await getStoreFromCatalog(idStore);
     if (!store) {
@@ -90,7 +109,7 @@ async function createOrder(userId: number, idStore:number, dto: CreateOrderDTO):
         //validate product belongs to the store
         if (product.store_id !== idStore) {
             throw new BadRequestError(
-            `Product ${item.product_id} does not belong to store ${idStore}`
+                `Product ${item.product_id} does not belong to store ${idStore}`
             );
         }
 
@@ -141,8 +160,8 @@ async function createOrder(userId: number, idStore:number, dto: CreateOrderDTO):
         // Deduct inventory in store-admin service
         await deductInventory(
             resolvedItems.map((i) => ({
-            product_id: i.product_id,
-            quantity: i.quantity,
+                product_id: i.product_id,
+                quantity: i.quantity,
             }))
         );
 
@@ -158,14 +177,19 @@ async function createOrder(userId: number, idStore:number, dto: CreateOrderDTO):
 
 // Update order status — called by store_admin only
 // Valid transitions: paid → preparing/cancelled, preparing → ready, ready → completed
-async function updateOrderStatus(orderId: number,dto: UpdateOrderStatusDTO, storeId: number, userId: number): Promise<Order> {
+async function updateOrderStatus(orderId: number, dto: UpdateOrderStatusDTO, storeId: number, userId: number): Promise<Order> {
     // Validate store ownership and order existence + status transition rules
-    await validateStoreOwner(storeId, userId); 
+    await validateStoreOwner(storeId, userId);
 
     //validate order exists
-    const existing = await OrderRepository.findById(orderId);
+    const existing = await OrderRepository.findByIdWithProducts(orderId);
     if (!existing) {
         throw new NotFoundError('Order not found');
+    }
+
+    // completed status requires OTP — use validateOTPAndComplete instead
+    if (dto.status === OrderStatus.COMPLETED) {
+        throw new BadRequestError('Use PATCH /orders/:id/complete to complete an order');
     }
 
     //validate status transition is allowed
@@ -184,22 +208,64 @@ async function updateOrderStatus(orderId: number,dto: UpdateOrderStatusDTO, stor
         throw new ConflictError('Unable to change order status, please retry');
     }
 
+    // Fetch order to get customer email for notification
+    const order = await OrderRepository.findByIdWithProducts(orderId);
+    if (!order) {
+        throw new NotFoundError('Order not found after update');    
+    }
+
     // Notify customer about status update
-    notifyOrderStatusUpdated(orderId, dto.status);
+    notifyOrderStatusUpdated(orderId, order.customer.email, dto.status);
 
     // If the store cancelled a paid order, restore inventory
     if (dto.status === 'cancelled') {
         requestRefund(orderId); // request refund from payments service (if it was paid)
-        const orderWithProducts = await OrderRepository.findByIdWithProducts(orderId);
-        if (orderWithProducts && orderWithProducts.items.length > 0) {
-            await restoreInventory(
-                orderWithProducts.items.map((i) => ({
-                    product_id: i.product_id,
-                    quantity: i.quantity,
-                }))
-            );
-        }
+        await restoreInventoryForOrder(orderId); // restore inventory in store-admin service
+        notifyOrderCancelledByStore(orderId, existing.customer.email); // notify customer that their order was cancelled by the store
     }
+    return updated;
+}
+
+
+// ---------------------------------------------------------
+// Validate OTP and mark order as completed — store_admin only
+// The store receives the OTP from the customer at pickup
+// and sends it here to validate before completing the order
+// ---------------------------------------------------------
+async function validateOTPAndComplete(
+    orderId: number,
+    otp: string,
+    storeId: number,
+    userId: number
+): Promise<Order> {
+    await validateStoreOwner(storeId, userId);
+
+    const existing = await OrderRepository.findById(orderId);
+    if (!existing) throw new NotFoundError('Order not found');
+
+    if (Number(existing.store_id) !== storeId) {
+        throw new ForbiddenError('Unauthorized — order does not belong to this store');
+    }
+
+    if (existing.status !== OrderStatus.READY) {
+        throw new BadRequestError('Order must be in ready status to be completed');
+    }
+
+    // Validate OTP using userId from the order and orderId
+    const isValid = validateOTP(otp, existing.user_id, orderId);
+    if (!isValid) throw new BadRequestError('Invalid or incorrect OTP code');
+
+    const updated = await OrderRepository.updateStatus(orderId, OrderStatus.COMPLETED, OrderStatus.READY);
+    if (!updated) throw new ConflictError('Unable to complete order, please retry');
+
+    // Fetch order to get customer email for notification
+    const order = await OrderRepository.findByIdWithProducts(orderId);
+    if (!order) {
+        throw new NotFoundError('Order not found after update');
+    }
+    // Notify customer about status update
+    notifyOrderStatusUpdated(orderId, order.customer.email, OrderStatus.COMPLETED);
+
     return updated;
 }
 
@@ -223,8 +289,17 @@ async function confirmPayment(orderId: number): Promise<Order> {
         );
     }
 
-    //notify store and customer that payment was confirmed and order is now paid
-    notifyOrderConfirmed(orderId);
+    // Fetch order details to get customer email, store email and userId for OTP
+    const order = await OrderRepository.findByIdWithProducts(orderId);
+    if (!order) {
+        throw new NotFoundError('Order not found');
+    }
+    // Generate stateless OTP — not stored in DB
+    const otp = generateOTP(order.user_id, orderId);
+
+    // Notify customer (with OTP) and store (fire and forget)
+    notifyOrderConfirmed(orderId, order.customer.email, otp);
+    
 
     return updated;
 }
@@ -255,19 +330,17 @@ async function deleteOrder(orderId: number): Promise<Order> {
         );
     }
 
-    //notify customer that order was cancelled due to payment failure
-    notifyOrderCancelled(orderId);
+    // Fetch order to get customer email
+    const order = await OrderRepository.findByIdWithProducts(orderId);
+    if (!order) {
+        throw new NotFoundError('Order not found');
+    }
+
+    // Notify customer that payment failed
+    notifyOrderCancelledByPayment(orderId, order.customer.email);
 
     // Restore inventory for all products in the cancelled order
-    const orderWithProducts = await OrderRepository.findByIdWithProducts(orderId);
-    if (orderWithProducts && orderWithProducts.items.length > 0) {
-        await restoreInventory(
-            orderWithProducts.items.map((i) => ({
-            product_id: i.product_id,
-            quantity: i.quantity,
-            }))
-        );
-    }
+    await restoreInventoryForOrder(orderId);
 
     return updated;
 }
@@ -294,7 +367,7 @@ async function getOrderById(orderId: number, idStore: number, userId: number): P
     if (!order) {
         throw new NotFoundError('Order not found');
     }
-    if(Number(order.store_id) !== idStore){
+    if (Number(order.store_id) !== idStore) {
         throw new ForbiddenError('Unauthorized - order does not belong to this store');
     }
     return order;
@@ -306,7 +379,7 @@ async function getOrderByIdClient(orderId: number, userId: number): Promise<Orde
     if (!order) {
         throw new NotFoundError('Order not found');
     }
-    if(Number(order.user_id) !== userId){
+    if (Number(order.user_id) !== userId) {
         console.log(`Unauthorized access attempt by user ${userId} to order ${orderId} belonging to user ${order.user_id}`);
         throw new ForbiddenError('Unauthorized - order does not belong to this user');
     }

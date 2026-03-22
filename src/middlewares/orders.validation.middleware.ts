@@ -60,6 +60,20 @@ export const validateStoreIdParam = [positiveIntParam('idStore'), validateReques
 // Middleware to validate order ID in route parameters for payment and cancellation routes
 export const validateOrderIdParam = [positiveIntParam('id'), validateRequest];
 
+// Middleware to validate OTP completion requests for store pickup
+export const validateOTPCompletion = [
+  positiveIntParam('storeId'),
+  positiveIntParam('id'),
+  body('otp')
+    .isString()
+    .withMessage('otp is required')
+    .bail()
+    .trim()
+    .matches(/^\d{6}$/)
+    .withMessage('otp must be a 6-digit numeric code'),
+  validateRequest,
+];
+
 // Middleware to check validation results and return 400 if there are errors
 export function validateRequest(req: Request, res: Response, next: NextFunction): void {
   const errors = validationResult(req);

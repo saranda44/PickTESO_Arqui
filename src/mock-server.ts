@@ -42,18 +42,35 @@ app.post('/payments/:orderId/refund', (req, res) => {
 });
 
 // Simular notifications service
+// =========================================================
+// NOTIFICATIONS SERVICE
+// =========================================================
+ 
+// POST /notifications/order-confirmed — sent to customer (with OTP) + store on payment confirmed
 app.post('/notifications/order-confirmed', (req, res) => {
-  console.log(`[notifications] order-confirmed — order_id: ${req.body.order_id}`);
+  const { order_id, customer_email, store_email, otp } = req.body;
+  console.log(`[notifications] order-confirmed — order: ${order_id} | customer: ${customer_email} | otp: ${otp}`);
   res.json({ ok: true });
 });
-
+ 
+// POST /notifications/order-status-updated — sent to customer on status change
 app.post('/notifications/order-status-updated', (req, res) => {
-  console.log(`[notifications] order-status-updated — order_id: ${req.body.order_id}, status: ${req.body.status}`);
+  const { order_id, customer_email, status } = req.body;
+  console.log(`[notifications] order-status-updated — order: ${order_id} | customer: ${customer_email} | status: ${status}`);
   res.json({ ok: true });
 });
-
-app.post('/notifications/order-cancelled', (req, res) => {
-  console.log(`[notifications] order-cancelled — order_id: ${req.body.order_id}`);
+ 
+// POST /notifications/order-cancelled-by-store — store cancelled, includes refund notice
+app.post('/notifications/order-cancelled-by-store', (req, res) => {
+  const { order_id, customer_email } = req.body;
+  console.log(`[notifications] order-cancelled-by-store — order: ${order_id} | customer: ${customer_email}`);
+  res.json({ ok: true });
+});
+ 
+// POST /notifications/order-cancelled-by-payment — payment failed, ask customer to retry
+app.post('/notifications/order-cancelled-by-payment', (req, res) => {
+  const { order_id, customer_email } = req.body;
+  console.log(`[notifications] order-cancelled-by-payment — order: ${order_id} | customer: ${customer_email}`);
   res.json({ ok: true });
 });
 

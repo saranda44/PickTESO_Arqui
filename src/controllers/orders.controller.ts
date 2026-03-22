@@ -10,7 +10,8 @@ export const OrderController = {
     getMyOrders,
     getOrdersByStore,
     getOrderById,
-    getOrderByIdClient
+    getOrderByIdClient,
+    validateOTPAndComplete
 };
 
   
@@ -57,6 +58,26 @@ async function confirmPayment(req: Request, res: Response, next: NextFunction) {
         const orderId = Number(req.params.id);
         const order = await OrderService.confirmPayment(orderId);
         res.json({ order });
+    } catch (err) {
+        next(err);
+    }
+}
+
+// ---------------------------------------------------------
+// PATCH /stores/:storeId/orders/:id/complete
+// Store validates customer OTP to complete the order at pickup
+// Body: { otp }
+// ---------------------------------------------------------
+async function validateOTPAndComplete(req: Request, res: Response, next: NextFunction) {
+    try {
+        const orderId = Number(req.params.id);
+        const storeId = Number(req.params.storeId);
+
+        const { otp } = req.body;
+
+        const userId = (req as any).user.id;
+        const order = await OrderService.validateOTPAndComplete(orderId, otp, storeId, userId);
+        res.json({ data: order });
     } catch (err) {
         next(err);
     }

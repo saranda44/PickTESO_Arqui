@@ -40,7 +40,32 @@ export interface UpdateOrderStatusDTO {
   status: OrderStatus;
 }
 
-//---- Response ----
+// ---- Response shapes ----
+ 
+export interface OrderCustomer {
+  id: number;
+  first_name: string;
+  paternal_last_name: string;
+  maternal_last_name: string;
+  email: string;
+}
+ 
+export interface OrderStore {
+  id: number;
+  name: string;
+  email: string;  // store admin email
+}
+ 
+export interface OrderProductDetail extends OrderProduct {
+  name: string;   // product name from products table
+}
+ 
 export interface OrderWithProducts extends Order {
+  customer: OrderCustomer;
+  store: OrderStore;
+  items: OrderProductDetail[];
+}
+
+export interface OrderWithItems extends Order {
   items: OrderProduct[];
 }

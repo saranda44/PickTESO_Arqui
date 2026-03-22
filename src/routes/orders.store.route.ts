@@ -5,6 +5,7 @@ import {
 	validateStoreIdParam,
 	validateStoreOrderIdParams,
 	validateUpdateOrderStatus,
+	validateOTPCompletion,
 } from '../middlewares/orders.validation.middleware';
 
 const router = Router();
@@ -32,6 +33,14 @@ router.delete(
 	requireRole('store_admin', 'platform_admin'),
 	validateStoreOrderIdParams,
 	OrderController.updateOrderStatus,
+);
+
+// PATCH /stores/:storeId/orders/:id/complete — confirm OTP and complete order
+router.patch(
+  '/:storeId/orders/:id/complete',
+  requireRole('store_admin', 'platform_admin'), 
+	validateOTPCompletion,
+  OrderController.validateOTPAndComplete
 );
 
 // GET /stores/:idStore/orders/:id — get single order with products (store_admin can view any order, customer can view only their own orders)
