@@ -1,28 +1,18 @@
-import { Router, json } from "express";
-import { OrderController } from "../controllers/orders.controller";
-import { validateOrderIdParam } from '../middlewares/orders.validation.middleware';
-
-import customerOrderRoutes from './orders.customer.routes';
-import storeOrderRoutes from './orders.store.route';
+import { Router } from 'express';
+import { NotificationController } from '../controllers/notification.controller';
 
 const router = Router();
 
-// Middleware para parsear JSON
-router.use(json());
+// POST /notifications/order-confirmed
+router.post('/order-confirmed', NotificationController.orderConfirmed);
 
-//---------------------------------------------------------
-// Payment service routes (no auth, called by payment service)
+// POST /notifications/order-status-updated
+router.post('/order-status-updated', NotificationController.orderStatusUpdated);
 
-//PATCH /orders/:id/pay — update status to paid
-// only payment service can update to paid
-router.patch('/orders/:id/pay', validateOrderIdParam, OrderController.confirmPayment);
+// POST /notifications/order-cancelled-by-store
+router.post('/order-cancelled-by-store', NotificationController.orderCancelledByStore);
 
-// DELETE /orders/:id/cancel — cancel an order (called by payment service when payment fails)
-router.delete('/orders/:id/cancel', validateOrderIdParam, OrderController.deleteOrder);
-
-
-router.use('/stores', storeOrderRoutes);
-router.use('/user', customerOrderRoutes);
-
+// POST /notifications/order-cancelled-by-payment
+router.post('/order-cancelled-by-payment', NotificationController.orderCancelledByPayment);
 
 export default router;

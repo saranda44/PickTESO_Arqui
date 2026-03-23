@@ -9,11 +9,11 @@ app.use(express.json());
 
 // ---- Health check ----
 app.get('/health', (_req, res) => {
-  res.json({ service: 'orders', status: 'ok' });
+  res.json({ service: 'notifications', status: 'ok' });
 });
 
 // ---- Routes ----
-app.use('', routes);
+app.use('/notifications', routes);
 app.use(errorMiddleware);
 
 export default app;
