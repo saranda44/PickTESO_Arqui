@@ -1,0 +1,50 @@
+version: "3.9"
+
+services:
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./api-gateway/.env
+    depends_on:
+      - catalog-service
+      - orders-service
+      - notifications-service
+      - payment-service
+      - sellers-service
+
+  catalog-service:
+    build: ./catalog-service
+    env_file:
+      - ./catalog-service/.env
+
+  orders-service:
+    build: ./orders-service
+    env_file:
+      - ./orders-service/.env
+
+  notifications-service:
+    build: ./notifications-service
+    env_file:
+      - ./notifications-service/.env
+
+  payment-service:
+    build: ./payment-service
+    env_file:
+      - ./payment-service/.env
+
+  sellers-service:
+    build: ./sellers-service
+    env_file:
+      - ./sellers-service/.env
+
+  frontend-client:
+    build: ./front-end
+    ports:
+      - "4200:4200"
+
+  frontend-sellers:
+    build: ./front-end-sellers
+    ports:
+      - "4300:4300"
