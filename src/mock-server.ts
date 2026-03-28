@@ -41,6 +41,11 @@ app.post('/payments/:orderId/refund', (req, res) => {
   res.json({ ok: true });
 });
 
+app.post('/payments/:orderId/create-payment-intent', (req, res) => {
+  console.log(`Payment intent created for order ${req.params.orderId}, amount: ${req.body.amount} ${req.body.currency}`);
+  res.json({ ok: true });
+});
+
 // Simular notifications service
 // =========================================================
 // NOTIFICATIONS SERVICE
