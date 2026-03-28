@@ -13,7 +13,7 @@ app.get('/health', (_req, res) => {
 });
 
 // ---- Routes ----
-app.use('', routes);
+app.use('/api', routes);
 app.use(errorMiddleware);
 
 export default app;

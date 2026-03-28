@@ -1,7 +1,7 @@
 import { OrderRepository } from '../repositories/order.repository';
 import { getProductFromCatalog, getStoreFromCatalog } from '../clients/catalog.client';
 import { getProductStock, deductInventory, restoreInventory } from '../clients/store-admin.client'
-import { requestRefund } from '../clients/payment.client';
+import { requestRefund, createPaymentIntent } from '../clients/payment.client';
 import {
     notifyOrderConfirmed,
     notifyOrderStatusUpdated,
@@ -165,6 +165,16 @@ async function createOrder(userId: number, idStore: number, dto: CreateOrderDTO)
             }))
         );
 
+        // create payment intent in payments service (called by orders when a new order is created and needs to be paid)
+        try {
+            const paymentIntent = await createPaymentIntent(order.id, total);
+            if (!paymentIntent) {
+                throw new Error('Failed to create payment intent');
+            }
+        } catch (err) {
+            throw new Error('Failed to create payment intent, please try again');
+        }
+
         return { ...order, items };
     } catch (err) {
         await client.query('ROLLBACK');
@@ -215,13 +225,13 @@ async function updateOrderStatus(orderId: number, dto: UpdateOrderStatusDTO, sto
     }
 
     // Notify customer about status update
-    notifyOrderStatusUpdated(orderId, order.customer.email, dto.status);
+    notifyOrderStatusUpdated(orderId, order.customer.email, dto.status, order);
 
     // If the store cancelled a paid order, restore inventory
     if (dto.status === 'cancelled') {
-        requestRefund(orderId); // request refund from payments service (if it was paid)
+        // requestRefund(orderId); // request refund from payments service (if it was paid)
         await restoreInventoryForOrder(orderId); // restore inventory in store-admin service
-        notifyOrderCancelledByStore(orderId, existing.customer.email); // notify customer that their order was cancelled by the store
+        notifyOrderCancelledByStore(orderId, existing.customer.email, order); // notify customer that their order was cancelled by the store
     }
     return updated;
 }
@@ -264,7 +274,7 @@ async function validateOTPAndComplete(
         throw new NotFoundError('Order not found after update');
     }
     // Notify customer about status update
-    notifyOrderStatusUpdated(orderId, order.customer.email, OrderStatus.COMPLETED);
+    notifyOrderStatusUpdated(orderId, order.customer.email, OrderStatus.COMPLETED, order);
 
     return updated;
 }
@@ -298,7 +308,7 @@ async function confirmPayment(orderId: number): Promise<Order> {
     const otp = generateOTP(order.user_id, orderId);
 
     // Notify customer (with OTP) and store (fire and forget)
-    notifyOrderConfirmed(orderId, order.customer.email, otp);
+    notifyOrderConfirmed(orderId, order.customer.email, order.store.email, otp, order);
     
 
     return updated;
@@ -337,7 +347,7 @@ async function deleteOrder(orderId: number): Promise<Order> {
     }
 
     // Notify customer that payment failed
-    notifyOrderCancelledByPayment(orderId, order.customer.email);
+    notifyOrderCancelledByPayment(orderId, order.customer.email, order);
 
     // Restore inventory for all products in the cancelled order
     await restoreInventoryForOrder(orderId);

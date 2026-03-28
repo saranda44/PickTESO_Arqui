@@ -24,12 +24,16 @@ function fireAndForget(endpoint: string, body: object): void {
 export function notifyOrderConfirmed(
   orderId: number,
   customerEmail: string,
-  otp: string
+  storeEmail: string,
+  otp: string,
+  order: any
 ): void {
   fireAndForget(`${NOTIFICATIONS_SERVICE_URL}/notifications/order-confirmed`, {
     order_id:       orderId,
     customer_email: customerEmail,
+    store_email: storeEmail,
     otp,
+    order
   });
 }
  
@@ -38,12 +42,14 @@ export function notifyOrderConfirmed(
 export function notifyOrderStatusUpdated(
   orderId: number,
   customerEmail: string,
-  newStatus: string
+  newStatus: string,
+  order: any
 ): void {
   fireAndForget(`${NOTIFICATIONS_SERVICE_URL}/notifications/order-status-updated`, {
     order_id:       orderId,
     customer_email: customerEmail,
     status:         newStatus,
+    order
   });
 }
  
@@ -51,11 +57,13 @@ export function notifyOrderStatusUpdated(
 // Includes refund notice
 export function notifyOrderCancelledByStore(
   orderId: number,
-  customerEmail: string
+  customerEmail: string,
+  order: any
 ): void {
   fireAndForget(`${NOTIFICATIONS_SERVICE_URL}/notifications/order-cancelled-by-store`, {
     order_id:       orderId,
     customer_email: customerEmail,
+    order
   });
 }
  
@@ -63,7 +71,8 @@ export function notifyOrderCancelledByStore(
 // Tells customer payment failed and to retry
 export function notifyOrderCancelledByPayment(
   orderId: number,
-  customerEmail: string
+  customerEmail: string,
+  order: any
 ): void {
   fireAndForget(`${NOTIFICATIONS_SERVICE_URL}/notifications/order-cancelled-by-payment`, {
     order_id:       orderId,

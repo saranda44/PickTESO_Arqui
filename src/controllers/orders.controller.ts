@@ -51,7 +51,7 @@ async function updateOrderStatus(req: Request, res: Response, next: NextFunction
 }
 
 
-// PATCH /orders/:id/pay
+// PATCH /orders/:id/confirm-payment
 // Updates the status of an order
 async function confirmPayment(req: Request, res: Response, next: NextFunction) {
     try {
