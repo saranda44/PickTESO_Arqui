@@ -5,6 +5,7 @@ import { CreateOrderDTO, UpdateOrderStatusDTO } from '../models/order.model';
 export const OrderController = {
     createOrder,
     updateOrderStatus,
+    deleteOrderByStore,
     confirmPayment,
     deleteOrder,
     getMyOrders,
@@ -147,6 +148,22 @@ async function getOrderByIdClient(req: Request, res: Response, next: NextFunctio
         const userId = req.user!.id;
         const order = await OrderService.getOrderByIdClient(orderId, userId);
         res.json({ order });
+    } catch (err) {
+        next(err);
+    }
+}
+
+
+// DELETE /stores/:idStore/orders/:id/cancel
+// Store-initiated cancellation endpoint
+async function deleteOrderByStore(req: Request, res: Response, next: NextFunction) {
+    try {
+        const orderId = Number(req.params.id);
+        const storeId = Number(req.params.idStore);
+        const userId = req.user!.id;
+
+        const result = await OrderService.deleteOrderByStore(orderId, storeId, userId);
+        res.json({ order: result.order, alreadyCancelled: result.alreadyCancelled });
     } catch (err) {
         next(err);
     }

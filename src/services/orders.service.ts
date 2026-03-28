@@ -66,6 +66,7 @@ async function restoreInventoryForOrder(orderId: number): Promise<void> {
 export const OrderService = {
     createOrder,
     updateOrderStatus,
+    deleteOrderByStore,
     confirmPayment,
     deleteOrder,
     getOrdersByUser,
@@ -74,6 +75,11 @@ export const OrderService = {
     getOrderByIdClient,
     validateOTPAndComplete
 }
+
+type DeleteOrderByStoreResult = {
+    order: Order;
+    alreadyCancelled: boolean;
+};
 
 
 
@@ -202,6 +208,11 @@ async function updateOrderStatus(orderId: number, dto: UpdateOrderStatusDTO, sto
         throw new BadRequestError('Use PATCH /orders/:id/complete to complete an order');
     }
 
+    // cancellation must go through DELETE endpoint
+    if (dto.status === OrderStatus.CANCELLED) {
+        throw new BadRequestError('Use DELETE /stores/:idStore/orders/:id to cancel an order');
+    }
+
     //validate status transition is allowed
     if (!isValidTransition(existing.status, dto.status)) {
         throw new BadRequestError(`Invalid status transition: ${existing.status} -> ${dto.status}`);
@@ -227,13 +238,53 @@ async function updateOrderStatus(orderId: number, dto: UpdateOrderStatusDTO, sto
     // Notify customer about status update
     notifyOrderStatusUpdated(orderId, order.customer.email, dto.status, order);
 
-    // If the store cancelled a paid order, restore inventory
-    if (dto.status === 'cancelled') {
-        // requestRefund(orderId); // request refund from payments service (if it was paid)
-        await restoreInventoryForOrder(orderId); // restore inventory in store-admin service
-        notifyOrderCancelledByStore(orderId, existing.customer.email, order); // notify customer that their order was cancelled by the store
-    }
     return updated;
+}
+
+
+// Store cancellation endpoint
+// Valid only for orders in paid status
+async function deleteOrderByStore(orderId: number, storeId: number, userId: number): Promise<DeleteOrderByStoreResult> {
+    await validateStoreOwner(storeId, userId);
+
+    const existing = await OrderRepository.findByIdWithProducts(orderId);
+    if (!existing) {
+        throw new NotFoundError('Order not found');
+    }
+
+    if (Number(existing.store_id) !== storeId) {
+        throw new ForbiddenError('Unauthorized - order does not belong to this store');
+    }
+
+    if (existing.status === OrderStatus.CANCELLED) {
+        return { order: existing, alreadyCancelled: true };
+    }
+
+    if (existing.status !== OrderStatus.PAID) {
+        throw new BadRequestError("Only orders in 'paid' status can be cancelled by the store");
+    }
+
+    const updated = await OrderRepository.updateStatus(
+        orderId,
+        OrderStatus.CANCELLED,
+        OrderStatus.PAID
+    );
+
+    if (!updated) {
+        throw new ConflictError('Unable to cancel order, please retry');
+    }
+
+    requestRefund(orderId);
+    await restoreInventoryForOrder(orderId);
+
+    const order = await OrderRepository.findByIdWithProducts(orderId);
+    if (!order) {
+        throw new NotFoundError('Order not found after cancellation');
+    }
+
+    notifyOrderCancelledByStore(orderId, order.customer.email, order);
+
+    return { order: updated, alreadyCancelled: false };
 }
 
 

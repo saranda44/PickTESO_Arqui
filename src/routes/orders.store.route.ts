@@ -26,13 +26,13 @@ router.patch(
 	OrderController.updateOrderStatus,
 );
 
-// DELETE /stores/:idStore/orders/:id — delete an order (customer cannot delete their own pending orders)
-// cases: store can cancel only if status paid (no preparing)
+// DELETE /stores/:idStore/orders/:id/cancel — cancel an order
+// Store cancellation endpoint
 router.delete(
-	'/:idStore/orders/:id',
+	'/:idStore/orders/:id/cancel',
 	requireRole('store_admin', 'platform_admin'),
 	validateStoreOrderIdParams,
-	OrderController.updateOrderStatus,
+	OrderController.deleteOrderByStore,
 );
 
 // PATCH /stores/:storeId/orders/:id/complete — confirm OTP and complete order
