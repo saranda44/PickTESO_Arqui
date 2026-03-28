@@ -32,6 +32,7 @@ export interface OrderComplete {
 export interface OrderConfirmedDTO {
   order_id: number;
   customer_email: string;
+  store_email: string;
   otp: string;
   order: OrderComplete;
 }

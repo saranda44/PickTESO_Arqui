@@ -13,7 +13,7 @@ app.get('/health', (_req, res) => {
 });
 
 // ---- Routes ----
-app.use('/notifications', routes);
+app.use('/api/notifications', routes);
 app.use(errorMiddleware);
 
 export default app;

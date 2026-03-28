@@ -7,7 +7,10 @@ import {
   OrderCancelledByStoreDTO,
   OrderCancelledByPaymentDTO,
 } from '../models/notification.model';
-import { orderConfirmedTemplate } from '../templates/order-confirmed';
+import {
+  orderConfirmedCustomerTemplate,
+  orderConfirmedStoreTemplate,
+} from '../templates/order-confirmed';
 import { orderStatusUpdatedTemplate } from '../templates/order-status-updated';
 import { orderCancelledByStoreTemplate } from '../templates/order-cancelled-by-store';
 import { orderCancelledByPaymentTemplate } from '../templates/order-cancelled-by-payment';
@@ -55,13 +58,20 @@ async function sendOrderConfirmed(dto: OrderConfirmedDTO): Promise<void> {
   const customerName = `${dto.order.customer.first_name} ${dto.order.customer.paternal_last_name}`;
 
   // Email to customer with OTP
-  const { subject, body } = orderConfirmedTemplate({
+  const { subject, body } = orderConfirmedCustomerTemplate({
     customerName,
     otp: dto.otp,
     order: dto.order,
   });
   await sendEmail(dto.customer_email, subject, body);
+
+  // Email to store with new order details
+  const storeTemplate = orderConfirmedStoreTemplate({
+    order: dto.order,
+  });
+  await sendEmail(dto.store_email, storeTemplate.subject, storeTemplate.body);
 }
+
 
 // ---------------------------------------------------------
 // Order status updated — only customer is notified

@@ -27,14 +27,14 @@ export const NotificationController = {
 
 // ---------------------------------------------------------
 // POST /notifications/order-confirmed
-// Body: { order_id, customer_email, otp, order }
+// Body: { order_id, customer_email, store_email, otp, order }
 // ---------------------------------------------------------
 async function orderConfirmed(req: Request, res: Response) {
   try {
     const dto = req.body as OrderConfirmedDTO;
 
-    if (!dto.order_id || !dto.customer_email || !dto.otp || !dto.order) {
-      res.status(400).json({ error: 'order_id, customer_email, otp and order are required' });
+    if (!dto.order_id || !dto.customer_email || !dto.store_email || !dto.otp || !dto.order) {
+      res.status(400).json({ error: 'order_id, customer_email, store_email, otp and order are required' });
       return;
     }
 
