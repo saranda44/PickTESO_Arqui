@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import Stripe from 'stripe';
-
+import axios from 'axios';
 enum CardType {
     VISA = '1',
     DECLINED = '2',
@@ -129,7 +129,7 @@ export const getPaymentIntent = async (req: Request, res: Response, next: NextFu
 export const confirmPaymentIntent = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id } = req.params;
-        const { card } = req.body;
+        const { card, orderId } = req.body;
 
         if (!id) {
             res.status(400).json({ error: 'id is required' });
@@ -148,11 +148,25 @@ export const confirmPaymentIntent = async (req: Request, res: Response, next: Ne
             return;
         }
 
+        if (!orderId) {
+            res.status(400).json({ error: 'orderId is required' });
+            return;
+        }
+
         const paymentIntent = await stripe.paymentIntents.confirm(id, {
             payment_method: paymentMethod,
             return_url: 'https://localhost:3000',
         });
-
+        if (paymentIntent.status === 'succeeded') {
+            await axios.patch(
+                `${process.env.ORDERS_SERVICE_URL}/orders/${orderId}/confirm-payment`
+            );
+        }
+        if (paymentIntent.status === 'canceled') {
+            await axios.delete(
+                `${process.env.ORDERS_SERVICE_URL}/orders/${orderId}/cancel`
+            );
+        }
         res.status(200).json({
             id: paymentIntent.id,
             amount: paymentIntent.amount,
@@ -160,7 +174,7 @@ export const confirmPaymentIntent = async (req: Request, res: Response, next: Ne
             status: paymentIntent.status,
         });
 
-    } catch (error) {
+    } catch (error) {       
         next(error);
     }
 };
