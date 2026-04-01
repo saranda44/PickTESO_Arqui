@@ -25,6 +25,7 @@ Create a `.env` file in the root of the project:
 STRIPE_SECRET_KEY=sk_test_your_key_here
 PORT=3000
 ORDERS_SERVICE_URL=url_here
+DATABASE_URL=url_here
 ```
 
 ### Run in Development

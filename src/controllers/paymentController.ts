@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import Stripe from 'stripe';
 import axios from 'axios';
+import { insertPaymentIntent, updatePaymentIntentStatus, insertPayment, getPaymentIntentByStripeId } from '../db/paymentRepository';
+
 enum CardType {
     VISA = '1',
     DECLINED = '2',
@@ -51,13 +53,12 @@ const CURRENCIES_ALLOWED = ['mxn', 'usd', 'eur'];
  */
 export const createPaymentIntent = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { amount, currency } = req.body;
+        const { amount, currency, orderId, userId } = req.body;
 
-        if (!amount || !currency) {
-            res.status(400).json({ error: 'amount and currency are required' });
+        if (!amount || !currency || !orderId || !userId) {
+            res.status(400).json({ error: 'amount, currency, orderId and userId are required' });
             return;
         }
-
         if (!Number.isInteger(amount) || amount <= 0) {
             res.status(400).json({ error: 'amount must be a positive integer in cents' });
             return;
@@ -78,8 +79,18 @@ export const createPaymentIntent = async (req: Request, res: Response, next: Nex
             currency: currency.toLowerCase(),
         });
 
+        const record = await insertPaymentIntent(
+            orderId,
+            userId,
+            paymentIntent.id,
+            amount,
+            currency,
+            paymentIntent.status
+        );
+
         res.status(200).json({
             clientSecret: paymentIntent.client_secret,
+            paymentIntentDbId: record.id,
         });
 
     } catch (error) {
@@ -127,9 +138,9 @@ export const getPaymentIntent = async (req: Request, res: Response, next: NextFu
  * This simulates both successful and failed payment flows without real money.
  */
 export const confirmPaymentIntent = async (req: Request, res: Response, next: NextFunction) => {
+        const { card, orderId } = req.body;
     try {
         const { id } = req.params;
-        const { card, orderId } = req.body;
 
         if (!id) {
             res.status(400).json({ error: 'id is required' });
@@ -157,24 +168,43 @@ export const confirmPaymentIntent = async (req: Request, res: Response, next: Ne
             payment_method: paymentMethod,
             return_url: 'https://localhost:3000',
         });
+
+        const intentRecord = await updatePaymentIntentStatus(id, paymentIntent.status);
+
         if (paymentIntent.status === 'succeeded') {
+            const stripeChargeId = typeof paymentIntent.latest_charge === 'string'
+                ? paymentIntent.latest_charge
+                : paymentIntent.latest_charge?.id ?? 'unknown';
+            
+            await insertPayment(
+                orderId,
+                intentRecord.user_id,
+                intentRecord.id,
+                stripeChargeId,
+                paymentIntent.amount,
+                paymentIntent.currency,
+                'succeeded'
+            ); 
+
             await axios.patch(
                 `${process.env.ORDERS_SERVICE_URL}/orders/${orderId}/confirm-payment`
             );
         }
-        if (paymentIntent.status === 'canceled') {
-            await axios.delete(
-                `${process.env.ORDERS_SERVICE_URL}/orders/${orderId}/cancel`
-            );
-        }
+
         res.status(200).json({
             id: paymentIntent.id,
             amount: paymentIntent.amount,
             currency: paymentIntent.currency,
             status: paymentIntent.status,
+            orderId,
         });
 
-    } catch (error) {       
+    } catch (error) {
+        if (axios.isAxiosError(error) === false) {
+            await axios.delete(
+                `${process.env.ORDERS_SERVICE_URL}/orders/${orderId}/cancel`
+            ).catch(console.error);
+        }
         next(error);
     }
 };
@@ -187,24 +217,33 @@ export const confirmPaymentIntent = async (req: Request, res: Response, next: Ne
 export const cancelPaymentIntent = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id } = req.params;
+        const { orderId } = req.body;
 
-        if (!id) {
-            res.status(400).json({ error: 'id is required' });
-            return;
-        }
 
-        if (Array.isArray(id)) {
+        if (!id || Array.isArray(id)) {
             res.status(400).json({ error: 'id must be a single string' });
             return;
         }
 
+        if (!orderId) {
+            res.status(400).json({ error: 'orderId is required' });
+            return;
+        }
+
         const paymentIntent = await stripe.paymentIntents.cancel(id);
+
+        await updatePaymentIntentStatus(id, paymentIntent.status);
+
+        await axios.delete(
+            `${process.env.ORDERS_SERVICE_URL}/orders/${orderId}/cancel`
+        );
 
         res.status(200).json({
             id: paymentIntent.id,
             amount: paymentIntent.amount,
             currency: paymentIntent.currency,
             status: paymentIntent.status,
+            orderId,
         });
 
     } catch (error) {
