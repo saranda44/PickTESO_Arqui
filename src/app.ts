@@ -9,7 +9,7 @@ import { errorHandler } from './middlewares/errorHandler';
 const app = express();
 
 app.use(express.json());
-app.use('/api/health', healthRoutes);
+app.use('/health', healthRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use(errorHandler);
 
