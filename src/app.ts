@@ -1,22 +1,32 @@
 import dotenv from 'dotenv';
 dotenv.config();
-import express from 'express';
-import paymentRoutes from './routes/payments';
-import healthRoutes from './routes/health';
-import { errorHandler } from './middlewares/errorHandler';
 
+import express from 'express';
+import passport from './config/passport';
+import authRoutes from './routes/auth';
+import { authenticate } from './middlewares/auth';
+import {
+    catalogProxy,
+    ordersProxy,
+    notificationsProxy,
+    paymentProxy,
+    sellersProxy,
+} from './config/proxy';
 
 const app = express();
 
-app.use(express.json());
-app.use('/api/health', healthRoutes);
-app.use('/api/payments', paymentRoutes);
-app.use(errorHandler);
+app.use(passport.initialize());
+
+// Public routes — need json parsing
+app.use('/auth', express.json(), authRoutes);
+
+// Protected routes — proxy handles the body
+app.use('/', authenticate, paymentProxy);
 
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-    console.log(`Server is running on port http://localhost:${PORT}`);
+    console.log(`Server is running on http://localhost:${PORT}`);
 });
 
-export default app; 
+export default app;
