@@ -1,18 +1,10 @@
-import { IProduct, IProductWithTags } from "../interfaces";
-import { NotFoundError } from "../errors";
-import Repositories from "../repositories";
+import { Router } from "express";
+import { ProductController } from "../controllers/product.controller";
 
-export class ProductService {
+const router = Router();
+const productController = new ProductController();
 
-    async getById(id: number): Promise<IProduct> {
-        const product = await Repositories.product.findById(id);
-        if (!product) throw new NotFoundError("El producto especificado no existe.");
-        return product;
-    }
+// GET /api/products/:id
+router.get("/:id", productController.getById);
 
-    async getByStoreIdWithTags(storeId: number): Promise<IProductWithTags[]> {
-        const store = await Repositories.store.findById(storeId);
-        if (!store) throw new NotFoundError("La tienda especificada no existe.");
-        return await Repositories.product.findByStoreIdWithTags(storeId);
-    }
-}
+export default router;
