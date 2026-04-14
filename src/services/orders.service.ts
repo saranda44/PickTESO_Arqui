@@ -1,7 +1,7 @@
 import { OrderRepository } from '../repositories/order.repository';
 import { getProductFromCatalog, getStoreFromCatalog } from '../clients/catalog.client';
 import { getProductStock, deductInventory, restoreInventory } from '../clients/store-admin.client'
-import { requestRefund, createPaymentIntent } from '../clients/payment.client';
+import { cancelPayment, createPaymentIntent } from '../clients/payment.client';
 import {
     notifyOrderConfirmed,
     notifyOrderStatusUpdated,
@@ -274,7 +274,7 @@ async function deleteOrderByStore(orderId: number, storeId: number, userId: numb
         throw new ConflictError('Unable to cancel order, please retry');
     }
 
-    requestRefund(orderId);
+    
     await restoreInventoryForOrder(orderId);
 
     const order = await OrderRepository.findByIdWithProducts(orderId);

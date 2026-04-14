@@ -26,22 +26,21 @@ function getErrorDetails(error: unknown): string {
   return 'Unknown error';
 }
 
-
-// Request a refund for a paid order 
-// Called when store_admin cancels an order that was already paid
-export function requestRefund(orderId: number): void {
-  const endpoint = `${PAYMENTS_SERVICE_URL}/payments/${orderId}/refund`;
-
-  axios
-    .post(endpoint, {})
-    .catch((error: unknown) => {
-      // Log but don't throw — refund is handled async by payments service
-      console.error(
-        `[payments.client] Failed to request refund for order ${orderId}:`,
-        getErrorDetails(error)
-      );
-    });
+//cancel payment for an order
+// Called by Orders when a store cancels an order that has already been paid
+export async function cancelPayment(orderId: number): Promise<void> {
+  const endpoint = `${PAYMENTS_SERVICE_URL}/api/payments/${orderId}/cancel`; 
+  try{
+    await axios.post(endpoint, { orderId });
+  }
+  catch (error: unknown) {
+    console.error(
+      `[payments.client] Failed to cancel payment for order ${orderId}:`,
+      getErrorDetails(error)
+    );
+  }
 }
+
 
 // Create payment intent for an order
 // Called by Orders when a new order is created and needs to be paid
