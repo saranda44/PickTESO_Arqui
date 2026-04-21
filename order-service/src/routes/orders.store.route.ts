@@ -1,0 +1,58 @@
+import { Router } from 'express';
+import { OrderController } from '../controllers/orders.controller';
+import { authMiddleware, requireRole } from '../middlewares/auth.middleware';
+import {
+	validateStoreIdParam,
+	validateStoreOrderIdParams,
+	validateUpdateOrderStatus,
+	validateOTPCompletion,
+} from '../middlewares/orders.validation.middleware';
+
+const router = Router();
+
+// All order routes require authentication
+router.use(authMiddleware);
+
+
+// ---------------------------------------------------------
+// Store operator routes
+
+// PATCH /stores/:idStore/orders/:id/status — update order status
+// Both store_admin and platform_admin can update
+router.patch(
+	'/:idStore/orders/:id/status',
+	requireRole('store_admin', 'platform_admin'),
+	validateUpdateOrderStatus,
+	OrderController.updateOrderStatus,
+);
+
+// DELETE /stores/:idStore/orders/:id/cancel — cancel an order
+// Store cancellation endpoint
+router.delete(
+	'/:idStore/orders/:id/cancel',
+	requireRole('store_admin', 'platform_admin'),
+	validateStoreOrderIdParams,
+	OrderController.deleteOrderByStore,
+);
+
+// PATCH /stores/:storeId/orders/:id/complete — confirm OTP and complete order
+router.patch(
+  '/:storeId/orders/:id/complete',
+  requireRole('store_admin', 'platform_admin'), 
+	validateOTPCompletion,
+  OrderController.validateOTPAndComplete
+);
+
+// GET /stores/:idStore/orders/:id — get single order with products (store_admin can view any order, customer can view only their own orders)
+router.get(
+	'/:idStore/orders/:id',
+	requireRole('store_admin', 'platform_admin'),
+	validateStoreOrderIdParams,
+	OrderController.getOrderById,
+);
+
+// GET /stores/:idStore/orders — list all orders for a store
+router.get('/:idStore/orders', requireRole('store_admin', 'platform_admin'), validateStoreIdParam, OrderController.getOrdersByStore);
+
+
+export default router;
