@@ -71,3 +71,14 @@ export const getPaymentIntentByStripeId = async (stripePaymentIntentId: string) 
     );
     return result.rows[0];
 };
+
+/**
+ * Fetches a payment intent record by its order id.
+ */
+export const getPaymentIntentByOrderId = async (orderId: number) => {
+    const result = await pool.query(
+        `SELECT * FROM payment_intents WHERE order_id = $1`,
+        [orderId]
+    );
+    return result.rows[0];
+};

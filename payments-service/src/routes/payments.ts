@@ -5,7 +5,7 @@ const router = Router();
 
 router.post('/create-payment-intent', createPaymentIntent);
 router.post('/:id/confirm', confirmPaymentIntent);
-router.post('/:id/cancel', cancelPaymentIntent);
+router.post('/:orderId/cancel', cancelPaymentIntent);
 router.get('/:id', getPaymentIntent);
 
 
