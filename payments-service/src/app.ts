@@ -10,7 +10,7 @@ const app = express();
 
 app.use(express.json());
 app.use('/health', healthRoutes);
-app.use('/api/payments', paymentRoutes);
+app.use('/', paymentRoutes);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;

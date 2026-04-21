@@ -4,7 +4,7 @@ dotenv.config();
 import express from 'express';
 import passport from './config/passport';
 import authRoutes from './routes/auth';
-import { authenticate } from './middlewares/auth';
+import { authenticate,authorize } from './middlewares/auth';
 import {
     catalogProxy,
     ordersProxy,
@@ -21,7 +21,10 @@ app.use(passport.initialize());
 app.use('/auth', express.json(), authRoutes);
 
 // Protected routes — proxy handles the body
-app.use('/', authenticate, paymentProxy);
+app.use('/payments', authenticate, paymentProxy);
+app.use('/sellers', authenticate,authorize('store_admin','platform_admin'), sellersProxy)
+app.use('/catalog', authenticate, catalogProxy)
+app.use('/orders',authenticate,authorize('store_admin','platform_admin'),ordersProxy )
 
 const PORT = process.env.PORT || 3000;
 

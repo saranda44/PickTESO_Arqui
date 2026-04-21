@@ -28,13 +28,10 @@ export const googleCallback = (req: Request, res: Response) => {
             email: user.email,
             role: user.role,
             firstName: user.firstName,
+            storeId: user.storeId ?? null
         },
     };
 
-    // Only expose storeId to store_admin
-    if (user.role === 'store_admin') {
-        response.storeId = user.storeId;
-    }
 
     res.status(200).json(response);
 };

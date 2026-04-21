@@ -7,7 +7,7 @@ export interface JwtPayload {
     role: string;
     firstName: string;
     storeId: number | null;
-}api-gateway
+}
 
 /**
  * Verifies the JWT token from the Authorization header.
