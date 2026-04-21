@@ -1,0 +1,70 @@
+// Basic styles for the dashboard layout, product grid, and modals.
+:host {
+  display: block;
+  padding: 16px;
+}
+.home-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: block;
+  gap: 24px;
+}
+.store-info {
+  background: #fff;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  border: 1px solid #ececec;
+}
+.store-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.store-header h2 {
+  margin: 0;
+}
+.muted {
+  color: #666;
+  margin: 4px 0 0 0;
+}
+
+.products {
+  margin-top: 18px;
+}
+.products .grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.tags-panel {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+.tag-list {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.tag {
+  background: #f3f4f6;
+  padding: 6px 8px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.tag button {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}

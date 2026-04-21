@@ -1,0 +1,54 @@
+<!-- products-list.html -->
+<div class="products-list">
+  @if (error()) {
+    <div class="alert alert--error">
+      {{ error() }}
+      <button (click)="error.set(null)" class="alert__close">X</button>
+    </div>
+  }
+
+  <!-- Modal de edición -->
+  <app-reusable-modal [visible]="modalVisible()" [title]="modalTitle()" (close)="onModalClose()">
+    <form (submit)="$event.preventDefault(); submitEdit()" class="edit-form">
+      <label>Nombre</label>
+      <input name="name" type="text" [(ngModel)]="formName" />
+
+      <label>Descripción</label>
+      <textarea name="description" [(ngModel)]="formDescription"></textarea>
+
+      <label>Precio</label>
+      <input name="price" type="number" step="0.01" [(ngModel)]="formPrice" />
+
+      <label>Activo</label>
+      <input name="active" type="checkbox" [(ngModel)]="formActive" />
+
+      <label>Imagen (reemplaza la actual)</label>
+      <input type="file" (change)="onFileSelected($event)" accept="image/*" />
+
+      <div class="modal-actions">
+        <button type="button" (click)="onModalClose()">Cancelar</button>
+        <button type="submit">Guardar</button>
+      </div>
+    </form>
+  </app-reusable-modal>
+
+  <!-- <button (click)="loadProducts()" class="load-btn">Cargar Productos</button> -->
+
+  @if (products().length === 0) {
+    <p class="empty-message">No hay productos</p>
+  } @else {
+    <div class="products-grid">
+      @for (product of products(); track product.id) {
+        @if (product.active === true) {
+          <app-product-card
+            [product]="product"
+            [inventory]="getInventory(product.id)"
+            (edit)="onEdit($event)"
+            (delete)="onDelete($event)"
+            (adjustInventory)="onAdjustInventory($event)"
+          />
+        }
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,40 @@
+// products-list.scss
+.products-list {
+  padding: 2rem;
+}
+
+.empty-message {
+  text-align: center;
+  color: #999;
+  padding: 2rem;
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+// products-list.scss
+.alert {
+  padding: 12px 16px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  &--error {
+    background-color: #fee;
+    color: #c33;
+    border: 1px solid #fcc;
+  }
+
+  &__close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: inherit;
+  }
+}

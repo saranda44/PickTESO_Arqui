@@ -1,0 +1,36 @@
+.footer {
+  background: var(--color-primary);
+  color: white;
+  margin-top: auto;
+
+  &__container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: var(--spacing);
+  }
+
+  &__copyright {
+    margin: 0;
+    font-size: 0.875rem;
+    color: white;
+  }
+
+  &__links {
+    display: flex;
+    gap: 1.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    a {
+      color: white;
+      text-decoration: none;
+      font-size: 0.875rem;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}

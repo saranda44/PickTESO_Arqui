@@ -1,0 +1,13 @@
+<header class="header">
+  <div class="header__container" [class.header__container--centered]="!isLoggedIn()">
+    <h1 class="logo">Panel de Vendedores - PickTESO</h1>
+
+    @if (isLoggedIn()) {
+      <nav class="nav">
+        <a>Pedidos</a>
+        <a>Productos</a>
+        <button (click)="logout()">Salir</button>
+      </nav>
+    }
+  </div>
+</header>

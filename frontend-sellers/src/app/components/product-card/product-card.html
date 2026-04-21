@@ -1,0 +1,42 @@
+<!-- product-card.html -->
+<div class="card">
+  <!-- <div class="card" [class.card--inactive]="isInactive"> -->
+  <div class="card__image">
+    <img [src]="imageUrl" [alt]="product.name" />
+  </div>
+
+  <div class="card__content">
+    <h3 class="card__name">{{ product.name }}</h3>
+
+    <p class="card__description">{{ product.description }}</p>
+
+    <div class="card__tags">
+      @for (tag of product.tags; track tag.id) {
+        <span class="badge" [style.background-color]="tag.color">
+          {{ tag.name }}
+        </span>
+      }
+    </div>
+
+    <div class="card__inventory" [class.card__inventory--inactive]="isInactive">
+      <span class="inventory-label">Stock:</span>
+      <span class="inventory-value">{{ inventory }}</span>
+    </div>
+
+    <div class="card__price">${{ product.price | number: '1.2-2' }}</div>
+
+    <div class="card__actions">
+      <button class="btn btn--primary" (click)="onEdit()">Modificar</button>
+      <button class="btn btn--danger" (click)="onDelete()">Eliminar</button>
+    </div>
+
+    <div class="card__adjustment">
+      <label>Ajustar inventario:</label>
+      <div class="adjustment-controls">
+        <input type="number" [(ngModel)]="adjustmentQuantity" min="1" class="input-qty" />
+        <button class="btn btn--secondary" (click)="removeInventory()">↓ Salida</button>
+        <button class="btn btn--success" (click)="addInventory()">↑ Entrada</button>
+      </div>
+    </div>
+  </div>
+</div>

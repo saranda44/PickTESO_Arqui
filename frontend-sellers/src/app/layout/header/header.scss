@@ -1,0 +1,29 @@
+.header {
+  background: var(--color-primary);
+  color: white;
+
+  &__container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing);
+
+    &--centered {
+      justify-content: center;
+    }
+  }
+
+  .nav {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .btn-login {
+    background: white;
+    color: var(--color-primary);
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius);
+    cursor: pointer;
+  }
+}

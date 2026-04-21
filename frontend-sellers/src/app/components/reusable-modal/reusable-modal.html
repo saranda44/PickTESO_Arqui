@@ -1,0 +1,11 @@
+<div class="overlay" *ngIf="visible">
+  <div class="modal">
+    <header class="modal-header">
+      <h3>{{ title }}</h3>
+      <button class="close" (click)="close.emit()">✕</button>
+    </header>
+    <div class="modal-body">
+      <ng-content></ng-content>
+    </div>
+  </div>
+</div>
