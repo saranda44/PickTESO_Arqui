@@ -1,0 +1,45 @@
+{
+  "name": "pickteso_arqui",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/app.js",
+  "scripts": {
+    "dev": "tsx watch --env-file=.env src/app.ts",
+    "build": "tsc",
+    "start": "node dist/app.js",
+    "test": "vitest",
+    "test:run": "vitest run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/saranda44/PickTESO_Arqui.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/saranda44/PickTESO_Arqui/issues"
+  },
+  "homepage": "https://github.com/saranda44/PickTESO_Arqui#readme",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1014.0",
+    "axios": "1.13.6",
+    "cors": "2.8.6",
+    "dotenv": "17.3.1",
+    "express": "5.2.1",
+    "multer": "2.1.1",
+    "pg": "8.20.0",
+    "sharp": "0.34.5"
+  },
+  "devDependencies": {
+    "@types/cors": "2.8.19",
+    "@types/express": "5.0.6",
+    "@types/multer": "2.1.0",
+    "@types/node": "25.3.5",
+    "@types/pg": "8.18.0",
+    "@types/sharp": "0.31.1",
+    "tsx": "4.21.0",
+    "typescript": "5.9.3",
+    "vitest": "^4.1.4"
+  }
+}
