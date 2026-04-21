@@ -9,7 +9,7 @@ const STORE_ADMIN_SERVICE_URL = process.env.STORE_ADMIN_SERVICE_URL;
 // GET /product/:id/stock
 // Returns the available stock as a number
 export async function getProductStock(productId: number): Promise<number> {
-  const endpoint = `${STORE_ADMIN_SERVICE_URL}/product/${productId}/stock`;
+  const endpoint = `${STORE_ADMIN_SERVICE_URL}/inventory/product/${productId}/stock`;
   try {
     const response = await axios.get<{ stock: number }>(endpoint);
     return response.data.stock;
@@ -35,9 +35,9 @@ export async function getProductStock(productId: number): Promise<number> {
 // POST /product/:id/stock
 // Body: { quantity, type: 'in' | 'out' }
 async function updateProductStock(productId: number,quantity: number, type: 'in' | 'out'): Promise<void> {
-  const endpoint = `${STORE_ADMIN_SERVICE_URL}/product/${productId}/stock`;
+  const endpoint = `${STORE_ADMIN_SERVICE_URL}/inventory`;
   try {
-    await axios.post(endpoint, { quantity, type });
+    await axios.post(endpoint, { quantity, movement_type: type , product_id:productId});
   } catch (error) {
     const err = error as {
       response?: { status?: number; data?: unknown };

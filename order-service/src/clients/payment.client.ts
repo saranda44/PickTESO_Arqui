@@ -29,7 +29,7 @@ function getErrorDetails(error: unknown): string {
 //cancel payment for an order
 // Called by Orders when a store cancels an order that has already been paid
 export async function cancelPayment(orderId: number): Promise<void> {
-  const endpoint = `${PAYMENTS_SERVICE_URL}/api/payments/${orderId}/cancel`; 
+  const endpoint = `${PAYMENTS_SERVICE_URL}/payments/${orderId}/cancel`; 
   try{
     await axios.post(endpoint, { orderId });
   }
@@ -44,11 +44,11 @@ export async function cancelPayment(orderId: number): Promise<void> {
 
 // Create payment intent for an order
 // Called by Orders when a new order is created and needs to be paid
-export async function createPaymentIntent(orderId: number, amount: number, currency: string = 'mxn'): Promise<string> {
-  const endpoint = `${PAYMENTS_SERVICE_URL}/api/payments/create-payment-intent`;
+export async function createPaymentIntent(orderId: number, amount: number, userId: number, currency: string = 'mxn'): Promise<string> {
+  const endpoint = `${PAYMENTS_SERVICE_URL}/payments/create-payment-intent`;
 
   try {
-    const response = await axios.post<PaymentIntentResponse>(endpoint, { orderId, amount, currency });
+    const response = await axios.post<PaymentIntentResponse>(endpoint, { orderId, amount, userId, currency, orderValue: amount });
     return response.data.client_secret;
   } catch (error: unknown) {
     console.error(

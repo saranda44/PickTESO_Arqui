@@ -92,11 +92,12 @@ type DeleteOrderByStoreResult = {
 //   5. Deduct inventory (store-admin service)
 async function createOrder(userId: number, idStore: number, dto: CreateOrderDTO): Promise<OrderWithItems> {
     // 1. Validate store
+    
     const store = await getStoreFromCatalog(idStore);
     if (!store) {
         throw new NotFoundError('Store not found or inactive');
     }
-
+    
     // 2. Validate products and build items with prices
     const resolvedItems: {
         product_id: number;
@@ -172,8 +173,9 @@ async function createOrder(userId: number, idStore: number, dto: CreateOrderDTO)
         );
 
         // create payment intent in payments service (called by orders when a new order is created and needs to be paid)
+        
         try {
-            const paymentIntent = await createPaymentIntent(order.id, total);
+            const paymentIntent = await createPaymentIntent(order.id, total, userId);
             if (!paymentIntent) {
                 throw new Error('Failed to create payment intent');
             }
