@@ -53,7 +53,7 @@ const CURRENCIES_ALLOWED = ['mxn', 'usd', 'eur'];
  */
 export const createPaymentIntent = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { amount, currency, orderId, userId } = req.body;
+        const { amount, currency, orderId, userId, orderValue } = req.body;
 
         if (!amount || !currency || !orderId || !userId) {
             res.status(400).json({ error: 'amount, currency, orderId and userId are required' });
@@ -72,6 +72,10 @@ export const createPaymentIntent = async (req: Request, res: Response, next: Nex
         if (!CURRENCIES_ALLOWED.includes(currency.toLowerCase())) {
             res.status(400).json({ error: `currency must be one of: ${CURRENCIES_ALLOWED.join(', ')}` });
             return;
+        }
+
+        if (orderValue != amount){
+            res.status(400).json({error: 'You need to pay the exact amount of your order'})
         }
 
         const paymentIntent = await stripe.paymentIntents.create({
