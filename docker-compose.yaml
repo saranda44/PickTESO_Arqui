@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   api-gateway:
     build: ./api-gateway
@@ -8,39 +6,39 @@ services:
     env_file:
       - ./api-gateway/.env
     depends_on:
-      - catalog-service
-      - orders-service
-      - notifications-service
-      - payment-service
+      #- catalog-service
+      - order-service
+      - notification-service
+      - payments-service
       - sellers-service
 
-  catalog-service:
-    build: ./catalog-service
-    ports:
-      - "3001:3001"
-    env_file:
-      - ./catalog-service/.env
+  #catalog-service:
+   # build: ./catalog-service
+    #ports:
+     # - "3001:3001"
+    #env_file:
+     # - ./catalog-service/.env
 
-  orders-service:
-    build: ./orders-service
+  order-service:
+    build: ./order-service
     ports:
       - "3002:3002"
     env_file:
-      - ./orders-service/.env
+      - ./order-service/.env
 
-  notifications-service:
-    build: ./notifications-service
+  notification-service:
+    build: ./notification-service
     ports:
       - "3003:3003"
     env_file:
-      - ./notifications-service/.env
+      - ./notification-service/.env
 
-  payment-service:
-    build: ./payment-service
+  payments-service:
+    build: ./payments-service
     ports:
       - "3004:3004"
     env_file:
-      - ./payment-service/.env
+      - ./payments-service/.env
 
   sellers-service:
     build: ./sellers-service
@@ -49,12 +47,12 @@ services:
     env_file:
       - ./sellers-service/.env
 
-  frontend-client:
-    build: ./front-end
-    ports:
-      - "4200:4200"
+  #frontend-client:
+   # build: ./front-end
+    #ports:
+     # - "4200:4200"
 
-  frontend-sellers:
-    build: ./front-end-sellers
-    ports:
-      - "4300:4300"
+ # frontend-sellers:
+  #  build: ./front-end-sellers
+   # ports:
+    #  - "4300:4300"
