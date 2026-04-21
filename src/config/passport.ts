@@ -18,10 +18,13 @@ passport.use(
 
                 // Check if user exists in database
                 const result = await pool.query(
-                    `SELECT id, first_name, paternal_last_name, email, role, active 
-                     FROM users WHERE email = $1`,
+                    `SELECT u.id, u.first_name, u.paternal_last_name, u.email, u.role, u.active,
+                        s.id as store_id
+                     FROM users u
+                     LEFT JOIN stores s ON s.admin_id = u.id
+                     WHERE u.email = $1`,
                     [email]
-                );
+);
 
                 const user = result.rows[0];
 
@@ -38,6 +41,7 @@ passport.use(
                     email: user.email,
                     role: user.role,
                     firstName: user.first_name, 
+                    storeId: user.store_id ?? null,
                 });
 
             } catch (error) {
