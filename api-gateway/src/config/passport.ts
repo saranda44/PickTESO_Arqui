@@ -9,45 +9,53 @@ passport.use(
             callbackURL: process.env.GOOGLE_CALLBACK_URL as string,
         },
         async (_accessToken, _refreshToken, profile, done) => {
-            try {
-                const email = profile.emails?.[0].value;
+    try {
+        const email = profile.emails?.[0].value;
+        const firstName = profile.name?.givenName ?? '';
+        const paternalLastName = profile.name?.familyName ?? '';
 
-                if (!email) {
-                    return done(new Error('No email found in Google profile'));
-                }
-
-                // Check if user exists in database
-                const result = await pool.query(
-                    `SELECT u.id, u.first_name, u.paternal_last_name, u.email, u.role, u.active,
-                        s.id as store_id
-                     FROM users u
-                     LEFT JOIN stores s ON s.admin_id = u.id
-                     WHERE u.email = $1`,
-                    [email]
-);
-
-                const user = result.rows[0];
-
-                if (!user) {
-                    return done(null, false, { message: 'User not registered in the platform' });
-                }
-
-                if (!user.active) {
-                    return done(null, false, { message: 'User account is inactive' });
-                }
-
-                return done(null, {
-                    id: user.id,
-                    email: user.email,
-                    role: user.role,
-                    firstName: user.first_name, 
-                    storeId: user.store_id ?? null,
-                });
-
-            } catch (error) {
-                return done(error);
-            }
+        if (!email) {
+            return done(new Error('No email found in Google profile'));
         }
+
+        const result = await pool.query(
+            `SELECT u.id, u.first_name, u.paternal_last_name, u.email, u.role, u.active,
+                    s.id as store_id
+             FROM users u
+             LEFT JOIN stores s ON s.admin_id = u.id
+             WHERE u.email = $1`,
+            [email]
+        );
+
+        let user = result.rows[0];
+
+        // If user does not exist, register them as customer
+        if (!user) {
+            const inserted = await pool.query(
+                `INSERT INTO users (first_name, paternal_last_name, maternal_last_name, email, role, active)
+                 VALUES ($1, $2, '', $3, 'customer', TRUE)
+                 RETURNING id, first_name, email, role, active`,
+                [firstName, paternalLastName, email]
+            );
+            user = inserted.rows[0];
+        }
+
+        if (!user.active) {
+            return done(null, false, { message: 'User account is inactive' });
+        }
+
+        return done(null, {
+            id: user.id,
+            email: user.email,
+            role: user.role,
+            firstName: user.first_name,
+            storeId: user.store_id ?? null,
+        });
+
+    } catch (error) {
+        return done(error);
+    }
+}
     )
 );
 
