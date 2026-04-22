@@ -29,7 +29,7 @@ function getErrorDetails(error: unknown): string {
 //cancel payment for an order
 // Called by Orders when a store cancels an order that has already been paid
 export async function cancelPayment(orderId: number): Promise<void> {
-  const endpoint = `${PAYMENTS_SERVICE_URL}/${orderId}/cancel`; 
+  const endpoint = `${PAYMENTS_SERVICE_URL}/cancel`; 
   try{
     await axios.post(endpoint, { orderId });
   }

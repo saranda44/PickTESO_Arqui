@@ -278,6 +278,12 @@ async function deleteOrderByStore(orderId: number, storeId: number, userId: numb
         throw new ConflictError('Unable to cancel order, please retry');
     }
 
+    try{
+        await cancelPayment(orderId);
+    }
+    catch (err) {
+        console.log(`Failed to cancel payment for order ${orderId}:`, err);
+    }
     
     await restoreInventoryForOrder(orderId);
 
