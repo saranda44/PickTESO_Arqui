@@ -211,23 +211,24 @@ export const confirmPaymentIntent = async (req: Request, res: Response, next: Ne
  */
 export const cancelPaymentIntent = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { id } = req.params;
         const { orderId } = req.body;
-
-
-        if (!id || Array.isArray(id)) {
-            res.status(400).json({ error: 'id must be a single string' });
-            return;
-        }
 
         if (!orderId) {
             res.status(400).json({ error: 'orderId is required' });
             return;
         }
 
-        const paymentIntent = await stripe.paymentIntents.cancel(id);
+        // Get stripe payment intent id from DB using orderId
+        const record = await getPaymentIntentByOrderId(orderId);
 
-        await updatePaymentIntentStatus(id, paymentIntent.status);
+        if (!record) {
+            res.status(404).json({ error: 'Payment intent not found for this order' });
+            return;
+        }
+
+        const paymentIntent = await stripe.paymentIntents.cancel(record.stripe_payment_intent_id);
+
+        await updatePaymentIntentStatus(record.stripe_payment_intent_id, paymentIntent.status);
 
         await axios.delete(
             `${process.env.ORDERS_SERVICE_URL}/orders/${orderId}/cancel`
