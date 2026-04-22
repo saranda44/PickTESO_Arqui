@@ -21,13 +21,19 @@ export class Login implements OnInit {
     }
 
     const token = this.route.snapshot.queryParamMap.get('token');
+    const id = this.route.snapshot.queryParamMap.get('id');
+    const storeId = this.route.snapshot.queryParamMap.get('storeId');
+    const role = this.route.snapshot.queryParamMap.get('role');
+
+    // console.log('Login params:', { token, id, storeId, role });
+
     if (token) {
-      this.authService.setToken(token);
+      this.authService.setToken(token, id, storeId, role);
     }
   }
 
   loginWithGoogle() {
-    // window.location.href = `${environment.apiUrl}/auth/google`;
-    this.router.navigate(['/home']);
+    window.location.href = `${environment.apiGatewayApiUrl}/auth/google`;
+    // this.router.navigate(['/home']);
   }
 }

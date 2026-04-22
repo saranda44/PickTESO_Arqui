@@ -11,6 +11,7 @@ export class AuthService {
   private TOKEN_KEY = 'token';
   private USER_ID = 'userId';
   private STORE_ID = 'store_id';
+  private ROLE_KEY = 'role';
 
   constructor(private http: HttpClient, private router: Router) { }
 
@@ -22,15 +23,35 @@ export class AuthService {
     );
   }
 
-  setToken(token: string) {
+  setToken(token: string, userId?: string | null, storeId?: string | null, role?: string | null) {
     localStorage.setItem(this.TOKEN_KEY, token);
-    localStorage.setItem(this.USER_ID, '1'); // Simulación de asignación de userId
-    localStorage.setItem(this.STORE_ID, '1'); // Simulación de asignación de store_id
+    if (userId) localStorage.setItem(this.USER_ID, userId);
+    if (storeId) localStorage.setItem(this.STORE_ID, storeId);
+    if (role) localStorage.setItem(this.ROLE_KEY, role);
+    // console.log('Token saved:', { token, userId, storeId, role });
+    // console.log('localStorage:', {
+    //   token: localStorage.getItem(this.TOKEN_KEY),
+    //   userId: localStorage.getItem(this.USER_ID),
+    //   storeId: localStorage.getItem(this.STORE_ID),
+    //   role: localStorage.getItem(this.ROLE_KEY),
+    // });
     this.router.navigate(['/home']);
   }
 
   getToken() {
     return localStorage.getItem(this.TOKEN_KEY);
+  }
+
+  getUserId() {
+    return localStorage.getItem(this.USER_ID);
+  }
+
+  getStoreId() {
+    return localStorage.getItem(this.STORE_ID);
+  }
+
+  getUserRole() {
+    return localStorage.getItem(this.ROLE_KEY);
   }
 
   isLoggedIn() {
@@ -41,7 +62,8 @@ export class AuthService {
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_ID);
     localStorage.removeItem(this.STORE_ID);
+    localStorage.removeItem(this.ROLE_KEY);
     localStorage.clear();
-    this.router.navigate(['/']);
+    this.router.navigate(['/login']);
   }
 }
