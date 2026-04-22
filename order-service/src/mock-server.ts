@@ -21,7 +21,7 @@ app.get('/stores/:id', (req, res) => {
     active: true,
     opening_time: '07:00',
     closing_time: '21:00',
-    admin_id: 2
+    admin_id: 1
   });
 });
 

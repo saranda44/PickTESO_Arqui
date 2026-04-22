@@ -1,8 +1,12 @@
 import express from 'express';
+import cors from 'cors';
 import routes from './routes/routes';
 import { errorMiddleware } from './middlewares/error.middleware';
 
 const app = express();
+
+// ---- CORS ----
+app.use(cors());
 
 // ---- Body parsing ----
 app.use(express.json());
