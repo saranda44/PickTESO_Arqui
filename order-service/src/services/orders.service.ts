@@ -177,9 +177,11 @@ async function createOrder(userId: number, idStore: number, dto: CreateOrderDTO)
         try {
             const paymentIntent = await createPaymentIntent(order.id, total, userId);
             if (!paymentIntent) {
+                console.log(paymentIntent)
                 throw new Error('Failed to create payment intent');
             }
         } catch (err) {
+            console.log(err)
             throw new Error('Failed to create payment intent, please try again');
         }
 
