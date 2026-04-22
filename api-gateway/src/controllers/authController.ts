@@ -21,19 +21,16 @@ export const googleCallback = (req: Request, res: Response) => {
         process.env.JWT_SECRET as string,
         { expiresIn: '8h' }
     );
-    const response: Record<string, unknown> = {
-        token,
-        user: {
-            id: user.id,
-            email: user.email,
-            role: user.role,
-            firstName: user.firstName,
-            storeId: user.storeId ?? null
-        },
-    };
 
+    // Redirect based on role
+    const customerUrl = process.env.CUSTOMER_FRONTEND_URL ?? 'http://localhost:4200';
+    const sellerUrl = process.env.SELLER_FRONTEND_URL ?? 'http://localhost:4300';
 
-    res.status(200).json(response);
+    if (user.role === 'store_admin') {
+        res.redirect(`${sellerUrl}/login?token=${token}&id=${user.id}&role=${user.role}&storeId=${user.storeId}`);
+    } else {
+        res.redirect(`${customerUrl}/login?token=${token}&id=${user.id}&role=${user.role}`);
+    }
 };
 
 /**
