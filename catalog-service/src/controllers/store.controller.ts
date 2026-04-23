@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { StoreService } from "../services/store.service";
+import { StoreService } from "../services/store.services";
 
 const storeService = new StoreService();
 
@@ -7,7 +7,7 @@ export class StoreController {
 
     getAll = async (_req: Request, res: Response, next: NextFunction) => {
         try {
-            const stores = await storeService.getAll();
+            const stores = await storeService.getAllStores();
             res.status(200).json(stores);
         } catch (error) {
             next(error);
@@ -17,7 +17,7 @@ export class StoreController {
     getById = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const id = Number(req.params.id);
-            const store = await storeService.getById(id);
+            const store = await storeService.getStoreById(id);
             res.status(200).json(store);
         } catch (error) {
             next(error);
