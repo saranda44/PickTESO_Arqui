@@ -1,0 +1,262 @@
+:host {
+  display: block;
+  height: 100dvh;
+}
+
+.login-root {
+  position: relative;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(
+    13deg,
+    #050A34 0%,
+    #092676 30%,
+    #085CF0 75%,
+    #AFE9FD 100%
+  );
+  overflow: hidden;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  padding: 1rem;
+}
+
+.login-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(50px);
+  opacity: 0.5;
+  mix-blend-mode: screen;
+  animation: float 8s ease-in-out infinite;
+}
+
+.orb-1 {
+  width: 500px;
+  height: 500px;
+  top: -150px;
+  left: -100px;
+  opacity: 0.6;
+  background: radial-gradient(circle, #085CF0 0%, transparent 70%);
+  animation-delay: 0s;
+}
+
+.orb-2 {
+  width: 400px;
+  height: 400px;
+  bottom: -100px;
+  right: -80px;
+  background: radial-gradient(circle, #092676 0%, transparent 70%);
+  animation-delay: -3s;
+}
+
+.orb-3 {
+  width: 300px;
+  height: 300px;
+  top: 40%;
+  left: 60%;
+  background: radial-gradient(circle, #AFE9FD 0%, transparent 70%);
+  animation-delay: -6s;
+  opacity: 0.2;
+}
+
+.orb-4 {
+  width: 200px;
+  height: 200px;
+  top: 10%;
+  right: 20%;
+  background: radial-gradient(circle, #085CF0 0%, transparent 70%);
+  opacity: 0.5;
+}
+
+.orb-5 {
+  width: 150px;
+  height: 150px;
+  bottom: 20%;
+  left: 15%;
+  background: radial-gradient(circle, #AFE9FD 0%, transparent 70%);
+  opacity: 0.2;
+}
+
+.orb-6 {
+  width: 250px;
+  height: 250px;
+  top: 60%;
+  left: 30%;
+  background: radial-gradient(circle, #092676 0%, transparent 70%);
+  opacity: 0.18;
+}
+
+.orb-7 {
+  width: 120px;
+  height: 120px;
+  top: 25%;
+  left: 70%;
+  background: radial-gradient(circle, #085CF0 0%, transparent 70%);
+  opacity: 0.45;
+}
+
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50%       { transform: translateY(-30px) scale(1.05); }
+}
+
+.login-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 420px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  padding: 2.5rem 2.25rem;
+  backdrop-filter: blur(20px);
+  box-shadow:
+    0 0 0 1px rgba(108, 99, 255, 0.15),
+    0 32px 64px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.brand {
+  margin-bottom: 2.5 rem;
+  text-align: center ;
+}
+
+.brand-name {
+  font-size: 2.5rem;
+  font-weight: 720;
+  color: #fff;
+  letter-spacing: 0em;
+ 
+}
+
+.login-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.login-title {
+  font-size: 1.3rem;
+  font-weight: 300;
+  color: #fff;
+  letter-spacing: 0em;
+  line-height: 1.1;
+  margin: 0 0 0.4rem;
+  margin-top: 2rem;
+}
+
+.login-subtitle {
+  font-size: 0.9rem;
+  font-weight: 200;
+  color: rgba(255, 255, 255, 0.45);
+  margin: 0 0 2rem;
+  line-height: 1.5;
+}
+
+.google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.875rem 1.5rem;
+  background: #fff;
+  color: #1a1a2e;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  font-family: inherit;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  letter-spacing: -0.01em;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+
+  &:hover {
+    background: #f0f0f0;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.google-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1.75rem 0 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 200;
+  color: rgba(255, 255, 255, 0.45);
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  span {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.25);
+    //white-space: nowrap;
+    text-align: center;
+  }
+}
+
+.login-note {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.3);
+  text-align: center;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.login-footer {
+  margin-top: 2.25rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 200;
+  color: rgba(255, 255, 255, 0.45);
+
+
+  span {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.2);
+  }
+}
+
+@media (max-width: 480px) {
+  .login-card {
+    padding: 2rem 1.5rem;
+    border-radius: 20px;
+  }
+
+  .login-title {
+    font-size: 1.75rem;
+  }
+}

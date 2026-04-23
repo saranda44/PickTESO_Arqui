@@ -1,0 +1,40 @@
+<div class="callback-root">
+  <div class="callback-bg">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+  </div>
+
+  <div class="callback-card">
+    @if (status === 'loading') {
+      <div class="state loading">
+        <div class="spinner"></div>
+        <p>Verificando tu cuenta...</p>
+      </div>
+    }
+
+    @if (status === 'success') {
+      <div class="state success">
+        <div class="icon-check">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h2>¡Acceso concedido!</h2>
+        <p>Redirigiendo a tu cuenta...</p>
+      </div>
+    }
+
+    @if (status === 'error') {
+      <div class="state error">
+        <div class="icon-x">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h2>Error de autenticación</h2>
+        <p>{{ errorMessage }}</p>
+        <button class="retry-btn" (click)="goToLogin()">Volver al inicio</button>
+      </div>
+    }
+  </div>
+</div>
