@@ -1,17 +1,30 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
 
 .home-container {
-  padding: 24px;
+  padding: 32px 40px;
   background-color: #ffffff;
   min-height: 100vh;
   font-family: 'Inter', sans-serif;
 }
 
 .title {
-  font-size: 24px;
-  font-weight: 600;
-  margin-bottom: 20px;
+  font-size: 28px;
+  line-height: 1.3;
+  font-weight: 300; 
   color: #111;
+  margin-bottom: 24px; 
+}
+
+.bold {
+  font-weight: 600;
+}
+
+.subtitle {
+  font-size: 18px;
+  font-weight: 300;
+  color: #888; 
+  margin-top: -18px; // lo acerca al título
+  margin-bottom: 20px; // separación con tarjetas
 }
 
 .cards-container {
