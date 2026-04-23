@@ -8,8 +8,8 @@
 }
 
 .title {
-  font-size: 28px;
-  line-height: 1.3;
+  font-size: 32px;
+  line-height: 1.2;
   font-weight: 300; 
   color: #111;
   margin-bottom: 24px; 
@@ -24,19 +24,32 @@
   font-weight: 300;
   color: #888; 
   margin-top: -18px; // lo acerca al título
-  margin-bottom: 20px; // separación con tarjetas
+  margin-bottom: 65px; // separación con tarjetas
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111;
+  margin-top: 24px;
+  margin-bottom: 9px;
 }
 
 .cards-container {
-  display: flex;
-  gap: 16px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
   overflow-x: auto;
+  overflow-y: visible;
+  padding-top: 8px;
   padding-bottom: 10px;
+  justify-content: center;
 }
 
 .card {
-  min-width: 180px;
-  background: #fff;
+  min-width: 325px;
+  min-height: 220px;
+  background: #eaeaec36;
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
   overflow: hidden;
@@ -48,12 +61,13 @@
 
   img {
     width: 100%;
-    height: 120px;
+    height: 150px;
     object-fit: cover;
+    display: block;
   }
 
   .card-content {
-    padding: 12px;
+    padding: 15px;
 
     h2 {
       font-size: 16px;
@@ -64,7 +78,8 @@
 
     p {
       font-size: 13px;
-      color: #666;
+      font-weight: 370;
+      color: #888;
       margin-top: 4px;
     }
   }
