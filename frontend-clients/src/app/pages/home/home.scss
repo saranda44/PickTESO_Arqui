@@ -1,29 +1,55 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
 
 .home-container {
-  padding: 24px;
+  padding: 32px 40px;
   background-color: #ffffff;
   min-height: 100vh;
   font-family: 'Inter', sans-serif;
 }
 
 .title {
-  font-size: 24px;
-  font-weight: 600;
-  margin-bottom: 20px;
+  font-size: 32px;
+  line-height: 1.2;
+  font-weight: 300; 
   color: #111;
+  margin-bottom: 24px; 
+}
+
+.bold {
+  font-weight: 700;
+}
+
+.subtitle {
+  font-size: 18px;
+  font-weight: 300;
+  color: #888; 
+  margin-top: -18px; // lo acerca al título
+  margin-bottom: 65px; // separación con tarjetas
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111;
+  margin-top: 24px;
+  margin-bottom: 9px;
 }
 
 .cards-container {
-  display: flex;
-  gap: 16px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
   overflow-x: auto;
+  overflow-y: visible;
+  padding-top: 8px;
   padding-bottom: 10px;
+  justify-content: center;
 }
 
 .card {
-  min-width: 180px;
-  background: #fff;
+  min-width: 325px;
+  min-height: 220px;
+  background: #eaeaec36;
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
   overflow: hidden;
@@ -35,12 +61,13 @@
 
   img {
     width: 100%;
-    height: 120px;
+    height: 150px;
     object-fit: cover;
+    display: block;
   }
 
   .card-content {
-    padding: 12px;
+    padding: 15px;
 
     h2 {
       font-size: 16px;
@@ -51,7 +78,8 @@
 
     p {
       font-size: 13px;
-      color: #666;
+      font-weight: 370;
+      color: #888;
       margin-top: 4px;
     }
   }
