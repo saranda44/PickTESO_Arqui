@@ -11,6 +11,14 @@ const createProxy = (target: string) =>
                 if (authHeader) {
                     proxyReq.setHeader('Authorization', authHeader);
                 }
+                if (req.user) {
+                    const user = req.user as any;
+                    proxyReq.setHeader('X-User-Id', String(user.id));
+                    proxyReq.setHeader('X-User-Role', user.role);
+                    if (user.storeId) {
+                        proxyReq.setHeader('X-Store-Id', String(user.storeId));
+                    }
+                }
             },
         },
     });

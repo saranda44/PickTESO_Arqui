@@ -4,7 +4,8 @@ dotenv.config();
 import express from 'express';
 import passport from './config/passport';
 import authRoutes from './routes/auth';
-import { authenticate,authorize } from './middlewares/auth';
+import { authenticate, authorize } from './middlewares/auth';
+import { corsMiddleware } from './middlewares/cors.middleware';
 import {
     catalogProxy,
     ordersProxy,
@@ -15,6 +16,7 @@ import {
 
 const app = express();
 
+app.use(corsMiddleware);
 app.use(passport.initialize());
 
 // Public routes — need json parsing
