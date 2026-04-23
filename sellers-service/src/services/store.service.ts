@@ -55,13 +55,43 @@ export class StoreService {
         return await Repositories.store.findByAdminId(admin_id);
     }
 
+    private validateStoreUpdate(data: Partial<Omit<IStore, "id" | "created_at" | "updated_at" | "admin_id">>, existing?: IStore) {
+        if (data.name !== undefined) {
+            if (typeof data.name !== "string" || data.name.trim().length === 0) {
+                throw new BadRequestError("Nombre de tienda no puede estar vacío.");
+            }
+            if (data.name.length > 100) {
+                throw new BadRequestError("Nombre de tienda no puede exceder 100 caracteres.");
+            }
+        }
+
+        if (data.opening_time !== undefined) {
+            const timeRegex = /^([0-1][0-9]|2[0-3]):[0-5][0-9]$/;
+            if (!timeRegex.test(data.opening_time)) {
+                throw new BadRequestError("Hora de apertura debe estar en formato HH:mm (ej: 09:00).");
+            }
+        }
+
+        if (data.closing_time !== undefined) {
+            const timeRegex = /^([0-1][0-9]|2[0-3]):[0-5][0-9]$/;
+            if (!timeRegex.test(data.closing_time)) {
+                throw new BadRequestError("Hora de cierre debe estar en formato HH:mm (ej: 18:00).");
+            }
+        }
+
+        const openingTime = data.opening_time ?? existing?.opening_time;
+        const closingTime = data.closing_time ?? existing?.closing_time;
+        if (openingTime && closingTime && openingTime >= closingTime) {
+            throw new BadRequestError("Hora de apertura debe ser menor que la hora de cierre.");
+        }
+    }
+
     async updateStore(
         id: number,
         data: Partial<Omit<IStore, "id" | "created_at" | "updated_at" | "admin_id">>,
         imageBuffer?: Buffer
     ): Promise<IStore> {
 
-        // Validate that at least one updatable field is provided
         const allowedFields = ["name", "location", "opening_time", "closing_time", "image", "active"];
         const hasInvalidFields = Object.keys(data).some(f => !allowedFields.includes(f));
         if (hasInvalidFields) {
@@ -69,6 +99,8 @@ export class StoreService {
         }
 
         const existing = await this.storeExists(id);
+
+        this.validateStoreUpdate(data, existing);
 
         const oldImage = existing.image;
         let newImageUrl: string | undefined;

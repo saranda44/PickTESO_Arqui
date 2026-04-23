@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environment';
 import { IProductWithTags } from '../interfaces';
@@ -10,13 +10,16 @@ import { Observable } from 'rxjs/internal/Observable';
   providedIn: 'root',
 })
 export class ProductService {
-  constructor(private http: HttpClient, private authService: AuthService) { }
+
+  authService = inject(AuthService);
+  http = inject(HttpClient);
 
   private sellersApiUrl = `${environment.sellersApiUrl}`;
+  private storeId = this.authService.getStoreId();
 
   // products.service.ts
   getProducts(): Observable<IProductWithTags[]> {
-    return this.http.get<any[]>(`${this.sellersApiUrl}/products/store/1`).pipe(
+    return this.http.get<any[]>(`${this.sellersApiUrl}/products/store/${this.storeId}`).pipe(
       map(products =>
         products.map(p => ({
           ...p,

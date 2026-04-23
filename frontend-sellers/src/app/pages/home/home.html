@@ -1,6 +1,7 @@
-<app-alert 
-  [message]="alertService.message()" 
+<app-alert
+  [message]="alertService.message()"
   [type]="alertService.type()"
   (close)="alertService.clear()"
 />
+<app-stores></app-stores>
 <app-products-list></app-products-list>

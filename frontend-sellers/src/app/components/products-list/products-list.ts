@@ -13,7 +13,7 @@ import { AlertService } from '../../services/alert';
 @Component({
   selector: 'app-products-list',
   standalone: true,
-  imports: [ProductCardComponent, CommonModule, Alert, ReusableModalComponent, FormsModule],
+  imports: [ProductCardComponent, CommonModule, ReusableModalComponent, FormsModule],
   templateUrl: './products-list.html',
   styleUrls: ['./products-list.scss'],
 })

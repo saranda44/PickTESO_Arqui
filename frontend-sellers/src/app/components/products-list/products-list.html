@@ -10,26 +10,55 @@
   <!-- Modal de edición -->
   <app-reusable-modal [visible]="modalVisible()" [title]="modalTitle()" (close)="onModalClose()">
     <form (submit)="$event.preventDefault(); submitEdit()" class="edit-form">
-      <label>Nombre</label>
-      <input name="name" type="text" [(ngModel)]="formName" />
+      <div class="form-group">
+        <label for="name">Nombre *</label>
+        <input
+          id="name"
+          name="name"
+          type="text"
+          [(ngModel)]="formName"
+          placeholder="Ej: Producto Premium"
+        />
+      </div>
 
-      <label>Descripción</label>
-      <textarea name="description" [(ngModel)]="formDescription"></textarea>
+      <div class="form-group">
+        <label for="description">Descripción</label>
+        <textarea
+          id="description"
+          name="description"
+          [(ngModel)]="formDescription"
+          placeholder="Describe el producto..."
+        ></textarea>
+      </div>
 
-      <label>Precio</label>
-      <input name="price" type="number" step="0.01" [(ngModel)]="formPrice" />
+      <div class="form-group">
+        <label for="price">Precio *</label>
+        <input
+          id="price"
+          name="price"
+          type="number"
+          step="0.01"
+          [(ngModel)]="formPrice"
+          placeholder="Ej: 99.99"
+        />
+      </div>
 
-      <label>Activo</label>
-      <input name="active" type="checkbox" [(ngModel)]="formActive" />
-
-      <label>Imagen (reemplaza la actual)</label>
-      <input type="file" (change)="onFileSelected($event)" accept="image/*" />
-
-      <div class="modal-actions">
-        <button type="button" (click)="onModalClose()">Cancelar</button>
-        <button type="submit">Guardar</button>
+      <div class="form-group">
+        <label for="image">Imagen del Producto</label>
+        <input
+          id="image"
+          type="file"
+          (change)="onFileSelected($event)"
+          accept="image/jpeg,image/png,image/webp"
+        />
+        <small>Max 5MB, formatos: JPEG, PNG, WebP. Reemplaza la imagen actual</small>
       </div>
     </form>
+
+    <div class="modal-actions">
+      <button type="button" class="btn-cancel" (click)="onModalClose()">Cancelar</button>
+      <button type="submit" class="btn-save" (click)="submitEdit()">Guardar</button>
+    </div>
   </app-reusable-modal>
 
   <!-- <button (click)="loadProducts()" class="load-btn">Cargar Productos</button> -->

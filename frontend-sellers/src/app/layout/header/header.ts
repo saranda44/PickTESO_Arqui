@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { AuthService } from '../../services/auth';
 
 @Component({
@@ -9,11 +9,23 @@ import { AuthService } from '../../services/auth';
 })
 export class Header {
 
-  private auth = inject(AuthService);
+  auth = inject(AuthService);
+  menuOpen = signal(false);
 
-  isLoggedIn = computed(() => this.auth.isLoggedIn());
+  get isLoggedIn() {
+    return this.auth.isLoggedIn;
+  }
+
+  toggleMenu() {
+    this.menuOpen.set(!this.menuOpen());
+  }
+
+  closeMenu() {
+    this.menuOpen.set(false);
+  }
 
   logout() {
     this.auth.logout();
+    this.closeMenu();
   }
 }

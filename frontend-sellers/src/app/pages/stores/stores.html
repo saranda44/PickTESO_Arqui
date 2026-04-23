@@ -1,1 +1,131 @@
-<p>stores works!</p>
+<div class="stores-container">
+  <!-- Loading -->
+  @if (loading && !store) {
+    <div class="loading">Cargando tienda...</div>
+  }
+
+  <!-- Store Info -->
+  @if (store && !loading) {
+    <div class="store-info">
+      @if (store.image) {
+        <img [src]="store.image" alt="{{ store.name }}" class="store-image-column" />
+      }
+
+      <div class="store-content">
+        <div class="store-header">
+          <h2>{{ store.name }}</h2>
+          <button class="btn-edit" (click)="openModal()">Editar</button>
+        </div>
+
+        <div class="store-details">
+          <p><strong>Ubicación:</strong> {{ store.location }}</p>
+          <p>
+            <strong>Horario:</strong> {{ formatTime(store.opening_time) }} -
+            {{ formatTime(store.closing_time) }}
+          </p>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Success Message -->
+  @if (success) {
+    <div class="alert alert-success">
+      {{ success }}
+    </div>
+  }
+
+  <!-- Modal Backdrop -->
+  @if (showModal) {
+    <div class="modal-backdrop" (click)="closeModal()"></div>
+  }
+
+  <!-- Modal -->
+  @if (showModal) {
+    <div class="modal">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Editar Tienda</h3>
+          <button class="btn-close" (click)="closeModal()">×</button>
+        </div>
+
+        <!-- Error Message -->
+        @if (error) {
+          <div class="alert alert-error">
+            {{ error }}
+          </div>
+        }
+
+        <form [formGroup]="storeForm" class="modal-body">
+          <!-- Name -->
+          <div class="form-group">
+            <label for="name">Nombre Tienda *</label>
+            <input id="name" type="text" formControlName="name" placeholder="Ej: Mi Tienda" />
+            @if (storeForm.get('name')?.hasError('required')) {
+              <span class="error"> Nombre requerido </span>
+            }
+            @if (storeForm.get('name')?.hasError('maxlength')) {
+              <span class="error"> Máximo 100 caracteres </span>
+            }
+          </div>
+
+          <!-- Location -->
+          <div class="form-group">
+            <label for="location">Ubicación</label>
+            <input
+              id="location"
+              type="text"
+              formControlName="location"
+              placeholder="Ej: Calle Principal 123"
+            />
+          </div>
+
+          <!-- Opening Time -->
+          <div class="form-group">
+            <label for="opening_time">Hora Apertura (24h)</label>
+            <input
+              id="opening_time"
+              type="time"
+              formControlName="opening_time"
+            />
+            @if (storeForm.get('opening_time')?.hasError('required')) {
+              <span class="error"> Hora requerida </span>
+            }
+          </div>
+
+          <!-- Closing Time -->
+          <div class="form-group">
+            <label for="closing_time">Hora Cierre (24h)</label>
+            <input
+              id="closing_time"
+              type="time"
+              formControlName="closing_time"
+            />
+            @if (storeForm.get('closing_time')?.hasError('required')) {
+              <span class="error"> Hora requerida </span>
+            }
+          </div>
+
+          <!-- Image Upload -->
+          <div class="form-group">
+            <label for="image">Imagen Tienda</label>
+            <input
+              id="image"
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              (change)="onFileSelect($event)"
+            />
+            <small>Max 5MB, formatos: JPEG, PNG, WebP. Ratio 1:1</small>
+          </div>
+        </form>
+
+        <div class="modal-footer">
+          <button class="btn-cancel" (click)="closeModal()">Cancelar</button>
+          <button class="btn-save" (click)="onSave()" [disabled]="storeForm.invalid">
+            {{ loading ? 'Guardando...' : 'Guardar' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

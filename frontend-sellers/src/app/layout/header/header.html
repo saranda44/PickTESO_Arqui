@@ -3,10 +3,20 @@
     <h1 class="logo">Panel de Vendedores - PickTESO</h1>
 
     @if (isLoggedIn()) {
-      <nav class="nav">
-        <a>Pedidos</a>
-        <a>Productos</a>
-        <button (click)="logout()">Salir</button>
+      <button class="hamburger" (click)="toggleMenu()" [class.hamburger--active]="menuOpen()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      @if (menuOpen()) {
+        <div class="nav-backdrop" (click)="closeMenu()"></div>
+      }
+
+      <nav class="nav" [class.nav--open]="menuOpen()">
+        <a (click)="closeMenu()">Pedidos</a>
+        <a (click)="closeMenu()">Productos</a>
+        <button (click)="logout()" class="nav__logout" title="Cerrar sesión">Salir 🚪</button>
       </nav>
     }
   </div>
