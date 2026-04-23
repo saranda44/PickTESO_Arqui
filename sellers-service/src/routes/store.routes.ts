@@ -18,9 +18,9 @@ const storeController = new StoreController();
 
 router.post("/", requireRole("platform_admin"), storeController.createStore);
 router.get("/admin/:admin_id", storeController.getStoresByAdminId);
-router.get("/:id", storeController.getStoreById);
-router.put("/:id", upload.single("image"), storeController.updateStore);
-router.delete("/:id", storeController.deleteStore);
+router.get("/:id", ownsStore(req => Number(req.params.id)), storeController.getStoreById);
+router.put("/:id", ownsStore(req => Number(req.params.id)), upload.single("image"), storeController.updateStore);
+router.delete("/:id", requireRole("platform_admin"), storeController.deleteStore);
 
 
 export default router;

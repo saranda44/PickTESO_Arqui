@@ -12,6 +12,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
     req.user = {
         id: Number(userId),
         role: String(userRole),
+        storeId: null, // Este campo se puede llenar posteriormente si es necesario
     };
 
     next();
