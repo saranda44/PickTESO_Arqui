@@ -1,16 +1,7 @@
 import { Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { IOrder, OrderStatus } from '../../../../interfaces/order.interface';
-
-const STATUS_LABEL: Record<OrderStatus, string> = {
-  pending: 'Pendiente',
-  paid: 'Pagado',
-  preparing: 'Preparando',
-  ready: 'Listo',
-  completed: 'Completado',
-  cancelled: 'Cancelado',
-};
+import { IOrder, ORDER_STATUS_LABELS } from '../../../../interfaces/order.interface';
 
 @Component({
   selector: 'app-order-item',
@@ -23,7 +14,7 @@ export class OrderItem {
   readonly order = input.required<IOrder>();
 
   get statusLabel(): string {
-    return STATUS_LABEL[this.order().status];
+    return ORDER_STATUS_LABELS[this.order().status];
   }
 
   get statusClass(): string {

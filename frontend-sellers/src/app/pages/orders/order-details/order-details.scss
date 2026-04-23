@@ -114,6 +114,20 @@
   &--cancelled  { background: #fee2e2; color: #991b1b; }
 }
 
+.confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  p { margin: 0; color: #6b7280; }
+
+  &__actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+  }
+}
+
 .otp {
   display: flex;
   flex-direction: column;

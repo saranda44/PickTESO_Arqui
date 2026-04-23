@@ -12,7 +12,7 @@
     </div>
 
     <span class="status status--{{ order()!.status }}">
-      {{ order()!.status }}
+      {{ statusLabel() }}
     </span>
   </header>
 
@@ -71,13 +71,31 @@
         type="button"
         class="btn btn--danger"
         [disabled]="!canCancel() || updating()"
-        (click)="cancel()"
+        (click)="openCancelModal()"
       >
         Cancelar
       </button>
     </div>
   </section>
 }
+
+<app-reusable-modal
+  [visible]="cancelOpen()"
+  title="Cancelar pedido"
+  (close)="closeCancelModal()"
+>
+  <div class="confirm">
+    <p>¿Estás seguro de que deseas cancelar este pedido? Esta acción no se puede deshacer.</p>
+    <div class="confirm__actions">
+      <button type="button" class="btn btn--ghost" (click)="closeCancelModal()" [disabled]="updating()">
+        Volver
+      </button>
+      <button type="button" class="btn btn--danger" (click)="confirmCancel()" [disabled]="updating()">
+        Sí, cancelar pedido
+      </button>
+    </div>
+  </div>
+</app-reusable-modal>
 
 <app-reusable-modal
   [visible]="otpOpen()"

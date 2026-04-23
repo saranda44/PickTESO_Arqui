@@ -1,5 +1,14 @@
 export type OrderStatus = 'pending' | 'paid' | 'preparing' | 'ready' | 'completed' | 'cancelled';
 
+export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
+  pending:   'Pendiente',
+  paid:      'Pagado',
+  preparing: 'En preparación',
+  ready:     'Listo para recoger',
+  completed: 'Completado',
+  cancelled: 'Cancelado',
+};
+
 export interface IOrder {
   id: number;
   user_id: number;

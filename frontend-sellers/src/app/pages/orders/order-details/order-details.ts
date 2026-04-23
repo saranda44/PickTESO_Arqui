@@ -8,6 +8,7 @@ import { AlertService } from '../../../services/alert';
 import {
   IOrderWithProducts,
   OrderStatus,
+  ORDER_STATUS_LABELS,
 } from '../../../interfaces/order.interface';
 import { ReusableModalComponent } from '../../../components/reusable-modal/reusable-modal';
 
@@ -29,8 +30,9 @@ export class OrderDetails implements OnInit {
   readonly loading = signal(false);
   readonly updating = signal(false);
 
-  readonly otpOpen = signal(false);
-  readonly otp = signal('');
+  readonly otpOpen    = signal(false);
+  readonly otp        = signal('');
+  readonly cancelOpen = signal(false);
 
   private storeId = 0;
   private orderId = 0;
@@ -39,6 +41,11 @@ export class OrderDetails implements OnInit {
     const c = this.order()?.customer;
     if (!c) return '';
     return `${c.first_name} ${c.paternal_last_name} ${c.maternal_last_name}`.trim();
+  });
+
+  readonly statusLabel = computed(() => {
+    const s = this.order()?.status;
+    return s ? ORDER_STATUS_LABELS[s] : '';
   });
 
   readonly canPrepare  = computed(() => this.order()?.status === 'paid');
@@ -77,7 +84,7 @@ export class OrderDetails implements OnInit {
     this.ordersService.updateStatus(this.storeId, this.orderId, status).subscribe({
       next: (res) => {
         this.mergeOrder(res.order);
-        this.alert.showSuccess(`Estado actualizado a "${status}"`);
+        this.alert.showSuccess(`Estado actualizado a "${ORDER_STATUS_LABELS[status]}"`);
         this.updating.set(false);
       },
       error: () => {
@@ -87,10 +94,17 @@ export class OrderDetails implements OnInit {
     });
   }
 
-  cancel(): void {
+  openCancelModal(): void {
     if (!this.canCancel() || this.updating()) return;
-    if (!confirm('¿Cancelar este pedido?')) return;
+    this.cancelOpen.set(true);
+  }
 
+  closeCancelModal(): void {
+    this.cancelOpen.set(false);
+  }
+
+  confirmCancel(): void {
+    this.cancelOpen.set(false);
     this.updating.set(true);
     this.ordersService.cancelOrder(this.storeId, this.orderId).subscribe({
       next: (res) => {
