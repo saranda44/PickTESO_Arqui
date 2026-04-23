@@ -34,10 +34,14 @@ export async function getProductStock(productId: number): Promise<number> {
 // Update stock for a single product
 // POST /product/:id/stock
 // Body: { quantity, type: 'in' | 'out' }
-async function updateProductStock(productId: number,quantity: number, type: 'in' | 'out'): Promise<void> {
+async function updateProductStock(productId: number, quantity: number, type: 'in' | 'out', token?: string): Promise<void> {
   const endpoint = `${STORE_ADMIN_SERVICE_URL}/inventory`;
   try {
-    await axios.post(endpoint, { quantity, movement_type: type , product_id:productId});
+    await axios.post(
+      endpoint,
+      { quantity, movement_type: type, product_id: productId },
+      { headers: token ? { Authorization: token } : {} }
+    );
   } catch (error) {
     const err = error as {
       response?: { status?: number; data?: unknown };
@@ -58,16 +62,16 @@ async function updateProductStock(productId: number,quantity: number, type: 'in'
 
 // Deduct inventory for multiple products after order creation
 // Calls POST /product/:id/stock with type 'out' for each item
-export async function deductInventory(items: { product_id: number; quantity: number }[]): Promise<void> {
+export async function deductInventory(items: { product_id: number; quantity: number }[], token?: string): Promise<void> {
   for (const item of items) {
-    await updateProductStock(item.product_id, item.quantity, 'out');
+    await updateProductStock(item.product_id, item.quantity, 'out', token);
   }
 }
- 
+
 // Restore inventory for multiple products after cancellation
 // Calls POST /product/:id/stock with type 'in' for each item
-export async function restoreInventory(items: { product_id: number; quantity: number }[]): Promise<void> {
+export async function restoreInventory(items: { product_id: number; quantity: number }[], token?: string): Promise<void> {
   for (const item of items) {
-    await updateProductStock(item.product_id, item.quantity, 'in');
+    await updateProductStock(item.product_id, item.quantity, 'in', token);
   }
 }

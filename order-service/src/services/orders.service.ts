@@ -44,6 +44,7 @@ function isValidTransition(current: OrderStatus, next: OrderStatus): boolean {
 async function validateStoreOwner(storeId: number, userId: number): Promise<void> {
     // validate store exists and belongs to the user (store_admin)
     const store = await getStoreFromCatalog(storeId);
+    console.log(`Validating store ownership for store ${storeId} and user ${userId}:`, store);
     if (!store) {
         throw new NotFoundError('Store not found or inactive');
     }
@@ -53,13 +54,19 @@ async function validateStoreOwner(storeId: number, userId: number): Promise<void
 }
 
 // Helper function to restore inventory for all products in an order (used when cancelling a paid order)
-async function restoreInventoryForOrder(orderId: number): Promise<void> {
+async function restoreInventoryForOrder(orderId: number, token?: string): Promise<void> {
     const order = await OrderRepository.findByIdWithProducts(orderId);
     if (!order || order.items.length === 0) return;
 
-    await restoreInventory(
-        order.items.map((i) => ({ product_id: i.product_id, quantity: i.quantity }))
-    );
+    try {
+        await restoreInventory(
+            order.items.map((i) => ({ product_id: i.product_id, quantity: i.quantity })),
+            token
+        );
+    } catch (err) {
+        console.log(`Failed to restore inventory for order ${orderId}:`, err);
+        throw new Error('Failed to restore inventory, please contact support');
+    }
 }
 
 
@@ -90,7 +97,7 @@ type DeleteOrderByStoreResult = {
 //   3. Calculate total using prices from catalog
 //   4. Persist order + order_products in a transaction
 //   5. Deduct inventory (store-admin service)
-async function createOrder(userId: number, idStore: number, dto: CreateOrderDTO): Promise<OrderWithItems> {
+async function createOrder(userId: number, idStore: number, dto: CreateOrderDTO, token?: string): Promise<OrderWithItems> {
     // 1. Validate store
     
     const store = await getStoreFromCatalog(idStore);
@@ -169,13 +176,14 @@ async function createOrder(userId: number, idStore: number, dto: CreateOrderDTO)
             resolvedItems.map((i) => ({
                 product_id: i.product_id,
                 quantity: i.quantity,
-            }))
+            })),
+            token
         );
 
         // create payment intent in payments service (called by orders when a new order is created and needs to be paid)
         
         try {
-            const paymentIntent = await createPaymentIntent(order.id, total, userId);
+            const paymentIntent = await createPaymentIntent(order.id, total, userId, 'mxn', token);
             if (!paymentIntent) {
                 console.log(paymentIntent)
                 throw new Error('Failed to create payment intent');
@@ -248,7 +256,7 @@ async function updateOrderStatus(orderId: number, dto: UpdateOrderStatusDTO, sto
 
 // Store cancellation endpoint
 // Valid only for orders in paid status
-async function deleteOrderByStore(orderId: number, storeId: number, userId: number): Promise<DeleteOrderByStoreResult> {
+async function deleteOrderByStore(orderId: number, storeId: number, userId: number, token?: string): Promise<DeleteOrderByStoreResult> {
     await validateStoreOwner(storeId, userId);
 
     const existing = await OrderRepository.findByIdWithProducts(orderId);
@@ -268,6 +276,17 @@ async function deleteOrderByStore(orderId: number, storeId: number, userId: numb
         throw new BadRequestError("Only orders in 'paid' status can be cancelled by the store");
     }
 
+    
+    await restoreInventoryForOrder(orderId, token);
+
+    try{
+        await cancelPayment(orderId, token);
+    }
+    catch (err) {
+        console.log(`Failed to cancel payment for order ${orderId}:`, err);
+        throw new Error('Failed to cancel payment, please contact support');
+    }
+    
     const updated = await OrderRepository.updateStatus(
         orderId,
         OrderStatus.CANCELLED,
@@ -277,16 +296,7 @@ async function deleteOrderByStore(orderId: number, storeId: number, userId: numb
     if (!updated) {
         throw new ConflictError('Unable to cancel order, please retry');
     }
-
-    try{
-        await cancelPayment(orderId);
-    }
-    catch (err) {
-        console.log(`Failed to cancel payment for order ${orderId}:`, err);
-    }
-    
-    await restoreInventoryForOrder(orderId);
-
+            
     const order = await OrderRepository.findByIdWithProducts(orderId);
     if (!order) {
         throw new NotFoundError('Order not found after cancellation');
@@ -367,6 +377,7 @@ async function confirmPayment(orderId: number): Promise<Order> {
     }
     // Generate stateless OTP — not stored in DB
     const otp = generateOTP(order.user_id, orderId);
+    console.log(`Generated OTP for order ${orderId}: ${otp}`);
 
     // Notify customer (with OTP) and store (fire and forget)
     notifyOrderConfirmed(orderId, order.customer.email, order.store.email, otp, order);

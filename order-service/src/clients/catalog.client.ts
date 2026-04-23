@@ -3,6 +3,7 @@
 import axios from "axios";
 
 const CATALOG_SERVICE_URL = process.env.CATALOG_SERVICE_URL;
+const STORE_ADMIN_SERVICE_URL = process.env.STORE_ADMIN_SERVICE_URL;
 
 export interface CatalogProduct {
   id: number;
@@ -12,14 +13,14 @@ export interface CatalogProduct {
   active: boolean;
 }
 
-export interface CatalogStore {
-  id: number;
-  name: string;
-  active: boolean;
-  opening_time: string;
-  closing_time: string;
-  admin_id?: number;
-}
+// export interface CatalogStore {
+//   id: number;
+//   name: string;
+//   active: boolean;
+//   opening_time: string;
+//   closing_time: string;
+//   admin_id?: number;
+// }
 
 // Fetch a single product from the catalog service
 export async function getProductFromCatalog(productId: number): Promise<CatalogProduct | null> {
@@ -47,10 +48,10 @@ export async function getProductFromCatalog(productId: number): Promise<CatalogP
 
 
 // Fetch a single store from the catalog service
-export async function getStoreFromCatalog(storeId: number): Promise<CatalogStore | null> {
+export async function getStoreFromCatalog(storeId: number): Promise<any | null> {
   const endpoint = `${CATALOG_SERVICE_URL}/stores/${storeId}`;
   try {
-    const { data } = await axios.get<CatalogStore>(endpoint);
+    const { data } = await axios.get<any>(endpoint);
     return data.active ? data : null;
   } catch (error) {
     const err = error as {

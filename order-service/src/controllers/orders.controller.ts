@@ -24,8 +24,9 @@ async function createOrder(req: Request, res: Response, next: NextFunction) {
         const userId = req.user!.id;
         const idStore = Number(req.params.idStore);
         const body = req.body as CreateOrderDTO;
+        const token = req.headers.authorization;
 
-        const order = await OrderService.createOrder(userId, idStore, body);
+        const order = await OrderService.createOrder(userId, idStore, body, token);
         res.status(201).json({ order });
     } catch (err) {
         next(err);
@@ -161,8 +162,9 @@ async function deleteOrderByStore(req: Request, res: Response, next: NextFunctio
         const orderId = Number(req.params.id);
         const storeId = Number(req.params.idStore);
         const userId = req.user!.id;
+        const token = req.headers.authorization;
 
-        const result = await OrderService.deleteOrderByStore(orderId, storeId, userId);
+        const result = await OrderService.deleteOrderByStore(orderId, storeId, userId, token);
         res.json({ order: result.order, alreadyCancelled: result.alreadyCancelled });
     } catch (err) {
         next(err);

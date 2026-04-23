@@ -28,10 +28,10 @@ function getErrorDetails(error: unknown): string {
 
 //cancel payment for an order
 // Called by Orders when a store cancels an order that has already been paid
-export async function cancelPayment(orderId: number): Promise<void> {
-  const endpoint = `${PAYMENTS_SERVICE_URL}/cancel`; 
+export async function cancelPayment(orderId: number, token?: string): Promise<void> {
+  const endpoint = `${PAYMENTS_SERVICE_URL}/cancel`;
   try{
-    await axios.post(endpoint, { orderId });
+    await axios.post(endpoint, { orderId }, { headers: token ? { Authorization: token } : {} });
   }
   catch (error: unknown) {
     console.error(
@@ -44,11 +44,15 @@ export async function cancelPayment(orderId: number): Promise<void> {
 
 // Create payment intent for an order
 // Called by Orders when a new order is created and needs to be paid
-export async function createPaymentIntent(orderId: number, amount: number, userId: number, currency: string = 'mxn'): Promise<string> {
+export async function createPaymentIntent(orderId: number, amount: number, userId: number, currency: string = 'mxn', token?: string): Promise<string> {
   const endpoint = `${PAYMENTS_SERVICE_URL}/create-payment-intent`;
   const amountInCents = Math.round(amount * 100);
   try {
-    const response = await axios.post<any>(endpoint, { orderId:Number(orderId) , amount:amountInCents, userId:Number(userId), currency, orderValue: amountInCents });
+    const response = await axios.post<any>(
+      endpoint,
+      { orderId: Number(orderId), amount: amountInCents, userId: Number(userId), currency, orderValue: amountInCents },
+      { headers: token ? { Authorization: token } : {} }
+    );
     return response.data.client_secret;
   } catch (error: unknown) {
     console.error(
