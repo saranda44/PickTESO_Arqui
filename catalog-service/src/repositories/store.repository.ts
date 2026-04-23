@@ -62,4 +62,21 @@ export class StoreRepository {
         return rows;
     }
 
+    async findAllActive(): Promise<IStore[]> {
+        const query = `SELECT * FROM stores WHERE active = true`;
+        const { rows } = await this.pool.query(query);
+        return rows;
+    }
+
+    async searchByName(queryText: string): Promise<IStore[]> {
+        const query = `
+            SELECT * FROM stores
+            WHERE active = true
+            AND LOWER(name) LIKE LOWER($1)
+        `;
+        const { rows } = await this.pool.query(query, [`%${queryText}%`]);
+        return rows;
+    }
+
 }
+
