@@ -26,7 +26,7 @@ export function orderConfirmedCustomerTemplate({
         `<tr>
           <td style="padding: 8px; border-bottom: 1px solid #eee;">${item.name}</td>
           <td style="padding: 8px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
-          <td style="padding: 8px; border-bottom: 1px solid #eee; text-align: right;">$${item.unit_price.toFixed(2)}</td>
+          <td style="padding: 8px; border-bottom: 1px solid #eee; text-align: right;">$${Number(item.unit_price).toFixed(2)}</td>
         </tr>`
     )
     .join('');
@@ -52,7 +52,7 @@ export function orderConfirmedCustomerTemplate({
         <tfoot>
           <tr>
             <td colspan="2" style="padding: 8px; text-align: right;"><strong>Total:</strong></td>
-            <td style="padding: 8px; text-align: right;"><strong>$${order.total.toFixed(2)}</strong></td>
+            <td style="padding: 8px; text-align: right;"><strong>$${Number(order.total).toFixed(2)}</strong></td>
           </tr>
         </tfoot>
       </table>
@@ -78,7 +78,7 @@ export function orderConfirmedStoreTemplate({ order }: OrderConfirmedStoreTempla
         `<tr>
           <td style="padding: 8px; border-bottom: 1px solid #eee;">${item.name}</td>
           <td style="padding: 8px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
-          <td style="padding: 8px; border-bottom: 1px solid #eee; text-align: right;">$${item.unit_price.toFixed(2)}</td>
+          <td style="padding: 8px; border-bottom: 1px solid #eee; text-align: right;">$${Number(item.unit_price).toFixed(2)}</td>
         </tr>`
     )
     .join('');
@@ -117,7 +117,7 @@ export function orderConfirmedStoreTemplate({ order }: OrderConfirmedStoreTempla
           <tr>
             <td style="padding: 8px;"><strong>Items:</strong> ${totalItems}</td>
             <td style="padding: 8px;"></td>
-            <td style="padding: 8px; text-align: right;"><strong>Total: $${order.total.toFixed(2)}</strong></td>
+            <td style="padding: 8px; text-align: right;"><strong>Total: $${Number(order.total).toFixed(2)}</strong></td>
           </tr>
         </tfoot>
       </table>
