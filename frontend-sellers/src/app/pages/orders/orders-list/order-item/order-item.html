@@ -1,1 +1,15 @@
-<p>order-item works!</p>
+<article class="order-item">
+  <div class="order-item__info">
+    <span class="order-item__id">Orden #{{ order().id }}</span>
+    <span class="order-item__customer">{{ customerLabel }}</span>
+  </div>
+
+  <span [class]="statusClass">{{ statusLabel }}</span>
+
+  <a
+    class="order-item__action"
+    [routerLink]="['/orders', order().id]"
+  >
+    Ver detalles
+  </a>
+</article>

@@ -1,0 +1,29 @@
+.orders-list {
+  &__header {
+    margin-bottom: 1.5rem;
+
+    h1 {
+      margin: 0;
+      font-size: 1.75rem;
+    }
+  }
+
+  &__subtitle {
+    margin: 0.25rem 0 0;
+    color: #6b7280;
+  }
+
+  &__items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  &__state {
+    color: #6b7280;
+    text-align: center;
+    padding: 2rem 0;
+  }
+}

@@ -1,1 +1,119 @@
-<p>order-details works!</p>
+@if (loading()) {
+  <p class="state">Cargando pedido…</p>
+} @else if (!order()) {
+  <p class="state">No se encontró el pedido.</p>
+} @else {
+  <button class="back" (click)="goBack()">← Volver</button>
+
+  <header class="details__header">
+    <div>
+      <h1>Orden #{{ order()!.id }}</h1>
+      <p class="details__customer">Cliente: {{ customerFullName() }}</p>
+    </div>
+
+    <span class="status status--{{ order()!.status }}">
+      {{ order()!.status }}
+    </span>
+  </header>
+
+  <section class="details__products">
+    <h2>Productos</h2>
+    <ul>
+      @for (item of order()!.items; track item.id) {
+        <li class="product-row">
+          <span class="product-row__name">{{ item.name }}</span>
+          <span class="product-row__qty">x{{ item.quantity }}</span>
+          <span class="product-row__price">
+            $ {{ (+item.unit_price * item.quantity).toFixed(2) }}
+          </span>
+        </li>
+      }
+    </ul>
+
+    <div class="details__total">
+      <span>Total</span>
+      <strong>$ {{ (+order()!.total).toFixed(2) }}</strong>
+    </div>
+  </section>
+
+  <section class="details__actions">
+    <h2>Cambiar estado</h2>
+
+    <div class="details__buttons">
+      <button
+        type="button"
+        class="btn btn--primary"
+        [disabled]="!canPrepare() || updating()"
+        (click)="changeStatus('preparing')"
+      >
+        Marcar en preparación
+      </button>
+
+      <button
+        type="button"
+        class="btn btn--primary"
+        [disabled]="!canReady() || updating()"
+        (click)="changeStatus('ready')"
+      >
+        Marcar como listo
+      </button>
+
+      <button
+        type="button"
+        class="btn btn--success"
+        [disabled]="!canComplete() || updating()"
+        (click)="openOtpModal()"
+      >
+        Completar
+      </button>
+
+      <button
+        type="button"
+        class="btn btn--danger"
+        [disabled]="!canCancel() || updating()"
+        (click)="cancel()"
+      >
+        Cancelar
+      </button>
+    </div>
+  </section>
+}
+
+<app-reusable-modal
+  [visible]="otpOpen()"
+  title="Confirmar entrega"
+  (close)="closeOtpModal()"
+>
+  <div class="otp">
+    <p>Pide al cliente el código OTP de 6 dígitos para confirmar la entrega.</p>
+
+    <input
+      type="text"
+      inputmode="numeric"
+      maxlength="6"
+      placeholder="123456"
+      [ngModel]="otp()"
+      (ngModelChange)="otp.set($event)"
+      class="otp__input"
+    />
+
+    <div class="otp__actions">
+      <button
+        type="button"
+        class="btn btn--ghost"
+        (click)="closeOtpModal()"
+        [disabled]="updating()"
+      >
+        Cancelar
+      </button>
+      <button
+        type="button"
+        class="btn btn--success"
+        (click)="submitOtp()"
+        [disabled]="updating()"
+      >
+        Validar y completar
+      </button>
+    </div>
+  </div>
+</app-reusable-modal>

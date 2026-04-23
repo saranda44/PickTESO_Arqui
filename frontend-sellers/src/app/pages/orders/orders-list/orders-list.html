@@ -1,1 +1,20 @@
-<p>orders-list works!</p>
+<header class="orders-list__header">
+  <h1>Pedidos</h1>
+  <p class="orders-list__subtitle">
+    Gestiona los pedidos activos de tu tienda
+  </p>
+</header>
+
+@if (loading()) {
+  <p class="orders-list__state">Cargando pedidos…</p>
+} @else if (orders().length === 0) {
+  <p class="orders-list__state">No hay pedidos registrados.</p>
+} @else {
+  <ul class="orders-list__items">
+    @for (order of orders(); track order.id) {
+      <li>
+        <app-order-item [order]="order" />
+      </li>
+    }
+  </ul>
+}
