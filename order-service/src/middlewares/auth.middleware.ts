@@ -5,6 +5,7 @@ import { Request, Response, NextFunction } from 'express';
 export interface AuthUser {
     id: number;
     role: 'customer' | 'store_admin' | 'platform_admin';
+    storeId?: number | null; // Solo relevante para store_admin, puede ser null para otros roles
 }
 
 declare global {

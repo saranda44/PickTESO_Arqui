@@ -4,6 +4,7 @@ import { validateOrderIdParam } from '../middlewares/orders.validation.middlewar
 
 import customerOrderRoutes from './orders.customer.routes';
 import storeOrderRoutes from './orders.store.route';
+import { userFromHeaders } from "../middlewares/user-from-headers.middleware";
 
 const router = Router();
 
@@ -12,6 +13,8 @@ router.use(json());
 
 //---------------------------------------------------------
 // Payment service routes (no auth, called by payment service)
+
+router.use(userFromHeaders)
 
 //PATCH /orders/:id/confirm-payment — update status to paid
 // only payment service can update to paid
