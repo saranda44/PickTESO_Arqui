@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
-import { AuthService } from '../../services/auth.service';
+import { Component, inject, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AuthService, AuthUser } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -7,8 +8,32 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './login.html',
   styleUrl: './login.scss',
 })
-export class Login {
-  constructor(private auth: AuthService) {}
+export class Login implements OnInit {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private auth = inject(AuthService);
+
+  ngOnInit() {
+    if (this.auth.isAuthenticated()) {
+      this.router.navigate(['/']);
+      return;
+    }
+
+    const token = this.route.snapshot.queryParamMap.get('token');
+    const id = this.route.snapshot.queryParamMap.get('id');
+    const role = this.route.snapshot.queryParamMap.get('role');
+
+    if (token && id) {
+      const user: AuthUser = {
+        id,
+        role: role ?? 'customer',
+        email: '',
+        firstName: '',
+        storeId: null,
+      };
+      this.auth.handleAuthSuccess(token, user);
+    }
+  }
 
   loginWithGoogle(): void {
     this.auth.loginWithGoogle();

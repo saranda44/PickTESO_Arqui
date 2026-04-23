@@ -21,15 +21,19 @@ export class AuthService {
   constructor(private router: Router) {}
 
   loginWithGoogle(): void {
-    const apiUrl = 'http://localhost:3000/auth/google';
-    window.location.href = apiUrl;
+    window.location.href = 'http://localhost:3000/auth/google';
   }
 
   handleAuthSuccess(token: string, user: AuthUser): void {
-    localStorage.setItem(this.TOKEN_KEY, token);
-    localStorage.setItem(this.USER_KEY, JSON.stringify(user));
-    this.currentUser.set(user);
-  }
+  localStorage.setItem(this.TOKEN_KEY, token);
+
+  localStorage.setItem('id', user.id);
+  localStorage.setItem('role', user.role);
+
+  this.currentUser.set(user);
+
+  this.router.navigate(['/']);
+}
 
   getToken(): string | null {
     return localStorage.getItem(this.TOKEN_KEY);
