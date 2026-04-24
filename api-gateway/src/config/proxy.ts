@@ -27,4 +27,5 @@ export const catalogProxy = createProxy(process.env.CATALOG_SERVICE_URL as strin
 export const ordersProxy = createProxy(process.env.ORDERS_SERVICE_URL as string);
 export const notificationsProxy = createProxy(process.env.NOTIFICATIONS_SERVICE_URL as string);
 export const paymentProxy = createProxy(process.env.PAYMENT_SERVICE_URL as string);
+export const paymentConfirmProxy = createProxy(process.env.PAYMENTS_SERVICE_URL as string);
 export const sellersProxy = createProxy(process.env.SELLERS_SERVICE_URL as string);

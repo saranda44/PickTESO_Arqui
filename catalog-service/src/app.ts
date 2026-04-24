@@ -5,11 +5,13 @@ import express from 'express';
 import pool from './config/db.config';
 import router from './routes';
 import { errorMiddleware } from './middlewares/error.middleware';
+import { userFromHeaders } from './middlewares/user-from-headers.middleware';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
 app.use(express.json());
+app.use(userFromHeaders);
 
 app.use('/', router);
 

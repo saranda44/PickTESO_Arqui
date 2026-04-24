@@ -10,7 +10,8 @@ import {
     catalogProxy,
     ordersProxy,
     notificationsProxy,
-    paymentProxy,
+    // paymentProxy, uncomment if you want to use a single proxy for all payment routes
+    paymentConfirmProxy,
     sellersProxy,
 } from './config/proxy';
 
@@ -23,7 +24,8 @@ app.use(passport.initialize());
 app.use('/auth', express.json(), authRoutes);
 
 // Protected routes — proxy handles the body
-app.use('/payments', authenticate, paymentProxy);
+app.post('/payments/:id/confirm', authenticate, paymentConfirmProxy);
+// app.use('/payments', authenticate, paymentProxy); // proxy for all payment routes. uncomment if you want to use it instead of individual routes
 app.use('/sellers', authenticate,authorize('store_admin','platform_admin'), sellersProxy)
 app.use('/catalog', authenticate, catalogProxy)
 app.use('/orders',authenticate,authorize('store_admin','platform_admin'),ordersProxy )

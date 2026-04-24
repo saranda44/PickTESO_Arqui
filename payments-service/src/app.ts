@@ -4,11 +4,13 @@ import express from 'express';
 import paymentRoutes from './routes/payments';
 import healthRoutes from './routes/health';
 import { errorHandler } from './middlewares/errorHandler';
+import { userFromHeaders } from './middlewares/user-from-headers.middleware';
 
 
 const app = express();
 
 app.use(express.json());
+app.use(userFromHeaders);
 app.use('/health', healthRoutes);
 app.use('/', paymentRoutes);
 app.use(errorHandler);
