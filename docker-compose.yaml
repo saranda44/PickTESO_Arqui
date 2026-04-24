@@ -11,13 +11,12 @@ services:
       - notification-service
       - payments-service
       - sellers-service
-
-  #catalog-service:
-   # build: ./catalog-service
-    #ports:
-     # - "3001:3001"
-    #env_file:
-     # - ./catalog-service/.env
+  catalog-service:
+    build: ./catalog-service
+    ports:
+      - "3001:3001"
+    env_file:
+      - ./catalog-service/.env
 
   order-service:
     build: ./order-service
@@ -47,12 +46,12 @@ services:
     env_file:
       - ./sellers-service/.env
 
-  #frontend-client:
-   # build: ./front-end
+    #frontend-client:
+    # build: ./front-end
     #ports:
-     # - "4200:4200"
+    # - "4200:4200"
 
- # frontend-sellers:
-  #  build: ./front-end-sellers
-   # ports:
+    # frontend-sellers:
+    #  build: ./front-end-sellers
+    # ports:
     #  - "4300:4300"
