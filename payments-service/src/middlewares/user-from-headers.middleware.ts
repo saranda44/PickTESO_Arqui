@@ -6,7 +6,7 @@ export const userFromHeaders = (req: Request, res: Response, next: NextFunction)
     const storeId = req.headers["x-store-id"];
 
     if (userId) {
-        req.user = {
+        (req as any).user = {
             id: Number(userId),
             role: String(userRole),
             storeId: storeId ? Number(storeId) : null,
