@@ -85,7 +85,7 @@ export class ProductRepository {
                 ) AS tags
             FROM products p
             LEFT JOIN product_tags pt ON p.id = pt.product_id
-            LEFT JOIN tags t ON pt.tag_id = t.id
+            LEFT JOIN tags t ON pt.tag_id = t.id AND t.active = true
             WHERE p.store_id = $1
             GROUP BY 
                 p.id,

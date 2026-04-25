@@ -22,7 +22,7 @@ app.get('/health', (_req, res) => {
 app.use(errorMiddleware);
 
 app.listen(PORT, () => {
-    console.log(`sellers-service running on port ${PORT}`);
+    console.log(`sellers-service running on port ${PORT} - ${new Date().toISOString()}`);
 });
 
 pool.query('SELECT NOW()').then((res) => {

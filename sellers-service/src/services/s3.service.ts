@@ -8,7 +8,6 @@ import s3Client from "../config/s3.config";
 const S3_CONFIG = {
     maxFileSizeBytes: 5 * 1024 * 1024, // 5MB
     outputSizePx: 500,                  // 500x500 px de salida
-    ratioTolerance: 0.1,                // 10% de desviación permitida del ratio 1:1
     bucket: process.env.AWS_S3_BUCKET_NAME!,
 } as const;
 
@@ -40,16 +39,6 @@ export async function uploadImageToS3(
 
     if (!width || !height) {
         throw new BadRequestError("No se pudo leer las dimensiones de la imagen.");
-    }
-
-    // Calculamos el ratio y verificamos que esté cerca de 1:1
-    const ratio = width / height;
-    const isSquare = ratio >= (1 - S3_CONFIG.ratioTolerance) && ratio <= (1 + S3_CONFIG.ratioTolerance);
-
-    if (!isSquare) {
-        throw new BadRequestError(
-            `La imagen debe tener un ratio cuadrado (1:1). El ratio recibido fue ${ratio.toFixed(2)}.`
-        );
     }
 
     // Procesamos con sharp: redimensionamos a 500x500 y convertimos a webp

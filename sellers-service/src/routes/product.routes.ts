@@ -24,16 +24,16 @@ const productTagController = new ProductTagController();
 // router.delete("/:id", authMiddleware, ownsProduct(req => Number(req.params.id)), productController.deleteProduct);
 
 // Product routes
-router.post("/", upload.single("image"), productController.createProduct);
+router.post("/", upload.single("image"), ownsStore(req => Number(req.body.store_id)), productController.createProduct);
 router.get("/store/:store_id", productController.getProductsWithTags);
 
 // Product tag routes — antes de /:id
 router.get("/:product_id/tags", productTagController.getTagsByProductId);
-router.put("/:product_id/tags", productTagController.replaceTagsForProduct);
+router.put("/:product_id/tags", ownsProduct(req => Number(req.params.product_id)), productTagController.replaceTagsForProduct);
 
 // Rutas dinámicas generales al final
 router.get("/:id", productController.getProductById);
-router.put("/:id", upload.single("image"), productController.updateProduct);
-router.delete("/:id", productController.deleteProduct);
+router.put("/:id", upload.single("image"), ownsProduct(req => Number(req.params.id)), productController.updateProduct);
+router.delete("/:id", ownsProduct(req => Number(req.params.id)), productController.deleteProduct);
 
 export default router;

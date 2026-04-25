@@ -16,10 +16,10 @@ const tagController = new TagController();
 
 
 // Rutas sin Middleware de autenticación y autorización
-router.post("/", tagController.createTag);
+router.post("/",ownsStore(req => Number(req.body.store_id)), tagController.createTag);
 router.get("/store/:store_id", tagController.getTagsByStoreId);
 router.get("/:id", tagController.getTagById);
-router.put("/:id", tagController.updateTag);
-router.delete("/:id", tagController.softDeleteTag);
+router.put("/:id", ownsTag, tagController.updateTag);
+router.delete("/:id", ownsTag, tagController.softDeleteTag);
 
 export default router;
