@@ -1,28 +1,47 @@
 import { Injectable, signal } from '@angular/core';
 
+export interface AlertItem {
+  id: string;
+  message: string;
+  type: 'error' | 'success' | 'info';
+  duration: number;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class AlertService {
-  message = signal<string | null>(null);
-  type = signal<'error' | 'success' | 'info'>('error');
+  alerts = signal<AlertItem[]>([]);
+  private idCounter = 0;
 
-  showError(msg: string) {
-    this.type.set('error');
-    this.message.set(msg);
+  showError(msg: string, duration = 3000) {
+    this.addAlert(msg, 'error', duration);
   }
 
-  showSuccess(msg: string) {
-    this.type.set('success');
-    this.message.set(msg);
+  showSuccess(msg: string, duration = 3000) {
+    this.addAlert(msg, 'success', duration);
   }
 
-  showInfo(msg: string) {
-    this.type.set('info');
-    this.message.set(msg);
+  showInfo(msg: string, duration = 3000) {
+    this.addAlert(msg, 'info', duration);
+  }
+
+  private addAlert(msg: string, type: 'error' | 'success' | 'info', duration: number) {
+    const id = `alert-${++this.idCounter}`;
+    const alert: AlertItem = { id, message: msg, type, duration };
+
+    this.alerts.update(alerts => [...alerts, alert]);
+
+    setTimeout(() => {
+      this.removeAlert(id);
+    }, duration);
+  }
+
+  removeAlert(id: string) {
+    this.alerts.update(alerts => alerts.filter(a => a.id !== id));
   }
 
   clear() {
-    this.message.set(null);
+    this.alerts.set([]);
   }
 }

@@ -14,9 +14,9 @@
       }
 
       <nav class="nav" [class.nav--open]="menuOpen()">
-        <a (click)="closeMenu()">Pedidos</a>
-        <a (click)="closeMenu()">Productos</a>
-        <button (click)="logout()" class="nav__logout" title="Cerrar sesión">Salir 🚪</button>
+        <a routerLink="/home" (click)="closeMenu()" class="nav__link">Home</a>
+        <a routerLink="/orders" (click)="closeMenu()" class="nav__link">Pedidos</a>
+        <button (click)="logout()" class="nav__link nav__logout" title="Cerrar sesión">Salir</button>
       </nav>
     }
   </div>

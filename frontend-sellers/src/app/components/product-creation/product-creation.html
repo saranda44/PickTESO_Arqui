@@ -1,0 +1,77 @@
+<button class="btn-create" (click)="openModal()">+ Crear Producto</button>
+
+<app-reusable-modal
+  [visible]="modalVisible()"
+  title="Crear Producto"
+  (close)="onModalClose()">
+  <form class="product-form" (ngSubmit)="submitCreate()" #form="ngForm">
+    <div class="form-group">
+      <label for="name">Nombre *</label>
+      <input
+        id="name"
+        [(ngModel)]="formName"
+        name="name"
+        type="text"
+        placeholder="Ej. Producto ejemplo"
+        required />
+    </div>
+
+    <div class="form-group">
+      <label for="description">Descripción</label>
+      <textarea
+        id="description"
+        [(ngModel)]="formDescription"
+        name="description"
+        placeholder="Descripción del producto (opcional)"
+        rows="3"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="price">Precio *</label>
+      <input
+        id="price"
+        [(ngModel)]="formPrice"
+        name="price"
+        type="number"
+        step="0.01"
+        placeholder="0.00"
+        required />
+    </div>
+
+    <div class="form-group">
+      <label for="image">Imagen</label>
+      <input
+        id="image"
+        type="file"
+        accept="image/*"
+        (change)="onFileSelected($event)" />
+      <small *ngIf="selectedFile">{{ selectedFile.name }}</small>
+    </div>
+
+    @if (storeId) {
+      <div class="form-group">
+        <label>Tags del Producto</label>
+        <app-tag-selector
+          [storeId]="getNumericStoreId()"
+          [selectedTagIds]="[]"
+        ></app-tag-selector>
+      </div>
+    }
+
+    <div class="form-actions">
+      <button
+        type="button"
+        class="btn-cancel"
+        (click)="onModalClose()"
+        [disabled]="isLoading()">
+        Cancelar
+      </button>
+      <button
+        type="submit"
+        class="btn-submit"
+        [disabled]="isLoading()">
+        {{ isLoading() ? 'Creando...' : 'Crear Producto' }}
+      </button>
+    </div>
+  </form>
+</app-reusable-modal>

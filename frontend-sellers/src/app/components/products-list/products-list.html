@@ -1,12 +1,5 @@
 <!-- products-list.html -->
 <div class="products-list">
-  @if (error()) {
-    <div class="alert alert--error">
-      {{ error() }}
-      <button (click)="error.set(null)" class="alert__close">X</button>
-    </div>
-  }
-
   <!-- Modal de edición -->
   <app-reusable-modal [visible]="modalVisible()" [title]="modalTitle()" (close)="onModalClose()">
     <form (submit)="$event.preventDefault(); submitEdit()" class="edit-form">
@@ -53,6 +46,18 @@
         />
         <small>Max 5MB, formatos: JPEG, PNG, WebP. Reemplaza la imagen actual</small>
       </div>
+
+      @if (selectedProduct()) {
+        <div class="form-group">
+          <label>Tags del Producto</label>
+          <app-tag-selector
+            [storeId]="selectedProduct()!.store_id"
+            [productId]="selectedProduct()!.id"
+            [selectedTagIds]="selectedTagIds"
+            (tagsSaved)="onTagsSaved($event)"
+          ></app-tag-selector>
+        </div>
+      }
     </form>
 
     <div class="modal-actions">
@@ -61,7 +66,36 @@
     </div>
   </app-reusable-modal>
 
-  <!-- <button (click)="loadProducts()" class="load-btn">Cargar Productos</button> -->
+  <!-- Filter by Tags -->
+  <div class="filter-controls">
+    <label>Filtrar por tags:</label>
+    <div class="tags-filter">
+      @if (getAvailableTags().length === 0) {
+        <p class="no-tags">Sin tags disponibles</p>
+      } @else {
+        @for (tag of getAvailableTags(); track tag.id) {
+          <button
+            class="tag-filter"
+            [class.tag-filter--selected]="isTagFilterSelected(tag.id)"
+            (click)="toggleTagFilter(tag.id)"
+            [style.background-color]="isTagFilterSelected(tag.id) ? tag.color : '#f0f0f0'"
+            [style.color]="isTagFilterSelected(tag.id) ? 'white' : '#333'"
+          >
+            {{ tag.name }}
+          </button>
+        }
+      }
+    </div>
+  </div>
+
+  <!-- Sort Controls -->
+  <div class="sort-controls">
+    <label for="sort">Ordenar por:</label>
+    <select id="sort" [value]="sortBy()" (change)="onSortChange($any($event.target).value)">
+      <option value="nombre">Nombre (A-Z)</option>
+      <option value="precio">Precio (menor a mayor)</option>
+    </select>
+  </div>
 
   @if (products().length === 0) {
     <p class="empty-message">No hay productos</p>

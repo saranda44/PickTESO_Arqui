@@ -1,23 +1,40 @@
-// components/alert/alert.component.ts
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { AlertService } from '../../services/alert';
 
 @Component({
   selector: 'app-alert',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    @if (message && message !== null) {
-      <div [class]="'alert alert--' + type">
-        {{ message }}
-        <button (click)="close.emit()" class="alert__close">×</button>
-      </div>
-    }
+    <div class="alert-container">
+      @for (alert of alertService.alerts(); track alert.id) {
+        <div [class]="'alert alert--' + alert.type">
+          <div class="alert__content">
+            <span class="alert__icon">{{ getIcon(alert.type) }}</span>
+            <span class="alert__message">{{ alert.message }}</span>
+          </div>
+          <button (click)="dismiss(alert.id)" class="alert__close" title="Cerrar">×</button>
+        </div>
+      }
+    </div>
   `,
   styleUrl: './alert.scss'
 })
 export class Alert {
-  @Input() message: string | null = null;
-  @Input() type: 'error' | 'success' | 'info' = 'error';
-  @Output() close = new EventEmitter<void>();
+  protected alertService = inject(AlertService);
+
+  dismiss(id: string) {
+    this.alertService.removeAlert(id);
+  }
+
+  getIcon(type: 'error' | 'success' | 'info'): string {
+    const icons: Record<string, string> = {
+      success: '✓',
+      error: '✕',
+      info: 'ℹ'
+    };
+    return icons[type] || '';
+  }
 }

@@ -1,7 +1,9 @@
-<app-alert
-  [message]="alertService.message()"
-  [type]="alertService.type()"
-  (close)="alertService.clear()"
-/>
+<app-alert></app-alert>
 <app-stores></app-stores>
+
+<div class="home-actions">
+  <app-product-creation (productCreated)="refreshProducts()"></app-product-creation>
+  <app-tags (tagsUpdated)="refreshProducts()"></app-tags>
+</div>
+
 <app-products-list></app-products-list>

@@ -1,41 +1,64 @@
-<!-- product-card.html -->
 <div class="card">
-  <!-- <div class="card" [class.card--inactive]="isInactive"> -->
   <div class="card__image">
+    @if (product.product_image) {
     <img [src]="imageUrl" [alt]="product.name" />
+    } @else {
+    <div class="image-placeholder">
+      <span class="placeholder-icon"></span>
+      <span class="placeholder-text">{{ product.name }}</span>
+    </div>
+    }
+    @if (isInactive) {
+    <div class="stock-badge stock-badge--out">Sin stock</div>
+    }
   </div>
 
   <div class="card__content">
-    <h3 class="card__name">{{ product.name }}</h3>
+    <div class="card__header">
+      <h3 class="card__name">{{ product.name }}</h3>
+      <span class="card__price">${{ product.price | number: '1.2-2' }}</span>
+    </div>
 
     <p class="card__description">{{ product.description }}</p>
 
+    @if (product.tags && product.tags.length > 0) {
     <div class="card__tags">
       @for (tag of product.tags; track tag.id) {
-        <span class="badge" [style.background-color]="tag.color">
-          {{ tag.name }}
-        </span>
+      <span class="badge" [style.background-color]="tag.color">{{ tag.name }}</span>
       }
     </div>
+    }
 
-    <div class="card__inventory" [class.card__inventory--inactive]="isInactive">
-      <span class="inventory-label">Stock:</span>
-      <span class="inventory-value">{{ inventory }}</span>
+    <div class="card__stock-info" [class.card__stock-info--low]="isInactive">
+      <span class="stock-value">{{ inventory }} unidades</span>
     </div>
 
-    <div class="card__price">${{ product.price | number: '1.2-2' }}</div>
-
     <div class="card__actions">
-      <button class="btn btn--primary" (click)="onEdit()">Modificar</button>
-      <button class="btn btn--danger" (click)="onDelete()">Eliminar</button>
+      <button class="btn btn--primary" (click)="onEdit()" title="Editar producto"> <svg viewBox="0 0 24 24" width="18"
+          height="18">
+          <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z" fill="currentColor" />
+          <path
+            d="M20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"
+            fill="currentColor" />
+        </svg>
+        Editar</button>
+      <button class="btn btn--danger" (click)="onDelete()" title="Eliminar producto">X Eliminar</button>
     </div>
 
     <div class="card__adjustment">
-      <label>Ajustar inventario:</label>
-      <div class="adjustment-controls">
-        <input type="number" [(ngModel)]="adjustmentQuantity" min="1" class="input-qty" />
-        <button class="btn btn--secondary" (click)="removeInventory()">↓ Salida</button>
-        <button class="btn btn--success" (click)="addInventory()">↑ Entrada</button>
+      <div class="adjustment-section">
+        <span class="adjustment-label">Stock:</span>
+        <div class="adjustment-controls">
+          <button class="qty-btn" (click)="decrementQty()" title="Disminuir">−</button>
+          <input type="number" [(ngModel)]="adjustmentQuantity" min="0" class="input-qty" placeholder="0" />
+          <button class="qty-btn" (click)="incrementQty()" title="Aumentar">+</button>
+        </div>
+      </div>
+
+      <div class="adjustment-actions">
+        <button class="btn btn--sm btn--secondary" (click)="removeInventory()"
+          title="Salida de inventario">Salida</button>
+        <button class="btn btn--sm btn--success" (click)="addInventory()" title="Entrada de inventario">Entrada</button>
       </div>
     </div>
   </div>

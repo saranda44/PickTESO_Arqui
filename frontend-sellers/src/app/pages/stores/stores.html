@@ -1,71 +1,100 @@
 <div class="stores-container">
   <!-- Loading -->
-  @if (loading && !store) {
-    <div class="loading">Cargando tienda...</div>
+  @if (loading() && !store()) {
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Cargando tienda...</p>
+    </div>
   }
 
   <!-- Store Info -->
-  @if (store && !loading) {
-    <div class="store-info">
-      @if (store.image) {
-        <img [src]="store.image" alt="{{ store.name }}" class="store-image-column" />
+  @if (store() && !loading()) {
+    <div class="store-card">
+      @if (store()!.image) {
+        <div class="store-image-wrapper">
+          <img [src]="store()!.image" alt="{{ store()!.name }}" class="store-image-column" />
+        </div>
       }
 
       <div class="store-content">
         <div class="store-header">
-          <h2>{{ store.name }}</h2>
-          <button class="btn-edit" (click)="openModal()">Editar</button>
+          <div class="store-title-section">
+            <h1 class="store-name">{{ store()!.name }}</h1>
+            <p class="store-label">Mi tienda</p>
+          </div>
+          <button class="btn-edit" (click)="openModal()" type="button">Editar</button>
         </div>
 
         <div class="store-details">
-          <p><strong>Ubicación:</strong> {{ store.location }}</p>
-          <p>
-            <strong>Horario:</strong> {{ formatTime(store.opening_time) }} -
-            {{ formatTime(store.closing_time) }}
-          </p>
+          <div class="detail-row">
+            <span class="detail-icon">📍</span>
+            <div class="detail-content">
+              <span class="detail-label">Ubicación</span>
+              <span class="detail-value">{{ store()!.location || 'No especificada' }}</span>
+            </div>
+          </div>
+
+          <div class="detail-row">
+            <span class="detail-icon">🕐</span>
+            <div class="detail-content">
+              <span class="detail-label">Horario de atención</span>
+              <span class="detail-value">{{ formatTime(store()!.opening_time) }} - {{ formatTime(store()!.closing_time) }}</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   }
 
   <!-- Success Message -->
-  @if (success) {
+  @if (success()) {
     <div class="alert alert-success">
-      {{ success }}
+      <span class="alert-icon">✓</span>
+      {{ success() }}
     </div>
   }
 
   <!-- Modal Backdrop -->
-  @if (showModal) {
+  @if (showModal()) {
     <div class="modal-backdrop" (click)="closeModal()"></div>
   }
 
   <!-- Modal -->
-  @if (showModal) {
+  @if (showModal()) {
     <div class="modal">
       <div class="modal-content" (click)="$event.stopPropagation()">
         <div class="modal-header">
-          <h3>Editar Tienda</h3>
-          <button class="btn-close" (click)="closeModal()">×</button>
+          <h2>Editar Tienda</h2>
+          <button class="btn-close" (click)="closeModal()" type="button" aria-label="Cerrar">×</button>
         </div>
 
         <!-- Error Message -->
-        @if (error) {
+        @if (error()) {
           <div class="alert alert-error">
-            {{ error }}
+            <span class="alert-icon">!</span>
+            {{ error() }}
           </div>
         }
 
         <form [formGroup]="storeForm" class="modal-body">
           <!-- Name -->
           <div class="form-group">
-            <label for="name">Nombre Tienda *</label>
-            <input id="name" type="text" formControlName="name" placeholder="Ej: Mi Tienda" />
-            @if (storeForm.get('name')?.hasError('required')) {
-              <span class="error"> Nombre requerido </span>
+            <label for="name">
+              Nombre Tienda
+              <span class="required">*</span>
+            </label>
+            <input
+              id="name"
+              type="text"
+              formControlName="name"
+              placeholder="Ej: Mi Tienda"
+              [class.input-error]="storeForm.get('name')?.invalid && storeForm.get('name')?.touched"
+            />
+            @if (storeForm.get('name')?.hasError('required') && storeForm.get('name')?.touched) {
+              <span class="error">Nombre requerido</span>
             }
-            @if (storeForm.get('name')?.hasError('maxlength')) {
-              <span class="error"> Máximo 100 caracteres </span>
+            @if (storeForm.get('name')?.hasError('maxlength') && storeForm.get('name')?.touched) {
+              <span class="error">Máximo 100 caracteres</span>
             }
           </div>
 
@@ -82,27 +111,35 @@
 
           <!-- Opening Time -->
           <div class="form-group">
-            <label for="opening_time">Hora Apertura (24h)</label>
+            <label for="opening_time">
+              Hora Apertura
+              <span class="required">*</span>
+            </label>
             <input
               id="opening_time"
               type="time"
               formControlName="opening_time"
+              [class.input-error]="storeForm.get('opening_time')?.invalid && storeForm.get('opening_time')?.touched"
             />
-            @if (storeForm.get('opening_time')?.hasError('required')) {
-              <span class="error"> Hora requerida </span>
+            @if (storeForm.get('opening_time')?.hasError('required') && storeForm.get('opening_time')?.touched) {
+              <span class="error">Hora requerida</span>
             }
           </div>
 
           <!-- Closing Time -->
           <div class="form-group">
-            <label for="closing_time">Hora Cierre (24h)</label>
+            <label for="closing_time">
+              Hora Cierre
+              <span class="required">*</span>
+            </label>
             <input
               id="closing_time"
               type="time"
               formControlName="closing_time"
+              [class.input-error]="storeForm.get('closing_time')?.invalid && storeForm.get('closing_time')?.touched"
             />
-            @if (storeForm.get('closing_time')?.hasError('required')) {
-              <span class="error"> Hora requerida </span>
+            @if (storeForm.get('closing_time')?.hasError('required') && storeForm.get('closing_time')?.touched) {
+              <span class="error">Hora requerida</span>
             }
           </div>
 
@@ -120,9 +157,9 @@
         </form>
 
         <div class="modal-footer">
-          <button class="btn-cancel" (click)="closeModal()">Cancelar</button>
-          <button class="btn-save" (click)="onSave()" [disabled]="storeForm.invalid">
-            {{ loading ? 'Guardando...' : 'Guardar' }}
+          <button class="btn-cancel" (click)="closeModal()" type="button">Cancelar</button>
+          <button class="btn-save" (click)="onSave()" type="button" [disabled]="storeForm.invalid || loading()">
+            {{ loading() ? 'Guardando...' : 'Guardar' }}
           </button>
         </div>
       </div>

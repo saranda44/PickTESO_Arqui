@@ -1,0 +1,179 @@
+<button class="btn-manage-tags" (click)="openModal()">⚙️ Gestionar Tags</button>
+
+<app-reusable-modal
+  [visible]="modalVisible()"
+  [title]="currentView() === 'list' ? 'Tags de Tienda' : currentView() === 'detail' ? 'Detalle Tag' : 'Crear/Editar Tag'"
+  (close)="closeModal()">
+
+  <!-- LIST VIEW: Grid de badges -->
+  @if (currentView() === 'list') {
+    <div class="tags-list">
+      @if (tags().length === 0) {
+        <p class="empty-message">No hay tags. Crea uno nuevo.</p>
+      } @else {
+        <div class="tags-grid">
+          @for (tag of tags(); track tag.id) {
+            <button
+              class="tag-item"
+              (click)="selectTag(tag)">
+              <span class="tag-color-dot" [style.background-color]="tag.color"></span>
+              <span class="tag-name">{{ tag.name }}</span>
+            </button>
+          }
+        </div>
+      }
+
+      <div class="list-actions">
+        <button class="btn-create" (click)="openCreateForm()">+ Nuevo Tag</button>
+      </div>
+    </div>
+  }
+
+  <!-- DETAIL VIEW: Información del tag seleccionado -->
+  @if (currentView() === 'detail' && selectedTag()) {
+    <div class="tag-detail">
+      <div class="tag-header">
+        <button class="btn-back" (click)="backToList()">← Volver</button>
+      </div>
+
+      <div class="detail-content">
+        <div class="detail-row">
+          <label>Nombre</label>
+          <div class="tag-name-display">
+            <span class="tag-color-dot" [style.background-color]="selectedTag()!.color"></span>
+            <span>{{ selectedTag()!.name }}</span>
+          </div>
+        </div>
+
+        @if (selectedTag()!.description) {
+          <div class="detail-row">
+            <label>Descripción</label>
+            <p>{{ selectedTag()!.description }}</p>
+          </div>
+        }
+
+        @if (selectedTag()!.start_time || selectedTag()!.end_time) {
+          <div class="detail-row">
+            <label>Horario</label>
+            <p>
+              @if (selectedTag()!.start_time) {
+                Desde {{ selectedTag()!.start_time }}
+              }
+              @if (selectedTag()!.start_time && selectedTag()!.end_time) {
+                —
+              }
+              @if (selectedTag()!.end_time) {
+                Hasta {{ selectedTag()!.end_time }}
+              }
+            </p>
+          </div>
+        }
+
+        <div class="detail-row">
+          <label>Color</label>
+          <div class="color-preview" [style.background-color]="selectedTag()!.color"></div>
+        </div>
+      </div>
+
+      <div class="detail-actions">
+        <button class="btn-edit" (click)="openEditForm()" [disabled]="isLoading()">
+          Editar
+        </button>
+        <button class="btn-delete" (click)="confirmDelete()" [disabled]="isLoading()">
+          Eliminar
+        </button>
+      </div>
+
+      @if (showDeleteConfirm()) {
+        <div class="delete-confirm">
+          <p>¿Eliminar tag "{{ selectedTag()!.name }}"?</p>
+          <div class="delete-confirm__actions">
+            <button class="btn-cancel" (click)="cancelDelete()">Cancelar</button>
+            <button class="btn-delete" (click)="deleteTag()" [disabled]="isLoading()">
+              {{ isLoading() ? 'Eliminando...' : 'Confirmar' }}
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- FORM VIEW: Crear o editar tag -->
+  @if (currentView() === 'form') {
+    <div class="tag-form">
+      <div class="form-header">
+        <button class="btn-back" (click)="backToList()">← Volver</button>
+      </div>
+
+      <form class="form-content" (ngSubmit)="submitForm()">
+        <div class="form-group">
+          <label for="name">Nombre *</label>
+          <input
+            id="name"
+            [(ngModel)]="formData().name"
+            name="name"
+            type="text"
+            placeholder="Ej. Desayuno"
+            required />
+        </div>
+
+        <div class="form-group">
+          <label for="description">Descripción</label>
+          <textarea
+            id="description"
+            [(ngModel)]="formData().description"
+            name="description"
+            placeholder="Descripción opcional"
+            rows="3"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="color">Color</label>
+          <div class="color-input-wrapper">
+            <input
+              id="color"
+              [(ngModel)]="formData().color"
+              name="color"
+              type="color"
+              title="Selecciona un color" />
+            <span class="color-label">{{ formData().color }}</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="startTime">Hora de inicio</label>
+          <input
+            id="startTime"
+            [(ngModel)]="formData().start_time"
+            name="startTime"
+            type="time"
+            placeholder="HH:MM" />
+        </div>
+
+        <div class="form-group">
+          <label for="endTime">Hora de fin</label>
+          <input
+            id="endTime"
+            [(ngModel)]="formData().end_time"
+            name="endTime"
+            type="time"
+            placeholder="HH:MM" />
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-cancel" (click)="backToList()" [disabled]="isLoading()">
+            Cancelar
+          </button>
+          <button type="submit" class="btn-submit" [disabled]="isLoading()">
+            @if (isLoading()) {
+              Guardando...
+            } @else {
+              {{ formMode() === 'create' ? 'Crear Tag' : 'Actualizar Tag' }}
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+
+</app-reusable-modal>

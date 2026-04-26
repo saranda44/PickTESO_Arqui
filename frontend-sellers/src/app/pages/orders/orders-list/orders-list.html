@@ -5,13 +5,37 @@
   </p>
 </header>
 
+@if (!loading() && orders().length > 0) {
+  <div class="filter-controls">
+    <div class="filter-controls__header">
+      <label class="filter-controls__label">Filtrar por estado:</label>
+      @if (selectedStatuses().size > 0) {
+        <button class="filter-controls__clear" (click)="clearFilters()">Limpiar filtros</button>
+      }
+    </div>
+    <div class="status-badges">
+      @for (status of statusOptions; track status.value) {
+        <button
+          class="status-badge"
+          [class.status-badge--selected]="isStatusSelected(status.value)"
+          (click)="toggleStatusFilter(status.value)"
+        >
+          {{ status.label }}
+        </button>
+      }
+    </div>
+  </div>
+}
+
 @if (loading()) {
   <p class="orders-list__state">Cargando pedidos…</p>
 } @else if (orders().length === 0) {
   <p class="orders-list__state">No hay pedidos registrados.</p>
+} @else if (filteredAndSortedOrders().length === 0) {
+  <p class="orders-list__state">No hay pedidos con los estados seleccionados.</p>
 } @else {
   <ul class="orders-list__items">
-    @for (order of orders(); track order.id) {
+    @for (order of filteredAndSortedOrders(); track order.id) {
       <li>
         <app-order-item [order]="order" />
       </li>

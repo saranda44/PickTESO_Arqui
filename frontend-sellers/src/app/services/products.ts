@@ -51,6 +51,10 @@ export class ProductService {
     return this.http.delete(`${this.sellersApiUrl}/products/${id}`);
   }
 
+  createProduct(data: any) {
+    return this.http.post(`${this.sellersApiUrl}/products`, data);
+  }
+
   adjustInventory(product_id: number, movement_type: 'in' | 'out', quantity: number) {
     return this.http.post(`${this.sellersApiUrl}/inventory`, {
       product_id,

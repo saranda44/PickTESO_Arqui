@@ -1,0 +1,29 @@
+<div class="tags-selector">
+  @if (loading()) {
+    <p class="loading">Cargando tags...</p>
+  } @else if (error()) {
+    <div class="error-message">
+      <p>{{ error() }}</p>
+      <button type="button" class="btn-retry" (click)="loadTags()">
+        Reintentar
+      </button>
+    </div>
+  } @else if (allTags().length === 0) {
+    <p class="empty-message">No hay tags disponibles</p>
+  } @else {
+    <div class="tags-container">
+      @for (tag of allTags(); track tag.id) {
+        <button
+          type="button"
+          class="tag-btn"
+          [class.tag-btn--selected]="isSelected(tag.id)"
+          [style.background-color]="isSelected(tag.id) ? tag.color : '#f0f0f0'"
+          [style.color]="isSelected(tag.id) ? 'white' : '#333'"
+          (click)="toggleTag(tag.id)"
+        >
+          {{ tag.name }}
+        </button>
+      }
+    </div>
+  }
+</div>

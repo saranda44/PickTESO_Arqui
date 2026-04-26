@@ -27,3 +27,70 @@
     padding: 2rem 0;
   }
 }
+
+.filter-controls {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 8px;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+  }
+
+  &__label {
+    font-weight: 500;
+    color: #374151;
+  }
+
+  &__clear {
+    padding: 0.4rem 0.75rem;
+    border: 1px solid #d1d5db;
+    background: white;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #6b7280;
+
+    &:hover {
+      border-color: #9ca3af;
+      background: #f3f4f6;
+    }
+  }
+}
+
+.status-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.status-badge {
+  padding: 0.5rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background: white;
+  color: #374151;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: #004270;
+    background: #f0f6ff;
+  }
+
+  &--selected {
+    background: #004270;
+    color: white;
+    border-color: #004270;
+
+    &:hover {
+      background: #0a5a94;
+    }
+  }
+}

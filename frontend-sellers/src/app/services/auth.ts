@@ -4,59 +4,87 @@ import { Router } from '@angular/router';
 import { environment } from '../../environment';
 import { tap } from 'rxjs/operators';
 
+interface LoginResponse {
+  token: string;
+  userId?: string;
+  storeId?: string;
+  role?: string;
+}
+
+interface StorageKeys {
+  token: string;
+  userId: string;
+  storeId: string;
+  role: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private TOKEN_KEY = 'token';
-  private USER_ID = 'userId';
-  private STORE_ID = 'store_id';
-  private ROLE_KEY = 'role';
+  private readonly STORAGE_KEYS: StorageKeys = {
+    token: 'token',
+    userId: 'userId',
+    storeId: 'store_id',
+    role: 'role',
+  };
 
-  isLoggedIn = signal(!!localStorage.getItem(this.TOKEN_KEY));
+  isLoggedIn = signal(this.hasToken());
 
   constructor(private http: HttpClient, private router: Router) { }
 
   login(credentials: { email: string; password: string }) {
-    return this.http.post(`${environment.apiGatewayApiUrl}/auth/login`, credentials).pipe(
-      tap((response: any) => {
-        this.setToken(response.token);
-      })
-    );
+    return this.http
+      .post<LoginResponse>(`${environment.apiGatewayApiUrl}/auth/login`, credentials)
+      .pipe(
+        tap((response) => {
+          this.setToken(response.token, response.userId, response.storeId, response.role);
+        })
+      );
   }
 
   setToken(token: string, userId?: string | null, storeId?: string | null, role?: string | null) {
-    localStorage.setItem(this.TOKEN_KEY, token);
-    if (userId) localStorage.setItem(this.USER_ID, userId);
-    if (storeId) localStorage.setItem(this.STORE_ID, storeId);
-    if (role) localStorage.setItem(this.ROLE_KEY, role);
+    this.setItem(this.STORAGE_KEYS.token, token);
+    if (userId) this.setItem(this.STORAGE_KEYS.userId, userId);
+    if (storeId) this.setItem(this.STORAGE_KEYS.storeId, storeId);
+    if (role) this.setItem(this.STORAGE_KEYS.role, role);
     this.isLoggedIn.set(true);
     this.router.navigate(['/home']);
   }
 
   getToken() {
-    return localStorage.getItem(this.TOKEN_KEY);
+    return this.getItem(this.STORAGE_KEYS.token);
   }
 
   getUserId() {
-    return localStorage.getItem(this.USER_ID);
+    return this.getItem(this.STORAGE_KEYS.userId);
   }
 
   getStoreId() {
-    return localStorage.getItem(this.STORE_ID);
+    return this.getItem(this.STORAGE_KEYS.storeId);
   }
 
   getUserRole() {
-    return localStorage.getItem(this.ROLE_KEY);
+    return this.getItem(this.STORAGE_KEYS.role);
   }
 
   logout() {
-    localStorage.removeItem(this.TOKEN_KEY);
-    localStorage.removeItem(this.USER_ID);
-    localStorage.removeItem(this.STORE_ID);
-    localStorage.removeItem(this.ROLE_KEY);
-    localStorage.clear();
+    Object.values(this.STORAGE_KEYS).forEach((key) => {
+      localStorage.removeItem(key);
+    });
     this.isLoggedIn.set(false);
     this.router.navigate(['/login']);
+  }
+
+  private hasToken(): boolean {
+    return !!localStorage.getItem(this.STORAGE_KEYS.token);
+  }
+
+  private getItem(key: string): string | null {
+    return localStorage.getItem(key);
+  }
+
+  private setItem(key: string, value: string): void {
+    localStorage.setItem(key, value);
   }
 }

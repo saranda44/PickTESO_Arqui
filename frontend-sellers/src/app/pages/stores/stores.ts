@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, NgZone, ChangeDetectorRef } from '@angular/core';
+import { Component, inject, OnInit, NgZone, ChangeDetectorRef, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { StoreService, StoreDetails } from '../../services/store';
@@ -16,14 +16,14 @@ export class Stores implements OnInit {
   ngZone = inject(NgZone);
   cdr = inject(ChangeDetectorRef);
 
-  store: StoreDetails | null = null;
+  store = signal<StoreDetails | null>(null);
   storeForm!: FormGroup;
   selectedFile: File | null = null;
 
-  loading = false;
-  error: string | null = null;
-  success: string | null = null;
-  showModal = false;
+  loading = signal(false);
+  error = signal<string | null>(null);
+  success = signal<string | null>(null);
+  showModal = signal(false);
 
   ngOnInit() {
     this.loadStore();
@@ -40,11 +40,11 @@ export class Stores implements OnInit {
   }
 
   loadStore() {
-    this.loading = true;
-    this.error = null;
+    this.loading.set(true);
+    this.error.set(null);
     this.storeService.getStoreDetails().subscribe({
       next: (data) => {
-        this.store = data;
+        this.store.set(data);
         this.storeForm.patchValue({
           name: data.name,
           location: data.location,
@@ -52,23 +52,23 @@ export class Stores implements OnInit {
           closing_time: this.formatTime(data.closing_time),
         });
         this.storeForm.enable();
-        this.loading = false;
+        this.loading.set(false);
       },
       error: () => {
-        this.error = 'Error al cargar tienda';
-        this.loading = false;
+        this.error.set('Error al cargar tienda');
+        this.loading.set(false);
       },
     });
   }
 
   openModal() {
-    this.showModal = true;
+    this.showModal.set(true);
   }
 
   closeModal() {
-    this.showModal = false;
+    this.showModal.set(false);
     this.selectedFile = null;
-    this.error = null;
+    this.error.set(null);
   }
 
   onFileSelect(event: Event) {
@@ -80,36 +80,33 @@ export class Stores implements OnInit {
 
   onSave() {
     if (this.storeForm.invalid) {
-      this.error = 'Formulario inválido';
+      this.error.set('Formulario inválido');
       return;
     }
 
     const validationError = this.storeService.validateUpdateData(this.storeForm.value);
     if (validationError) {
-      this.error = validationError;
+      this.error.set(validationError);
       return;
     }
 
-    this.loading = true;
-    this.error = null;
+    this.loading.set(true);
+    this.error.set(null);
     this.storeForm.disable();
     this.storeService.updateStore(this.storeForm.value, this.selectedFile).subscribe({
       next: (updated) => {
-        this.store = updated;
-        this.success = 'Tienda actualizada exitosamente';
+        this.store.set(updated);
+        this.success.set('Tienda actualizada exitosamente');
         this.closeModal();
-        this.loading = false;
+        this.loading.set(false);
         this.storeForm.enable();
-        this.ngZone.run(() => {
-          setTimeout(() => {
-            this.success = null;
-            this.cdr.detectChanges();
-          }, 3000);
-        });
+        setTimeout(() => {
+          this.success.set(null);
+        }, 3000);
       },
       error: (err) => {
-        this.error = err.error?.message || 'Error al actualizar tienda';
-        this.loading = false;
+        this.error.set(err.error?.message || 'Error al actualizar tienda');
+        this.loading.set(false);
         this.storeForm.enable();
       },
     });

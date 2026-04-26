@@ -1,37 +1,126 @@
-// components/alert/alert.scss
 .alert {
-  padding: 12px 16px;
-  border-radius: 4px;
-  margin-bottom: 16px;
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  margin-bottom: 1.25rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 14px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  animation: slideInDown 0.3s ease-out;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid;
+  transition: all 0.2s ease;
+
+  &--closing {
+    animation: slideOutUp 0.2s ease-in forwards;
+  }
 
   &--error {
-    background-color: #fee;
-    color: #c33;
-    border: 1px solid #fcc;
+    background-color: #fef2f2;
+    color: #991b1b;
+    border-left-color: #dc2626;
+    border: 1px solid #fee2e2;
+    border-left: 4px solid #dc2626;
+
+    .alert__icon {
+      color: #dc2626;
+    }
   }
 
   &--success {
-    background-color: #efe;
-    color: rgb(0, 186, 0);
-    border: 1px solid #cfc;
+    background-color: #f0fdf4;
+    color: #15803d;
+    border-left-color: #22c55e;
+    border: 1px solid #dcfce7;
+    border-left: 4px solid #22c55e;
+
+    .alert__icon {
+      color: #22c55e;
+    }
   }
 
   &--info {
-    background-color: #eef;
-    color: #33c;
-    border: 1px solid #ccf;
+    background-color: #f0f9ff;
+    color: #0c4a6e;
+    border-left-color: #0ea5e9;
+    border: 1px solid #cffafe;
+    border-left: 4px solid #0ea5e9;
+
+    .alert__icon {
+      color: #0ea5e9;
+    }
+  }
+
+  &__content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+  }
+
+  &__icon {
+    font-weight: 700;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+  }
+
+  &__message {
+    flex: 1;
+    font-weight: 500;
   }
 
   &__close {
-    background: none;
+    background: transparent;
     border: none;
-    font-size: 20px;
+    font-size: 1.5rem;
     cursor: pointer;
     color: inherit;
-    margin-left: 8px;
+    margin-left: 1rem;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    opacity: 0.7;
+
+    &:hover {
+      opacity: 1;
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    &:active {
+      transform: scale(0.9);
+    }
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideOutUp {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px);
   }
 }
