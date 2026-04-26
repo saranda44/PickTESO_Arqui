@@ -1,0 +1,216 @@
+name: Deploy to GCP VM
+
+on:
+  workflow_dispatch:
+  # push:
+    # branches:
+      # - dev
+  # workflow_run:
+  #   workflows: ["Build and Push to Artifact Registry"]
+  #   types: [completed]
+  #   branches: [main]
+
+env:
+  REGISTRY: northamerica-south1-docker.pkg.dev
+  PROJECT_ID: pickteso-arquitectura
+  REGISTRY_NAME: pickteso-arquitectura-registry
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Verify config files exist
+        run: |
+          echo "Checking for required files..."
+          test -f docker-compose.prod.yaml || (echo "ERROR: docker-compose.prod.yaml not found" && exit 1)
+          test -f nginx-prod.conf || (echo "ERROR: nginx-prod.conf not found" && exit 1)
+          echo "✓ docker-compose.prod.yaml found"
+          echo "✓ nginx-prod.conf found"
+
+      - name: Check GCP instance info
+        run: |
+          echo "=== Instance info ==="
+          gcloud compute ssh ${{ secrets.GCP_INSTANCE }} \
+            --zone ${{ secrets.GCP_ZONE }} \
+            --quiet << 'INFO'
+          echo "User: $(whoami)"
+          echo "Home: $HOME"
+          echo "PWD: $(pwd)"
+          echo "Home contents:"
+          ls -la ~/ | head -20
+          INFO
+
+      - name: Copy config files to VM
+        run: |
+          REMOTE_USER=$(gcloud compute ssh ${{ secrets.GCP_INSTANCE }} \
+            --zone ${{ secrets.GCP_ZONE }} \
+            --quiet --command="whoami")
+          echo "Remote user: $REMOTE_USER"
+
+          REMOTE_HOME=$(gcloud compute ssh ${{ secrets.GCP_INSTANCE }} \
+            --zone ${{ secrets.GCP_ZONE }} \
+            --quiet --command="echo \$HOME")
+          echo "Remote home: $REMOTE_HOME"
+
+          echo ""
+          echo "=== Copying docker-compose.prod.yaml ==="
+          gcloud compute scp \
+            docker-compose.prod.yaml \
+            ${{ secrets.GCP_INSTANCE }}:$REMOTE_HOME/docker-compose.prod.yaml \
+            --zone ${{ secrets.GCP_ZONE }} || exit 1
+
+          echo "=== Copying nginx-prod.conf ==="
+          gcloud compute scp \
+            nginx-prod.conf \
+            ${{ secrets.GCP_INSTANCE }}:$REMOTE_HOME/nginx-prod.conf \
+            --zone ${{ secrets.GCP_ZONE }} || exit 1
+
+      - name: Validate files copied successfully
+        run: |
+          gcloud compute ssh ${{ secrets.GCP_INSTANCE }} \
+            --zone ${{ secrets.GCP_ZONE }} \
+            --quiet << 'VALIDATE'
+          HOME=$(echo ~)
+          echo "Checking files in: $HOME"
+          echo ""
+
+          if [ -f $HOME/docker-compose.prod.yaml ]; then
+            echo "✓ docker-compose.prod.yaml exists"
+            echo "  Size: $(wc -c < $HOME/docker-compose.prod.yaml) bytes"
+          else
+            echo "ERROR: docker-compose.prod.yaml NOT found at $HOME/docker-compose.prod.yaml"
+            ls -la $HOME/ | head -20
+            exit 1
+          fi
+
+          if [ -f $HOME/nginx-prod.conf ]; then
+            echo "✓ nginx-prod.conf exists"
+            echo "  Size: $(wc -c < $HOME/nginx-prod.conf) bytes"
+          else
+            echo "ERROR: nginx-prod.conf NOT found at $HOME/nginx-prod.conf"
+            ls -la $HOME/ | head -20
+            exit 1
+          fi
+          VALIDATE
+
+      - name: Create .env files
+        env:
+          ENV_API_GATEWAY: ${{ secrets.ENV_API_GATEWAY }}
+          ENV_CATALOG_SERVICE: ${{ secrets.ENV_CATALOG_SERVICE }}
+          ENV_ORDER_SERVICE: ${{ secrets.ENV_ORDER_SERVICE }}
+          ENV_NOTIFICATION_SERVICE: ${{ secrets.ENV_NOTIFICATION_SERVICE }}
+          ENV_PAYMENTS_SERVICE: ${{ secrets.ENV_PAYMENTS_SERVICE }}
+          ENV_SELLERS_SERVICE: ${{ secrets.ENV_SELLERS_SERVICE }}
+          GCP_REGISTRY: ${{ env.REGISTRY }}
+        run: |
+          gcloud compute ssh ${{ secrets.GCP_INSTANCE }} \
+            --zone ${{ secrets.GCP_ZONE }} \
+            --quiet << SCRIPT
+          HOME=$(echo ~)
+          export HOME
+          echo "Creating secrets directory..."
+          mkdir -p \$HOME/secrets
+
+          echo "Writing .env files..."
+          printf '%s\n' "$ENV_API_GATEWAY" > \$HOME/secrets/api-gateway.env
+          printf '%s\n' "$ENV_CATALOG_SERVICE" > \$HOME/secrets/catalog-service.env
+          printf '%s\n' "$ENV_ORDER_SERVICE" > \$HOME/secrets/order-service.env
+          printf '%s\n' "$ENV_NOTIFICATION_SERVICE" > \$HOME/secrets/notification-service.env
+          printf '%s\n' "$ENV_PAYMENTS_SERVICE" > \$HOME/secrets/payments-service.env
+          printf '%s\n' "$ENV_SELLERS_SERVICE" > \$HOME/secrets/sellers-service.env
+          SCRIPT
+
+      - name: Validate .env files created
+        run: |
+          gcloud compute ssh ${{ secrets.GCP_INSTANCE }} \
+            --zone ${{ secrets.GCP_ZONE }} \
+            --quiet << 'VALIDATE'
+          HOME=$(echo ~)
+          export HOME
+          echo "=== Validating .env files in $HOME/secrets ==="
+
+          for env_file in api-gateway catalog-service order-service notification-service payments-service sellers-service; do
+            if [ -f $HOME/secrets/$env_file.env ]; then
+              echo "✓ $env_file.env exists ($(wc -c < $HOME/secrets/$env_file.env) bytes)"
+            else
+              echo "ERROR: $env_file.env NOT found"
+              ls -la $HOME/secrets/
+              exit 1
+            fi
+          done
+
+          echo ""
+          echo "All .env files created successfully"
+          VALIDATE
+
+      - name: Deploy with docker-compose
+        env:
+          GCP_REGISTRY: ${{ env.REGISTRY }}
+        run: |
+          gcloud compute ssh ${{ secrets.GCP_INSTANCE }} \
+            --zone ${{ secrets.GCP_ZONE }} \
+            --quiet << SCRIPT
+          HOME=$(echo ~)
+          export HOME
+          cd \$HOME
+
+          echo "=== Configuring Docker authentication ==="
+          gcloud auth configure-docker $GCP_REGISTRY --quiet
+
+          echo ""
+          echo "=== Stopping old containers ==="
+          docker-compose -f \$HOME/docker-compose.prod.yaml down || true
+
+          echo ""
+          echo "=== Pulling latest images ==="
+          docker-compose -f \$HOME/docker-compose.prod.yaml pull
+
+          echo ""
+          echo "=== Starting containers ==="
+          docker-compose -f \$HOME/docker-compose.prod.yaml up -d --remove-orphans
+
+          echo ""
+          echo "=== Waiting for services to stabilize ==="
+          sleep 5
+
+          echo ""
+          echo "=== Running containers ==="
+          docker ps
+          SCRIPT
+
+      - name: Verify deployment
+        run: |
+          gcloud compute ssh ${{ secrets.GCP_INSTANCE }} \
+            --zone ${{ secrets.GCP_ZONE }} \
+            --quiet << SCRIPT
+          HOME=$(echo ~)
+          export HOME
+
+          echo "=== Service status ==="
+          docker-compose -f \$HOME/docker-compose.prod.yaml ps
+
+          echo ""
+          echo "=== Checking for failed containers ==="
+          FAILED=\$(docker-compose -f \$HOME/docker-compose.prod.yaml ps --filter status=exited --quiet)
+          if [ -n "\$FAILED" ]; then
+            echo "ERROR: Some containers failed to start:"
+            docker-compose -f \$HOME/docker-compose.prod.yaml ps --filter status=exited
+            exit 1
+          fi
+          echo "✓ All containers running"
+
+          echo ""
+          echo "=== Recent logs ==="
+          docker-compose -f \$HOME/docker-compose.prod.yaml logs --tail=30
+          SCRIPT
