@@ -1,0 +1,61 @@
+services:
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /home/runner/certs:/certs:ro
+      - /home/runner/nginx-prod.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - api-gateway
+      - frontend-sellers
+
+  api-gateway:
+    image: northamerica-south1-docker.pkg.dev/pickteso-arquitectura/pickteso-arquitectura-registry/api-gateway:latest
+    volumes:
+      - /home/runner/secrets/api-gateway.env:/app/.env:ro
+    depends_on:
+      - order-service
+      - sellers-service
+      - catalog-service
+      - notification-service
+      - payments-service
+
+  catalog-service:
+    image: northamerica-south1-docker.pkg.dev/pickteso-arquitectura/pickteso-arquitectura-registry/catalog-service:latest
+    ports:
+      - "3001:3001"
+    volumes:
+      - /home/runner/secrets/catalog-service.env:/app/.env:ro
+
+  order-service:
+    image: northamerica-south1-docker.pkg.dev/pickteso-arquitectura/pickteso-arquitectura-registry/order-service:latest
+    ports:
+      - "3002:3002"
+    volumes:
+      - /home/runner/secrets/order-service.env:/app/.env:ro
+
+  notification-service:
+    image: northamerica-south1-docker.pkg.dev/pickteso-arquitectura/pickteso-arquitectura-registry/notification-service:latest
+    ports:
+      - "3003:3003"
+    volumes:
+      - /home/runner/secrets/notification-service.env:/app/.env:ro
+
+  payments-service:
+    image: northamerica-south1-docker.pkg.dev/pickteso-arquitectura/pickteso-arquitectura-registry/payments-service:latest
+    ports:
+      - "3004:3004"
+    volumes:
+      - /home/runner/secrets/payments-service.env:/app/.env:ro
+
+  sellers-service:
+    image: northamerica-south1-docker.pkg.dev/pickteso-arquitectura/pickteso-arquitectura-registry/sellers-service:latest
+    ports:
+      - "3005:3005"
+    volumes:
+      - /home/runner/secrets/sellers-service.env:/app/.env:ro
+
+  frontend-sellers:
+    image: northamerica-south1-docker.pkg.dev/pickteso-arquitectura/pickteso-arquitectura-registry/frontend-sellers:latest

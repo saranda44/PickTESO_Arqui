@@ -24,6 +24,7 @@ jobs:
           - notification-service
           - payments-service
           - sellers-service
+          - frontend-sellers
 
     steps:
       - name: Checkout code

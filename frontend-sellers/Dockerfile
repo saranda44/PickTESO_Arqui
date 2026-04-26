@@ -4,13 +4,10 @@ FROM node:20-alpine AS build
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 
 COPY . .
-# Dev build
-# RUN npm run build
-# Production build con base href
-RUN npm run build -- --base-href=/sellers-panel/
+RUN npm run build -- --base-href=/vendedores/
 
 # Producción con NGINX
 FROM nginx:alpine
