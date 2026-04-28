@@ -10,9 +10,13 @@ export class ProductService {
         return product;
     }
 
-    // async getByStoreIdWithTags(storeId: number): Promise<IProductWithTags[]> {
-    //     const store = await Repositories.store.findById(storeId);
-    //     if (!store) throw new NotFoundError("The specified store does not exist.");
-    //     return await Repositories.product.findByStoreIdWithTags(storeId);
-    // }
+    async getByStoreIdWithTags(storeId: number): Promise<IProductWithTags[]> {
+        const store = await Repositories.store.findById(storeId);
+
+        if (!store) {
+            throw new NotFoundError("The specified store does not exist.");
+        }
+
+        return await Repositories.product.getProductsWithTags(storeId);
+    }
 }

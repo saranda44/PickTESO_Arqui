@@ -13,6 +13,6 @@ router.get("/", storeController.getAll);
 router.get("/:id", storeController.getById);
 
 // GET /api/stores/:storeId/products
-// router.get("/:storeId/products", productController.getByStoreIdWithTags);
+router.get("/:storeId/products", productController.getByStoreIdWithTags);
 
 export default router;

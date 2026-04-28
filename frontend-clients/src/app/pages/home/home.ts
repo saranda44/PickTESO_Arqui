@@ -1,11 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-interface Restaurant {
-  name: string;
-  cafeteria: string;
-  image: string;
-}
+import { Router } from '@angular/router';
+import { StoreService, Store } from '../../services/store.service';
 
 @Component({
   selector: 'app-home',
@@ -14,24 +10,29 @@ interface Restaurant {
   templateUrl: './home.html',
   styleUrls: ['./home.scss'],
 })
-export class Home {
+export class Home implements OnInit {
 
-  restaurants: Restaurant[] = [
-    {
-      name: 'Mar y Mesa',
-      cafeteria: 'Cafetería Central',
-      image: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d'
-    },
-    {
-      name: 'Clementine & Rye',
-      cafeteria: 'Cafetería Central',
-      image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38'
-    },
-    {
-      name: 'Second Street Noddles',
-      cafeteria: 'Cafetería Pedro Arrupe',
-      image: 'https://images.unsplash.com/photo-1559847844-5315695dadae'
-    }
-  ];
+  restaurants = signal<Store[]>([]);
 
+  constructor(
+    private storeService: StoreService,
+    private router: Router
+  ) {}
+
+  ngOnInit(): void {
+    console.log('HOME CARGÓ');
+
+    this.storeService.getStores().subscribe({
+      next: (data) => {
+        console.log('STORES:', data);
+        this.restaurants.set(data);
+      },
+      error: (err) => console.error('ERROR:', err)
+    });
+  }
+
+  
+  goToStore(id: number): void {
+    this.router.navigate(['/store', id]);
+  }
 }

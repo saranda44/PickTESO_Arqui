@@ -2,7 +2,7 @@
 
   <h1 class="title">
     ¿Qué se te <span class="bold">antoja</span><br />
-     el día de hoy?
+    el día de hoy?
   </h1>
 
   <p class="subtitle">
@@ -12,16 +12,22 @@
   <h2 class="section-title">Nuestras Tiendas:</h2>
 
   <div class="cards-container">
-    <div class="card" *ngFor="let restaurant of restaurants">
-      
-      <img [src]="restaurant.image" alt="food" />
+
+    <div class="card" *ngFor="let restaurant of restaurants()"
+      (click)="goToStore(restaurant.id)">
+
+      <img 
+        [src]="restaurant.image ?? 'https://via.placeholder.com/300'" 
+        alt="store image"
+      />
 
       <div class="card-content">
         <h2>{{ restaurant.name }}</h2>
-        <p>{{ restaurant.cafeteria }}</p>
+        <p>{{ restaurant.location }}</p>
       </div>
 
     </div>
+
   </div>
 
 </div>

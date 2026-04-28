@@ -1,1 +1,52 @@
-<p>store works!</p>
+<div class="store-container">
+
+  <h1 class="store-title">
+  {{ storeName }}
+  </h1>
+
+  <h2 class="title">Un <span class="bold">menú</span><br /> pensado para ti ✨</h2>
+
+  <p class="subtitle">
+    Cada elección tiene su propio sabor
+  </p>
+
+  <h2 class="section-title">Nuestros Productos:</h2>
+
+  <div class="cards-container">
+
+    <div class="card product-card" *ngFor="let product of products()">
+
+      <img 
+        [src]="product.product_image ?? 'https://via.placeholder.com/300'"
+        alt="product image"
+      />
+
+      <div class="card-content">
+
+        <h2>{{ product.name }}</h2>
+
+        <p class="description">
+          {{ product.description }}
+        </p>
+
+        <p class="price">
+          ${{ product.price }}
+        </p>
+
+        <div class="tags" *ngIf="showTags">
+          <span 
+            class="tag"
+            *ngFor="let tag of product.tags"
+            [style.background]="tag.color || '#999'"
+          >
+            {{ tag.name }}
+          </span>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

@@ -15,13 +15,13 @@ export class ProductController {
         }
     };
 
-    // getByStoreIdWithTags = async (req: Request, res: Response, next: NextFunction) => {
-    //     try {
-    //         const storeId = Number(req.params.storeId);
-    //         const products = await productService.getByStoreIdWithTags(storeId);
-    //         res.status(200).json(products);
-    //     } catch (error) {
-    //         next(error);
-    //     }
-    // };
+    getByStoreIdWithTags = async (req: Request, res: Response, next: NextFunction) => {
+         try {
+             const storeId = Number(req.params.storeId);
+             const products = await productService.getByStoreIdWithTags(storeId);
+             res.status(200).json(products);
+         } catch (error) {
+             next(error);
+         }
+     };
 }
