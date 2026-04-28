@@ -1,0 +1,16 @@
+<div class="payment-result">
+  <div *ngIf="loading" class="state">
+    <p>Processing your payment...</p>
+  </div>
+
+  <div *ngIf="success" class="state success">
+    <h2>Payment successful!</h2>
+    <p>Redirecting to your orders...</p>
+  </div>
+
+  <div *ngIf="errorMessage" class="state error">
+    <h2>Payment failed</h2>
+    <p>{{ errorMessage }}</p>
+    <button (click)="router.navigate(['/cart'])">Go back to cart</button>
+  </div>
+</div>
