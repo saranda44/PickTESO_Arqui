@@ -34,10 +34,6 @@ app.use('/api/sellers', authenticate,authorize('store_admin','platform_admin'), 
 app.use('/api/catalog', authenticate, catalogProxy)
 app.use('/api/orders',authenticate,authorize('store_admin','platform_admin'),ordersProxy )
 
-const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});
 
 export default app;
