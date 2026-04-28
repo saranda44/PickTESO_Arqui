@@ -15,10 +15,6 @@ app.use('/health', healthRoutes);
 app.use('/', paymentRoutes);
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-    console.log(`Server is running on port http://localhost:${PORT}`);
-});
 
 export default app; 
