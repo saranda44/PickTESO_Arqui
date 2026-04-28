@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { OrderController } from '../../../controllers/orders.controller';
-import { OrderService } from '../../../services/orders.service';
-import { OrderStatus } from '../../../models/order.model';
-import { BadRequestError, NotFoundError } from '../../../errors';
+import { OrderController } from '../../../src/controllers/orders.controller';
+import { OrderService } from '../../../src/services/orders.service';
+import { OrderStatus } from '../../../src/models/order.model';
+import { BadRequestError, NotFoundError } from '../../../src/errors';
 
-vi.mock('../../../services/orders.service');
+vi.mock('../../../src/services/orders.service');
 
 describe('Orders Controller', () => {
   let req: any;

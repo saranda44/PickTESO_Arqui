@@ -1,14 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { NotificationService } from '../../../services/notifications.service';
-import { SESError } from '../../../errors';
+import { NotificationService } from '../../../src/services/notifications.service';
+import { SESError } from '../../../src/errors';
 
-vi.mock('../../../config/ses', () => ({
+vi.mock('../../../src/config/ses', () => ({
   default: {
     send: vi.fn(),
   },
 }));
 
-import sesClient from '../../../config/ses';
+import sesClient from '../../../src/config/ses';
 
 describe('Notifications Service', () => {
   const mockOrder = {

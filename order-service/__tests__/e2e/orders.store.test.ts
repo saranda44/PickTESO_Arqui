@@ -1,22 +1,22 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
-import app from '../../app';
-import { OrderStatus } from '../../models/order.model';
+import app from '../../src/app';
+import { OrderStatus } from '../../src/models/order.model';
 
-vi.mock('../../repositories/db');
-vi.mock('../../repositories/order.repository');
-vi.mock('../../clients/catalog.client');
-vi.mock('../../clients/store-admin.client');
-vi.mock('../../clients/payment.client');
-vi.mock('../../clients/notification.client');
-vi.mock('../../helpers/otp.helper');
+vi.mock('../../src/repositories/db');
+vi.mock('../../src/repositories/order.repository');
+vi.mock('../../src/clients/catalog.client');
+vi.mock('../../src/clients/store-admin.client');
+vi.mock('../../src/clients/payment.client');
+vi.mock('../../src/clients/notification.client');
+vi.mock('../../src/helpers/otp.helper');
 
-import * as catalogClient from '../../clients/catalog.client';
-import * as storeAdminClient from '../../clients/store-admin.client';
-import * as paymentClient from '../../clients/payment.client';
-import * as notificationClient from '../../clients/notification.client';
-import * as otpHelper from '../../helpers/otp.helper';
-import { OrderRepository } from '../../repositories/order.repository';
+import * as catalogClient from '../../src/clients/catalog.client';
+import * as storeAdminClient from '../../src/clients/store-admin.client';
+import * as paymentClient from '../../src/clients/payment.client';
+import * as notificationClient from '../../src/clients/notification.client';
+import * as otpHelper from '../../src/helpers/otp.helper';
+import { OrderRepository } from '../../src/repositories/order.repository';
 
 describe('Orders Store Routes (E2E)', () => {
   const storeId = 20;

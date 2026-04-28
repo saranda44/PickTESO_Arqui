@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Request, Response, NextFunction } from 'express';
-import { errorMiddleware } from '../../../middlewares/error.middleware';
-import { BadRequestError, NotFoundError, InternalServerError } from '../../../errors';
+import { errorMiddleware } from '../../../src/middlewares/error.middleware';
+import { BadRequestError, NotFoundError, InternalServerError } from '../../../src/errors';
 
 describe('Error Middleware', () => {
   let req: Partial<Request>;

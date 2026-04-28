@@ -1,14 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
-import app from '../../app';
+import app from '../../src/app';
 
-vi.mock('../../config/ses', () => ({
+vi.mock('../../src/config/ses', () => ({
   default: {
     send: vi.fn(),
   },
 }));
 
-import sesClient from '../../config/ses';
+import sesClient from '../../src/config/ses';
 
 describe('Notifications E2E Tests', () => {
   const mockOrder = {

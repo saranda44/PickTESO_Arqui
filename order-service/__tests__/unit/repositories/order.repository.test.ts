@@ -1,16 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { PoolClient } from 'pg';
-import { OrderRepository } from '../../../repositories/order.repository';
-import { Order, OrderStatus, OrderProduct } from '../../../models/order.model';
+import { OrderRepository } from '../../../src/repositories/order.repository';
+import { Order, OrderStatus, OrderProduct } from '../../../src/models/order.model';
 
-vi.mock('../../../repositories/db', () => ({
+vi.mock('../../../src/repositories/db', () => ({
   default: {
     query: vi.fn(),
     connect: vi.fn(),
   },
 }));
 
-import pool from '../../../repositories/db';
+import pool from '../../../src/repositories/db';
 
 describe('Order Repository', () => {
   beforeEach(() => {

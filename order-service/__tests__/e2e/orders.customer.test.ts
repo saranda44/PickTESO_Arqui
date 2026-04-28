@@ -1,19 +1,19 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
-import app from '../../app';
-import { OrderStatus } from '../../models/order.model';
+import app from '../../src/app';
+import { OrderStatus } from '../../src/models/order.model';
 
-vi.mock('../../repositories/db');
-vi.mock('../../repositories/order.repository');
-vi.mock('../../clients/catalog.client');
-vi.mock('../../clients/store-admin.client');
-vi.mock('../../clients/payment.client');
-vi.mock('../../clients/notification.client');
+vi.mock('../../src/repositories/db');
+vi.mock('../../src/repositories/order.repository');
+vi.mock('../../src/clients/catalog.client');
+vi.mock('../../src/clients/store-admin.client');
+vi.mock('../../src/clients/payment.client');
+vi.mock('../../src/clients/notification.client');
 
-import * as catalogClient from '../../clients/catalog.client';
-import * as storeAdminClient from '../../clients/store-admin.client';
-import * as paymentClient from '../../clients/payment.client';
-import { OrderRepository } from '../../repositories/order.repository';
+import * as catalogClient from '../../src/clients/catalog.client';
+import * as storeAdminClient from '../../src/clients/store-admin.client';
+import * as paymentClient from '../../src/clients/payment.client';
+import { OrderRepository } from '../../src/repositories/order.repository';
 
 describe('Orders Customer Routes (E2E)', () => {
   const userId = 10;
