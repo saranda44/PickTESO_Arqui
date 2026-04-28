@@ -1,12 +1,12 @@
 FROM node:20-alpine
 
-WORKDIR /usr/src/notification-service
+WORKDIR /app
 
-ENV AWS_REGION=us-east-2
-ENV AWS_ACCESS_KEY_ID=replace-me
-ENV AWS_SECRET_ACCESS_KEY=replace-me
-ENV SES_FROM_EMAIL=no-reply@example.com
-ENV PORT=3003
+# ENV AWS_REGION=us-east-2
+# ENV AWS_ACCESS_KEY_ID=replace-me
+# ENV AWS_SECRET_ACCESS_KEY=replace-me
+# ENV SES_FROM_EMAIL=no-reply@example.com
+# ENV PORT=3003
 
 COPY package*.json ./
 RUN npm install

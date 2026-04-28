@@ -7,7 +7,8 @@ COPY package*.json ./
 RUN npm install
 
 COPY . .
-RUN npm run build -- --base-href=/sellers-panel/
+
+RUN npm run build -- --base-href=/vendedores/
 
 # Producción con NGINX
 FROM nginx:alpine
