@@ -1,0 +1,166 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
+
+.cart-container {
+  padding: 32px 40px;
+  background: #fff;
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+}
+
+/* TITLES */
+.title {
+  font-size: 32px;
+  line-height: 1.2;
+  font-weight: 300;
+  color: #111;
+}
+
+.bold {
+  font-weight: 700;
+}
+
+.subtitle {
+  font-size: 18px;
+  font-weight: 300;
+  color: #888;
+  margin-top: -18px;
+  margin-bottom: 60px; 
+}
+
+/* CARD */
+.cart-card {
+  max-width: 600px;
+  margin: 0 auto;
+  background: #f5f5f5;
+  border-radius: 20px;
+  padding: 20px;
+}
+
+/* ITEM */
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+
+  border-bottom: 1px solid #e5e5e5; /* 🔥 línea */
+}
+
+.cart-item:last-child {
+  border-bottom: none;
+}
+
+/* INFO */
+.item-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.name {
+  font-size: 17px;
+  font-weight: 600;
+  color: #111;
+}
+
+.item-total {
+  font-size: 15px;
+  color: #888;
+  font-weight: 300;
+  margin-top: 5px;
+}
+
+/* CONTROLES */
+.controls-pill {
+  display: flex;
+  align-items: center;
+  background: #e5e5e5;
+  border-radius: 999px;
+  padding: 6px 12px;
+  gap: 14px;
+}
+
+
+.controls-pill button {
+  border: none;
+  background: transparent;
+  font-size: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  line-height: 1;
+}
+
+/* CANTIDAD */
+.quantity {
+  font-size: 14px;
+  font-weight: 600;
+  min-width: 16px;
+  text-align: center;
+}
+
+/* CHECKOUT */
+.checkout {
+  max-width: 600px;
+  margin: 30px auto 0;
+  display: flex;
+  justify-content: center;
+}
+
+.checkout-btn {
+  padding: 14px 50px;
+  border-radius: 14px;
+  border: none;
+  background: #111;
+  color: #fff;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* FLOATING BUTTONS */
+.floating-buttons {
+  position: fixed;
+  top: 60px;
+  right: 40px;
+  display: flex;
+  gap: 12px;
+}
+
+.fab {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: none;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  font-size: 22px;
+  cursor: pointer;
+  position: relative;
+}
+
+.fab.active {
+  background: #111;
+  color: #fff;
+}
+
+/* BADGE */
+.badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #085CF0;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 50%;
+  padding: 4px 7px;
+}
+
+/* EMPTY CART */
+.empty-cart {
+  text-align: center;
+  color: #999;
+  font-size: 16px;
+  padding: 40px 0;
+  font-weight: 400;
+}

@@ -1,10 +1,12 @@
 <div class="store-container">
 
   <h1 class="store-title">
-  {{ storeName }}
+    {{ storeName }}
   </h1>
 
-  <h2 class="title">Un <span class="bold">menú</span><br /> pensado para ti ✨</h2>
+  <h2 class="title">
+    Un <span class="bold">menú</span><br /> pensado para ti ✨
+  </h2>
 
   <p class="subtitle">
     Cada elección tiene su propio sabor
@@ -33,19 +35,31 @@
           ${{ product.price }}
         </p>
 
-        <div class="tags" *ngIf="showTags">
-          <span 
-            class="tag"
-            *ngFor="let tag of product.tags"
-            [style.background]="tag.color || '#999'"
-          >
-            {{ tag.name }}
-          </span>
-        </div>
+        <button class="add-btn" (click)="addToCart(product)">
+          Añadir al Carrito
+        </button>
 
       </div>
 
     </div>
+
+  </div>
+
+  <!-- BUTTONS -->
+  <div class="floating-buttons">
+
+    <!-- HOME -->
+    <button class="fab" routerLink="/">
+      🏠
+    </button>
+
+    <!-- CART -->
+    <button class="fab cart" routerLink="/cart">
+      🛒
+      <span class="badge" *ngIf="cartCount() > 0">
+        {{ cartCount() }}
+      </span>
+    </button>
 
   </div>
 

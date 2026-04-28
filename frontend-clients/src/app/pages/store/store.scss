@@ -58,12 +58,15 @@
 /* CARD */
 .card {
   min-width: 260px;
-  min-height: 190px;
+  min-height: 210px; /* 🔥 un poquito más para el botón */
   background: #eaeaec36;
   border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.164);
   overflow: hidden;
   transition: transform 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 
   &:hover {
     transform: translateY(-4px);
@@ -78,10 +81,13 @@
 
   .card-content {
     padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 
     h2 {
       font-size: 17px;
-      font-weight: 650;
+      font-weight: 600; /* 🔥 corregido para que sí se note */
       margin: 0;
       color: #111;
     }
@@ -90,15 +96,40 @@
       font-size: 14px;
       font-weight: 350;
       color: #888;
-      margin-top: 4px;
+      margin: 0;
     }
 
     .price {
       font-size: 18px;
-      font-weight: 600;
-      margin-top: 15px;
+      font-weight: 700;
+      margin-top: 6px;
       color: #111;
     }
+  }
+}
+
+/* ADD BUTTON */
+.add-btn {
+  margin-top: 10px;
+  align-self: flex-start;
+  padding: 8px;
+  border: none;
+  border-radius: 10px;
+  background: #060606;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #333;
+    transform: scale(1.02);
+  }
+
+  &:active {
+    transform: scale(0.97);
   }
 }
 
@@ -119,4 +150,49 @@
   display: inline-block;
   white-space: nowrap;
   letter-spacing: 0.2px;
+}
+
+/* BUTTONS */
+.floating-buttons {
+  position: fixed;
+  top: 60px;
+  right: 40px;
+  display: flex;
+  gap: 12px;
+  z-index: 1000;
+}
+
+.fab {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: none;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  font-size: 22px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: scale(1.08);
+  }
+}
+
+.fab.active {
+  background: #111;
+  color: #fff;
+}
+
+/* BADGE */
+.badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #085CF0;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 50%;
+  padding: 4px 7px;
 }

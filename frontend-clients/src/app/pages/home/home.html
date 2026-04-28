@@ -13,9 +13,11 @@
 
   <div class="cards-container">
 
-    <div class="card" *ngFor="let restaurant of restaurants()"
-      (click)="goToStore(restaurant.id)">
-
+    <div 
+      class="card"
+      *ngFor="let restaurant of restaurants()"
+      (click)="goToStore(restaurant.id)"
+    >
       <img 
         [src]="restaurant.image ?? 'https://via.placeholder.com/300'" 
         alt="store image"
@@ -25,8 +27,25 @@
         <h2>{{ restaurant.name }}</h2>
         <p>{{ restaurant.location }}</p>
       </div>
-
     </div>
+
+  </div>
+
+  <!-- Buttons -->
+  <div class="floating-buttons">
+
+    <!-- Home -->
+    <button class="fab active">
+      🏠
+    </button>
+
+    <!-- Cart -->
+    <button class="fab cart" routerLink="/cart">
+      🛒
+      <span class="badge" *ngIf="cartCount() > 0">
+        {{ cartCount() }}
+      </span>
+    </button>
 
   </div>
 

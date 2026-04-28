@@ -1,1 +1,77 @@
-<p>cart works!</p>
+<div class="cart-container">
+
+  <h1 class="title">
+    Tu <span class="bold">carrito</span> 🛒
+  </h1>
+
+  <p class="subtitle">
+    Un último vistazo antes de continuar
+  </p>
+
+  <!-- CARD -->
+  <div class="cart-card">
+
+    <!-- 🟡 SI HAY ITEMS -->
+    <ng-container *ngIf="items().length > 0; else emptyCart">
+
+      <div class="cart-item" *ngFor="let item of items()">
+
+        <!-- INFO -->
+        <div class="item-info">
+          <span class="name">
+            {{ item.name }}
+          </span>
+
+          <span class="item-total">
+            ${{ item.price * item.quantity }}
+          </span>
+        </div>
+
+        <!-- CONTROLES -->
+        <div class="controls-pill">
+          <button (click)="decrease(item)">−</button>
+
+          <span class="quantity">
+            {{ item.quantity }}
+          </span>
+
+          <button (click)="increase(item)">+</button>
+        </div>
+
+      </div>
+
+    </ng-container>
+
+    <!-- 🔵 EMPTY STATE -->
+    <ng-template #emptyCart>
+      <div class="empty-cart">
+        Tu carrito está vacío... por ahora.
+      </div>
+    </ng-template>
+
+  </div>
+
+  <!-- TOTAL (solo si hay productos) -->
+  <div class="checkout" *ngIf="items().length > 0">
+    <button class="checkout-btn">
+      Pagar • Total: ${{ getTotal() }}
+    </button>
+  </div>
+
+  <!-- FLOATING BUTTONS -->
+  <div class="floating-buttons">
+
+    <button class="fab" routerLink="/">
+      🏠
+    </button>
+
+    <button class="fab active" routerLink="/cart">
+      🛒
+      <span class="badge" *ngIf="cartCount() > 0">
+        {{ cartCount() }}
+      </span>
+    </button>
+
+  </div>
+
+</div>
