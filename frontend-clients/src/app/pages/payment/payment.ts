@@ -7,8 +7,8 @@ import { CommonModule } from '@angular/common';
   selector: 'app-payment',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './payment-result.html',
-  styleUrl: './payment-result.scss' 
+  templateUrl: './payment.html',
+  styleUrl: './payment.scss' 
 })
 export class Payment implements OnInit {
   private route = inject(ActivatedRoute);
@@ -46,5 +46,9 @@ export class Payment implements OnInit {
       this.loading = false;
       this.errorMessage = err?.error?.error ?? 'Something went wrong';
     }
+  }
+
+  goToCart() {
+    this.router.navigate(['/cart']);
   }
 }

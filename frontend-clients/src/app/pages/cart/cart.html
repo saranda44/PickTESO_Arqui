@@ -16,29 +16,41 @@
 
       <div class="cart-item" *ngFor="let item of items()">
 
-        <!-- INFO -->
-        <div class="item-info">
-          <span class="name">
-            {{ item.name }}
-          </span>
+        <!-- LEFT: imagen + info + controles -->
+        <div class="item-left">
 
-          <span class="item-total">
-            ${{ item.price * item.quantity }}
-          </span>
-        </div>
+          <!-- IMAGEN -->
+          <img 
+            class="product-img"
+            [src]="item.product_image ?? 'https://via.placeholder.com/100'"
+            alt="product image"
+          />
 
-        <!-- CONTROLES -->
-        <div class="controls-pill">
-          <button (click)="decrease(item)">−</button>
+          <!-- INFO -->
+          <div class="item-info">
+            <span class="name">
+              {{ item.name }}
+            </span>
 
-          <span class="quantity">
-            {{ item.quantity }}
-          </span>
+            <span class="item-total">
+              ${{ item.price * item.quantity }}
+            </span>
+          </div>
 
-          <button (click)="increase(item)">+</button>
-        </div>
+          <!-- CONTROLES -->
+          <div class="controls-pill">
+            <button (click)="decrease(item)">−</button>
 
-      </div>
+            <span class="quantity">
+              {{ item.quantity }}
+            </span>
+
+            <button (click)="increase(item)">+</button>
+          </div>
+
+        </div> <!-- item-left -->
+
+      </div> <!-- cart-item -->
 
     </ng-container>
 

@@ -11,6 +11,6 @@
   <div *ngIf="errorMessage" class="state error">
     <h2>Payment failed</h2>
     <p>{{ errorMessage }}</p>
-    <button (click)="router.navigate(['/cart'])">Go back to cart</button>
+    <button (click)="goToCart()">Go back to cart</button>
   </div>
 </div>

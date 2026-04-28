@@ -24,7 +24,7 @@
   font-weight: 300;
   color: #888;
   margin-top: -18px;
-  margin-bottom: 60px; 
+  margin-bottom: 60px;
 }
 
 /* CARD */
@@ -39,15 +39,23 @@
 /* ITEM */
 .cart-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   padding: 12px 0;
-
-  border-bottom: 1px solid #e5e5e5; /* 🔥 línea */
+  border-bottom: 1px solid #e5e5e5;
 }
 
 .cart-item:last-child {
   border-bottom: none;
+}
+
+/* LEFT BLOCK (imagen + info) */
+.item-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;        /* 👈 clave para empujar el pill */
+  min-width: 0;
 }
 
 /* INFO */
@@ -69,8 +77,18 @@
   margin-top: 5px;
 }
 
-/* CONTROLES */
+/* PRODUCT IMAGE */
+.product-img {
+  width: 65px;
+  height: 65px;
+  border-radius: 14px;
+  object-fit: cover;
+  background: #ddd;
+}
+
+/* CONTROLES (PILL) */
 .controls-pill {
+  margin-left: auto;   /* 👈 lo empuja completamente a la derecha */
   display: flex;
   align-items: center;
   background: #e5e5e5;
@@ -78,7 +96,6 @@
   padding: 6px 12px;
   gap: 14px;
 }
-
 
 .controls-pill button {
   border: none;
