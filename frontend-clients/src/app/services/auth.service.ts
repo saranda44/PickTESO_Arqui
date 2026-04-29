@@ -21,7 +21,7 @@ export class AuthService {
   constructor(private router: Router) {}
 
   loginWithGoogle(): void {
-    window.location.href = 'http://localhost:3000/auth/google';
+    window.location.href = 'http://localhost:3000/api/auth/google';
   }
 
   handleAuthSuccess(token: string, user: AuthUser): void {

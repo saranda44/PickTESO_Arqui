@@ -92,6 +92,10 @@ export class CartService {
     }
 
     this.saveCart();
+
+    if (this.items().length === 0) {
+      localStorage.removeItem(this.STORE_KEY);
+    }
   }
 
   // TOTAL
