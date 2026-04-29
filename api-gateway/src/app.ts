@@ -32,7 +32,7 @@ app.post('/api/payments/:id/confirm', authenticate, paymentConfirmProxy);
 // app.use('/api/payments', authenticate, paymentProxy); // proxy for all payment routes. uncomment if you want to use it instead of individual routes
 app.use('/api/sellers', authenticate,authorize('store_admin','platform_admin'), sellersProxy)
 app.use('/api/catalog', authenticate, catalogProxy)
-app.use('/api/orders',authenticate,authorize('store_admin','platform_admin'),ordersProxy )
+app.use('/api/orders',authenticate,authorize('customer','store_admin','platform_admin'),ordersProxy )
 
 
 

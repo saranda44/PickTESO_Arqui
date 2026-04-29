@@ -14,6 +14,8 @@ interface CartItem {
 export class CartService {
 
   items = signal<CartItem[]>([]);
+  private readonly CART_KEY = 'cart';
+  private readonly STORE_KEY = 'cart_store_id';
 
   constructor() {
     this.loadCart();
@@ -21,7 +23,7 @@ export class CartService {
 
   // Cargar desde localStorage
   private loadCart() {
-    const data = localStorage.getItem('cart');
+    const data = localStorage.getItem(this.CART_KEY);
     if (data) {
       this.items.set(JSON.parse(data));
     }
@@ -29,13 +31,32 @@ export class CartService {
 
   // Guardar en localStorage
   private saveCart() {
-    localStorage.setItem('cart', JSON.stringify(this.items()));
+    localStorage.setItem(this.CART_KEY, JSON.stringify(this.items()));
   }
 
-  // AGREGAR PRODUCTO
-  addToCart(product: any) {
-    const current = this.items();
+  setStoreId(storeId: number): void {
+    localStorage.setItem(this.STORE_KEY, storeId.toString());
+  }
 
+  getStoreId(): number | null {
+    const raw = localStorage.getItem(this.STORE_KEY);
+    return raw ? Number(raw) : null;
+  }
+
+  clearCart(): void {
+    this.items.set([]);
+    localStorage.removeItem(this.CART_KEY);
+    localStorage.removeItem(this.STORE_KEY);
+  }
+
+  // AGREGAR PRODUCTO — retorna false si la tienda no coincide
+  addToCart(product: any, storeId?: number): boolean {
+    const currentStoreId = this.getStoreId();
+    if (storeId !== undefined && currentStoreId !== null && currentStoreId !== storeId) {
+      return false;
+    }
+
+    const current = this.items();
     const existing = current.find(item => item.id === product.id);
 
     if (existing) {
@@ -52,6 +73,7 @@ export class CartService {
 
     this.items.set([...current]);
     this.saveCart();
+    return true;
   }
 
   // QUITAR

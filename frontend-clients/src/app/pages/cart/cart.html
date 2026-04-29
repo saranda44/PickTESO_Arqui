@@ -65,8 +65,10 @@
 
   <!-- TOTAL (solo si hay productos) -->
   <div class="checkout" *ngIf="items().length > 0">
-    <button class="checkout-btn">
-      Pagar • Total: ${{ getTotal() }}
+    <p class="error-msg" *ngIf="errorMessage">{{ errorMessage }}</p>
+    <button class="checkout-btn" (click)="checkout()" [disabled]="loading">
+      <span *ngIf="loading">Procesando...</span>
+      <span *ngIf="!loading">Pagar • Total: ${{ getTotal() }}</span>
     </button>
   </div>
 

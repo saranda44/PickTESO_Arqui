@@ -7,6 +7,21 @@
   font-family: 'Inter', sans-serif;
 }
 
+.store-alert {
+  position: fixed;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ff4d4f;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  z-index: 1000;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
 .store-title {
   text-align: center;
   font-size: 18px;

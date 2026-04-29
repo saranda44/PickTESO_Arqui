@@ -32,7 +32,7 @@ export class Store implements OnInit {
   showTags = false;
 
   cartCount!: () => number;
-  
+  addedAlert = signal('');
 
   constructor(
     private route: ActivatedRoute,
@@ -64,8 +64,13 @@ export class Store implements OnInit {
     });
   }
 
-    // Añadir un producto al carrito
     addToCart(product: Product) {
-      this.cartService.addToCart(product);
+      const added = this.cartService.addToCart(product, this.storeId);
+      if (added) {
+        this.cartService.setStoreId(this.storeId);
+      } else {
+        this.addedAlert.set('Solo puedes agregar productos de una tienda a la vez.');
+        setTimeout(() => this.addedAlert.set(''), 3000);
+      }
     }
 }

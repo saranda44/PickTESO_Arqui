@@ -13,9 +13,13 @@ const inventoryController = new InventoryController();
 // router.get("/product/:product_id/stock", inventoryController.getStockByProductId);
 
 
-router.post("/", ownsProduct(req => Number(req.body.product_id)), inventoryController.createInventoryEntry);
+// router.post("/", ownsProduct(req => Number(req.body.product_id)), inventoryController.createInventoryEntry);
 // router.delete("/:id", ownsInventoryEntry, inventoryController.deleteInventoryEntry);
 // router.get("/product/:product_id", inventoryController.getInventoryEntriesByProductId);
-router.get("/product/:product_id/stock", ownsProduct(req => Number(req.params.product_id)), inventoryController.getStockByProductId);
+// router.get("/product/:product_id/stock", ownsProduct(req => Number(req.params.product_id)), inventoryController.getStockByProductId);
+
+
+router.post("/", inventoryController.createInventoryEntry);
+router.get("/product/:product_id/stock", inventoryController.getStockByProductId);
 
 export default router;
