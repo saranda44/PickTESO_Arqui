@@ -36,18 +36,23 @@ describe('Orders Controller', () => {
         status: OrderStatus.PENDING,
       };
 
+      const mockResult = {
+        order: mockOrder,
+        client_secret: 'pi_123_secret_456',
+      };
+
       req.params = { idStore: '20' };
       req.body = {
         items: [{ product_id: 1, quantity: 2 }],
       };
       req.headers.authorization = 'Bearer token';
 
-      (OrderService.createOrder as any).mockResolvedValue(mockOrder);
+      (OrderService.createOrder as any).mockResolvedValue(mockResult);
 
       await OrderController.createOrder(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(201);
-      expect(res.json).toHaveBeenCalledWith({ order: mockOrder });
+      expect(res.json).toHaveBeenCalledWith({ order: mockOrder, client_secret: mockResult.client_secret });
       expect(next).not.toHaveBeenCalled();
     });
 

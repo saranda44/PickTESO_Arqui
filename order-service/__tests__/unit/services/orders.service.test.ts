@@ -64,14 +64,16 @@ describe('Orders Service - Lifecycle Flow', () => {
         { product_id: 1, quantity: 2, unit_price: 50 },
       ]);
       (storeAdminClient.deductInventory as any).mockResolvedValue({});
-      (paymentClient.createPaymentIntent as any).mockResolvedValue({ id: 'pi_123' });
+      (paymentClient.createPaymentIntent as any).mockResolvedValue('pi_123_secret_456');
 
       const result = await OrderService.createOrder(userId, storeId, dto);
 
       expect(result).toBeDefined();
-      expect(result.id).toBe(100);
-      expect(result.total).toBe(100);
-      expect(result.status).toBe(OrderStatus.PENDING);
+      expect(result.order).toBeDefined();
+      expect(result.order.id).toBe(100);
+      expect(result.order.total).toBe(100);
+      expect(result.order.status).toBe(OrderStatus.PENDING);
+      expect(result.client_secret).toBe('pi_123_secret_456');
     });
 
     it('should reject order creation when store not found or inventory insufficient', async () => {

@@ -10,6 +10,7 @@ import {
 } from '../clients/notification.client';
 import {
     CreateOrderDTO,
+    CreateOrderResult,
     Order,
     OrderStatus,
     OrderWithItems,
@@ -97,7 +98,7 @@ type DeleteOrderByStoreResult = {
 //   3. Calculate total using prices from catalog
 //   4. Persist order + order_products in a transaction
 //   5. Deduct inventory (store-admin service)
-async function createOrder(userId: number, idStore: number, dto: CreateOrderDTO, token?: string): Promise<OrderWithItems> {
+async function createOrder(userId: number, idStore: number, dto: CreateOrderDTO, token?: string): Promise<CreateOrderResult> {
     // 1. Validate store
     
     const store = await getStoreFromCatalog(idStore);
@@ -121,7 +122,7 @@ async function createOrder(userId: number, idStore: number, dto: CreateOrderDTO,
         }
 
         //validate product belongs to the store
-        if (product.store_id !== idStore) {
+        if (Number(product.store_id) !== Number(idStore)) {
             throw new BadRequestError(
                 `Product ${item.product_id} does not belong to store ${idStore}`
             );
@@ -181,11 +182,12 @@ async function createOrder(userId: number, idStore: number, dto: CreateOrderDTO,
         );
 
         // create payment intent in payments service (called by orders when a new order is created and needs to be paid)
-        
+
+        let client_secret: string;
         try {
-            const paymentIntent = await createPaymentIntent(order.id, total, userId, 'mxn', token);
-            if (!paymentIntent) {
-                console.log(paymentIntent)
+            client_secret = await createPaymentIntent(order.id, total, userId, 'mxn', token);
+            if (!client_secret) {
+                console.log(client_secret)
                 throw new Error('Failed to create payment intent');
             }
         } catch (err) {
@@ -193,7 +195,7 @@ async function createOrder(userId: number, idStore: number, dto: CreateOrderDTO,
             throw new Error('Failed to create payment intent, please try again');
         }
 
-        return { ...order, items };
+        return { order: { ...order, items }, client_secret };
     } catch (err) {
         await client.query('ROLLBACK');
         throw err;

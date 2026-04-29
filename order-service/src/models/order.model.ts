@@ -69,3 +69,8 @@ export interface OrderWithProducts extends Order {
 export interface OrderWithItems extends Order {
   items: OrderProduct[];
 }
+
+export interface CreateOrderResult {
+  order: OrderWithItems;
+  client_secret: string;
+}

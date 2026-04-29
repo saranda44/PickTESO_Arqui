@@ -26,8 +26,8 @@ async function createOrder(req: Request, res: Response, next: NextFunction) {
         const body = req.body as CreateOrderDTO;
         const token = req.headers.authorization;
 
-        const order = await OrderService.createOrder(userId, idStore, body, token);
-        res.status(201).json({ order });
+        const { order, client_secret } = await OrderService.createOrder(userId, idStore, body, token);
+        res.status(201).json({ order, client_secret });
     } catch (err) {
         next(err);
     }
