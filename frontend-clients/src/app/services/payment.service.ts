@@ -19,7 +19,7 @@ async checkout(orderId: number, amount: number, currency: string, userId: number
     const token = localStorage.getItem('auth_token');
     const response = await firstValueFrom(
         this.http.post<{ url: string }>(
-            `${environment.apiUrl}/api/payments/checkout-session`,
+            `${environment.apiUrl}/payments/checkout-session`,
             { orderId, amount, currency, userId },
             { headers: { Authorization: `Bearer ${token}` } } 
         )
@@ -31,7 +31,7 @@ confirmPayment(sessionId: string, orderId: number) {
   const token = localStorage.getItem('auth_token');
   return firstValueFrom(
     this.http.post(
-      `${environment.apiUrl}/api/payments/confirm-session`,
+      `${environment.apiUrl}/payments/confirm-session`,
       { sessionId, orderId },
       { headers: { Authorization: `Bearer ${token}` } }
     )
