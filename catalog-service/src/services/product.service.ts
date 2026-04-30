@@ -19,4 +19,8 @@ export class ProductService {
 
         return await Repositories.product.getProductsWithTags(storeId);
     }
+
+    async getByIds(ids: number[]): Promise<IProduct[]> {
+    return Repositories.product.findByIds(ids);
+}
 }

@@ -1,1 +1,66 @@
-<p>orders works!</p>
+<div class="orders-container">
+
+  <h1 class="title">
+    Tus <span class="bold">órdenes</span> 🧾
+  </h1>
+
+  <p class="subtitle">
+    Todo lo que pediste, en un solo lugar
+  </p>
+
+  <!-- CARD -->
+  <div class="orders-card">
+
+    <!-- 🟡 SI HAY ÓRDENES -->
+    <ng-container *ngIf="orders().length > 0; else emptyOrders">
+
+      <div class="order-item" *ngFor="let order of orders()">
+
+        <div class="order-info">
+          <span class="order-id">
+            Orden #{{ order.id }}
+          </span>
+
+          <span class="order-total">
+            ${{ order.total }}
+          </span>
+        </div>
+
+        <div class="order-meta">
+          {{ order.created_at | date:'short' }}
+        </div>
+
+      </div>
+
+    </ng-container>
+
+    <!-- 🔵 EMPTY STATE -->
+    <ng-template #emptyOrders>
+      <div class="empty-orders">
+        Todo empieza con una primera orden.
+      </div>
+    </ng-template>
+
+  </div>
+
+  <!-- FLOATING BUTTONS -->
+  <div class="floating-buttons">
+
+    <button class="fab" routerLink="/">
+      🏠
+    </button>
+
+    <button class="fab" routerLink="/cart">
+      🛒
+      <span class="badge" *ngIf="cartCount() > 0">
+        {{ cartCount() }}
+      </span>
+    </button>
+
+    <button class="fab active" routerLink="/orders">
+      🧾
+    </button>
+
+  </div>
+
+</div>

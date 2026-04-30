@@ -1,0 +1,119 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
+
+.orders-container {
+  padding: 32px 40px;
+  background: #fff;
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+}
+
+/* TITLES */
+.title {
+  font-size: 32px;
+  font-weight: 300;
+  color: #111;
+}
+
+.bold {
+  font-weight: 700;
+}
+
+.subtitle {
+  font-size: 18px;
+  font-weight: 300;
+  color: #888;
+  margin-top: -18px;
+  margin-bottom: 60px;
+}
+
+/* CARD */
+.orders-card {
+  max-width: 600px;
+  margin: 0 auto;
+  background: #f5f5f5;
+  border-radius: 20px;
+  padding: 20px;
+}
+
+/* ITEM */
+.order-item {
+  padding: 14px 0;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.order-item:last-child {
+  border-bottom: none;
+}
+
+/* INFO */
+.order-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.order-id {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111;
+}
+
+.order-total {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111;
+}
+
+/* META */
+.order-meta {
+  font-size: 13px;
+  font-weight: 300;
+  color: #888;
+  margin-top: 4px;
+}
+
+/* EMPTY */
+.empty-orders {
+  text-align: center;
+  color: #999;
+  font-size: 16px;
+  padding: 40px 0;
+}
+
+/* FLOATING BUTTONS (igual que cart) */
+.floating-buttons {
+  position: fixed;
+  top: 60px;
+  right: 40px;
+  display: flex;
+  gap: 12px;
+}
+
+.fab {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: none;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  font-size: 22px;
+  cursor: pointer;
+  position: relative;
+}
+
+.fab.active {
+  background: #111;
+  color: #fff;
+}
+
+.badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #085CF0;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 50%;
+  padding: 4px 7px;
+}

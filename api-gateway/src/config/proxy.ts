@@ -7,7 +7,9 @@ const createProxy = (target: string) =>
         changeOrigin: true,
         on: {
             proxyReq: (proxyReq, req: Request) => {
-                const authHeader = req.headers.authorization;
+                const authHeader = req.headers['authorization'];
+                console.log('AUTH HEADER:', req.headers['authorization']);
+                
                 if (authHeader) {
                     proxyReq.setHeader('Authorization', authHeader);
                 }

@@ -24,4 +24,18 @@ export class ProductController {
              next(error);
          }
      };
+
+    getByIds = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const ids = (req.query.ids as string)
+                .split(',')
+                .map(Number)
+                .filter(n => !isNaN(n));
+            const products = await productService.getByIds(ids);
+            res.status(200).json({ products });
+        } catch (error) {
+            next(error);
+        }
+    };
 }
+   

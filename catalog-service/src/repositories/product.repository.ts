@@ -28,6 +28,14 @@ export class ProductRepository {
         return rows[0] || null;
     }
 
+    async findByIds(ids: number[]): Promise<IProduct[]> {
+        if (ids.length === 0) return [];
+        const placeholders = ids.map((_, i) => `$${i + 1}`).join(', ');
+        const query = `SELECT * FROM products WHERE id IN (${placeholders})`;
+        const { rows } = await this.pool.query(query, ids);
+    return rows;
+    }
+
     async update(id: number, data: Partial<Omit<IProduct, "id" | "created_at" | "updated_at">>): Promise<IProduct | null> {
         const allowedFields = ["name", "description", "price", "product_image", "active"];
 
