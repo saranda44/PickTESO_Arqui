@@ -1,6 +1,6 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { OrdersService, Order } from '../../services/orders.service';
+import { OrderService, Order } from '../../services/orders';
 import { CartService } from '../../services/cart.service';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
@@ -18,7 +18,7 @@ export class Orders implements OnInit {
   cartCount!: () => number;
 
   constructor(
-    private ordersService: OrdersService,
+    private ordersService: OrderService,
     private cartService: CartService,
     private auth: AuthService
   ) {}
@@ -27,7 +27,7 @@ export class Orders implements OnInit {
     this.cartCount = this.cartService.count;
     console.log('token at ngOnInit:', this.auth.getToken());
 
-    this.ordersService.getOrdersByUser().subscribe({
+    this.ordersService.getMyOrders().subscribe({
       next: (data) => {
         console.log('ORDERS:', JSON.stringify(data, null, 2));
         this.orders.set(data.orders);

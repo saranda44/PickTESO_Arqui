@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { AuthService } from './auth.service';
 
 export interface Product {
   id: number;
@@ -16,18 +18,21 @@ export interface Product {
   providedIn: 'root'
 })
 export class ProductService {
+  private readonly apiUrl = environment.apiUrl;
+  constructor(private http: HttpClient, private authService: AuthService) {}
 
-  private apiUrl = 'http://localhost:3001/stores';
-
-  constructor(private http: HttpClient) {}
+  private get headers(): HttpHeaders {
+    return new HttpHeaders({ Authorization: `Bearer ${this.authService.getToken()}` });
+  } 
 
   getProductsByStore(storeId: number): Observable<Product[]> {
     return this.http.get<Product[]>(
-      `${this.apiUrl}/${storeId}/products`
+      `${this.apiUrl}/catalog/stores/${storeId}/products`,
+      { headers: this.headers }
     );
   }
 
   getStoreById(id: number) {
-    return this.http.get<any>(`http://localhost:3001/stores/${id}`);
+    return this.http.get<any>(`${this.apiUrl}/catalog/stores/${id}`, { headers: this.headers });
   }
 }
