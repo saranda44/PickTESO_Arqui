@@ -6,22 +6,28 @@ const {
     mockStripeCreate,
     mockStripeRetrieve,
     mockStripeCancel,
+    mockStripeCheckoutCreate,
+    mockStripeCheckoutRetrieve,
     mockInsertPaymentIntent,
     mockUpdatePaymentIntentStatus,
     mockInsertPayment,
     mockGetPaymentIntentByOrderId,
     mockGetPaymentIntentByStripeId,
+    mockPaymentExistsByOrderId,
     mockAxiosPatch,
     mockAxiosDelete,
 } = vi.hoisted(() => ({
     mockStripeCreate: vi.fn(),
     mockStripeRetrieve: vi.fn(),
     mockStripeCancel: vi.fn(),
+    mockStripeCheckoutCreate: vi.fn(),
+    mockStripeCheckoutRetrieve: vi.fn(),
     mockInsertPaymentIntent: vi.fn(),
     mockUpdatePaymentIntentStatus: vi.fn(),
     mockInsertPayment: vi.fn(),
     mockGetPaymentIntentByOrderId: vi.fn(),
     mockGetPaymentIntentByStripeId: vi.fn(),
+    mockPaymentExistsByOrderId: vi.fn(),
     mockAxiosPatch: vi.fn(),
     mockAxiosDelete: vi.fn(),
 }));
@@ -47,6 +53,12 @@ vi.mock('stripe', () => {
                 retrieve: mockStripeRetrieve,
                 cancel: mockStripeCancel,
             },
+            checkout: {
+                sessions: {
+                    create: mockStripeCheckoutCreate,
+                    retrieve: mockStripeCheckoutRetrieve,
+                },
+            },
         };
     };
     Stripe.prototype = {};
@@ -60,6 +72,7 @@ vi.mock('../src/db/paymentRepository', () => ({
     insertPayment: mockInsertPayment,
     getPaymentIntentByOrderId: mockGetPaymentIntentByOrderId,
     getPaymentIntentByStripeId: mockGetPaymentIntentByStripeId,
+    paymentExistsByOrderId: mockPaymentExistsByOrderId,
 }));
 
 vi.mock('axios', () => ({
@@ -71,6 +84,135 @@ vi.mock('axios', () => ({
 
 import app from '../src/app';
 import Stripe from 'stripe';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Ruta: POST /checkout-session
+// Controlador: createCheckoutSession — paymentController.ts
+// ─────────────────────────────────────────────────────────────────────────────
+describe('POST /checkout-session — createCheckoutSession()', () => {
+
+    beforeEach(() => vi.clearAllMocks());
+
+    it('CP-CS-01: payload válido → 200 con url de Stripe', async () => {
+        mockStripeCheckoutCreate.mockResolvedValueOnce({
+            url: 'https://checkout.stripe.com/pay/test_session_123',
+        });
+
+        const res = await request(app)
+            .post('/checkout-session')
+            .send({ amount: 9000, currency: 'mxn', orderId: 1, userId: 1 });
+
+        expect(res.statusCode).toBe(200);
+        expect(res.body).toHaveProperty('url', 'https://checkout.stripe.com/pay/test_session_123');
+        expect(mockStripeCheckoutCreate).toHaveBeenCalledOnce();
+    });
+
+    it('CP-CS-02: Stripe lanza error → errorHandler (500)', async () => {
+        mockStripeCheckoutCreate.mockRejectedValueOnce(new Error('Stripe checkout error'));
+
+        const res = await request(app)
+            .post('/checkout-session')
+            .send({ amount: 9000, currency: 'mxn', orderId: 1, userId: 1 });
+
+        expect(res.statusCode).toBe(500);
+        expect(res.body).toHaveProperty('error', 'Stripe checkout error');
+    });
+
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Ruta: POST /confirm-session
+// Controlador: confirmCheckoutSession — paymentController.ts
+// ─────────────────────────────────────────────────────────────────────────────
+describe('POST /confirm-session — confirmCheckoutSession()', () => {
+
+    beforeEach(() => vi.clearAllMocks());
+
+    it('CP-CF-01: sin sessionId o orderId → 400', async () => {
+        const res = await request(app)
+            .post('/confirm-session')
+            .send({ orderId: 1 }); // falta sessionId
+
+        expect(res.statusCode).toBe(400);
+        expect(res.body.error).toContain('sessionId and orderId are required');
+    });
+
+    it('CP-CF-02: session con payment_status paid, pago no existente → inserta pago y confirma pedido', async () => {
+        mockStripeCheckoutRetrieve.mockResolvedValueOnce({
+            payment_status: 'paid',
+            payment_intent: 'pi_test_charge_123',
+            amount_total: 9000,
+            currency: 'mxn',
+        });
+        mockGetPaymentIntentByOrderId.mockResolvedValueOnce({ id: 42, user_id: 1 });
+        mockUpdatePaymentIntentStatus.mockResolvedValueOnce(undefined);
+        mockPaymentExistsByOrderId.mockResolvedValueOnce(false); // no existe → insertar
+        mockInsertPayment.mockResolvedValueOnce(undefined);
+        mockAxiosPatch.mockResolvedValueOnce({ data: {} });
+
+        const res = await request(app)
+            .post('/confirm-session')
+            .send({ sessionId: 'cs_test_123', orderId: 1 });
+
+        expect(res.statusCode).toBe(200);
+        expect(res.body).toMatchObject({ status: 'paid', orderId: 1 });
+        expect(mockInsertPayment).toHaveBeenCalledOnce();
+        expect(mockAxiosPatch).toHaveBeenCalledOnce();
+    });
+
+    it('CP-CF-03: session paid, pago ya existente → no duplica insertPayment pero sí confirma pedido', async () => {
+        mockStripeCheckoutRetrieve.mockResolvedValueOnce({
+            payment_status: 'paid',
+            payment_intent: 'pi_test_charge_123',
+            amount_total: 9000,
+            currency: 'mxn',
+        });
+        mockGetPaymentIntentByOrderId.mockResolvedValueOnce({ id: 42, user_id: 1 });
+        mockUpdatePaymentIntentStatus.mockResolvedValueOnce(undefined);
+        mockPaymentExistsByOrderId.mockResolvedValueOnce(true); // ya existe → no insertar
+        mockAxiosPatch.mockResolvedValueOnce({ data: {} });
+
+        const res = await request(app)
+            .post('/confirm-session')
+            .send({ sessionId: 'cs_test_123', orderId: 1 });
+
+        expect(res.statusCode).toBe(200);
+        expect(mockInsertPayment).not.toHaveBeenCalled();
+        expect(mockAxiosPatch).toHaveBeenCalledOnce();
+    });
+
+    it('CP-CF-04: session con payment_status unpaid → cancela pedido', async () => {
+        mockStripeCheckoutRetrieve.mockResolvedValueOnce({
+            payment_status: 'unpaid',
+            payment_intent: null,
+            amount_total: 9000,
+            currency: 'mxn',
+        });
+        mockAxiosDelete.mockResolvedValueOnce({ data: {} });
+
+        const res = await request(app)
+            .post('/confirm-session')
+            .send({ sessionId: 'cs_test_456', orderId: 2 });
+
+        expect(res.statusCode).toBe(200);
+        expect(res.body.status).toBe('unpaid');
+        expect(mockInsertPayment).not.toHaveBeenCalled();
+        expect(mockAxiosDelete).toHaveBeenCalledOnce();
+    });
+
+    it('CP-CF-05: error en Stripe retrieve → cancela pedido y llama next(error)', async () => {
+        mockStripeCheckoutRetrieve.mockRejectedValueOnce(new Error('Session not found'));
+        mockAxiosDelete.mockResolvedValueOnce({ data: {} });
+
+        const res = await request(app)
+            .post('/confirm-session')
+            .send({ sessionId: 'cs_bad', orderId: 3 });
+
+        expect(res.statusCode).toBe(500);
+        expect(mockAxiosDelete).toHaveBeenCalledOnce();
+    });
+
+});
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Ruta: GET /health
@@ -113,7 +255,7 @@ describe('POST /create-payment-intent — createPaymentIntent()', () => {
         expect(res.statusCode).toBe(200);
         expect(res.body).toHaveProperty('client_secret', 'pi_test_123_secret_abc');
         expect(res.body).toHaveProperty('paymentIntentDbId', 42);
-        expect(mockStripeCreate).toHaveBeenCalledWith({ amount: 9000, currency: 'mxn' });
+        expect(mockStripeCreate).toHaveBeenCalledWith({ amount: 9000, currency: 'mxn', automatic_payment_methods: { enabled: true } });
         expect(mockInsertPaymentIntent).toHaveBeenCalledOnce();
     });
 
@@ -194,7 +336,7 @@ describe('POST /create-payment-intent — createPaymentIntent()', () => {
             .send({ amount: 9000, currency: 'MXN', orderId: 1, userId: 1, orderValue: 9000 });
 
         expect(res.statusCode).toBe(200);
-        expect(mockStripeCreate).toHaveBeenCalledWith({ amount: 9000, currency: 'mxn' });
+        expect(mockStripeCreate).toHaveBeenCalledWith({ amount: 9000, currency: 'mxn', automatic_payment_methods: { enabled: true } });
     });
 
     it('CP-PAY-10: error de Stripe → llega al errorHandler (500)', async () => {

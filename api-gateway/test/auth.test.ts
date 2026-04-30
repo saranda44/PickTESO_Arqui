@@ -23,7 +23,7 @@ vi.mock('../src/config/proxy', () => ({
     catalogProxy: (_req: any, _res: any, next: any) => next(),
     ordersProxy: (_req: any, _res: any, next: any) => next(),
     notificationsProxy: (_req: any, _res: any, next: any) => next(),
-    paymentConfirmProxy: (_req: any, _res: any, next: any) => next(),
+    paymentProxy: (_req: any, _res: any, next: any) => next(),
     sellersProxy: (_req: any, _res: any, next: any) => next(),
 }));
 
