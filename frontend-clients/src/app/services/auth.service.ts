@@ -1,5 +1,8 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs/internal/firstValueFrom';
+import { environment } from '../../../environments/environment';
 
 export interface AuthUser {
   id: string;
@@ -15,6 +18,7 @@ export interface AuthUser {
 export class AuthService {
   private readonly TOKEN_KEY = 'auth_token';
   private readonly USER_KEY = 'auth_user';
+  private readonly apiUrl = environment.apiUrl;
 
   currentUser = signal<AuthUser | null>(this.loadUserFromStorage());
 
@@ -65,4 +69,5 @@ export class AuthService {
       return null;
     }
   }
+  
 }

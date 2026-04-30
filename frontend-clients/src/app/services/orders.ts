@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthService } from './auth.service';
 
@@ -38,28 +38,18 @@ export class OrderService {
   createOrder(storeId: number, items: OrderItem[]): Promise<CreateOrderResponse> {
     return firstValueFrom(
       this.http.post<CreateOrderResponse>(
-        `${this.apiUrl}/api/orders/user/stores/${storeId}/orders`,
+        `${this.apiUrl}/orders/user/stores/${storeId}/orders`,
         { items },
         { headers: this.headers }
       )
     );
   }
 
-  getMyOrders(): Promise<{ orders: Order[] }> {
-    return firstValueFrom(
-      this.http.get<{ orders: Order[] }>(
-        `${this.apiUrl}/api/orders/user/orders`,
+  getMyOrders(): Observable<{ orders: Order[] }> {
+    return this.http.get<{ orders: Order[] }>(
+        `${this.apiUrl}/catalog/orders`,
         { headers: this.headers }
       )
-    );
   }
 
-  getOrderById(orderId: number): Promise<{ order: Order }> {
-    return firstValueFrom(
-      this.http.get<{ order: Order }>(
-        `${this.apiUrl}/api/orders/user/orders/${orderId}`,
-        { headers: this.headers }
-      )
-    );
-  }
 }
