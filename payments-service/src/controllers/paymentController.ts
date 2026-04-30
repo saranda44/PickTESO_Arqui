@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import Stripe from 'stripe';
 import axios from 'axios';
-import { insertPaymentIntent, updatePaymentIntentStatus, insertPayment, getPaymentIntentByStripeId,getPaymentIntentByOrderId } from '../db/paymentRepository';
+import { insertPaymentIntent, updatePaymentIntentStatus, insertPayment, getPaymentIntentByStripeId, getPaymentIntentByOrderId, paymentExistsByOrderId } from '../db/paymentRepository';
 
 enum CardType {
     VISA = '1',
@@ -73,13 +73,14 @@ export const createPaymentIntent = async (req: Request, res: Response, next: Nex
             return;
         }
 
-        if (orderValue != amount){
-            res.status(400).json({error: 'You need to pay the exact amount of your order'})
+        if (orderValue != amount) {
+            res.status(400).json({ error: 'You need to pay the exact amount of your order' })
         }
 
         const paymentIntent = await stripe.paymentIntents.create({
             amount,
             currency: currency.toLowerCase(),
+            automatic_payment_methods: { enabled: true },
         });
 
         const record = await insertPaymentIntent(
@@ -246,3 +247,87 @@ export const cancelPaymentIntent = async (req: Request, res: Response, next: Nex
         next(error);
     }
 };
+// Creates a checkout session for Stripe's hosted payment page, using the client secret from the frontend
+export const createCheckoutSession = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { amount, currency, orderId, userId } = req.body;
+
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            line_items: [{
+                price_data: {
+                    currency: currency.toLowerCase(),
+                    product_data: { name: `Order #${orderId}` },
+                    unit_amount: amount,
+                },
+                quantity: 1,
+            }],
+            mode: 'payment',
+            success_url: `http://localhost:4200/payment/result?session_id={CHECKOUT_SESSION_ID}&order_id=${orderId}`,
+            cancel_url: `http://localhost:4200/cart`,
+        });
+
+        res.status(200).json({ url: session.url });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * Confirms a payment by retrieving the Checkout Session status from Stripe.
+ * Called by the frontend after Stripe redirects back with session_id.
+ */
+export const confirmCheckoutSession = async (req: Request, res: Response, next: NextFunction) => {
+    const { orderId } = req.body;
+    try {
+        const { sessionId } = req.body;
+
+        if (!sessionId || !orderId) {
+            res.status(400).json({ error: 'sessionId and orderId are required' });
+            return;
+        }
+
+        const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+        if (session.payment_status === 'paid') {
+            const stripeChargeId = session.payment_intent as string;
+            const intentRecord = await getPaymentIntentByOrderId(orderId);
+
+            await updatePaymentIntentStatus(stripeChargeId, 'succeeded');
+
+            const alreadyPaid = await paymentExistsByOrderId(orderId);
+
+            if (!alreadyPaid) {
+                await insertPayment(
+                    orderId,
+                    intentRecord.user_id,
+                    intentRecord.id,
+                    stripeChargeId,
+                    session.amount_total ?? 0,
+                    session.currency ?? 'mxn',
+                    'succeeded'
+                );
+            }
+                await axios.patch(
+                    `${process.env.ORDERS_SERVICE_URL}/orders/${orderId}/confirm-payment`
+                );
+
+            } else {
+                await axios.delete(
+                    `${process.env.ORDERS_SERVICE_URL}/orders/${orderId}/cancel`
+                ).catch(console.error);
+            }
+
+            res.status(200).json({
+                status: session.payment_status,
+                orderId,
+            });
+
+        } catch (error) {
+            await axios.delete(
+                `${process.env.ORDERS_SERVICE_URL}/orders/${orderId}/cancel`
+            ).catch(console.error);
+            next(error);
+        }
+    };

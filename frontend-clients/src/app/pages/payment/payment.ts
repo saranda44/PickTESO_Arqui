@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { PaymentService } from '../../services/payment';
+import { PaymentService } from '../../services/payment.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -19,25 +19,19 @@ export class Payment implements OnInit {
   success = false;
   errorMessage = '';
 
-  async ngOnInit(): Promise<void> {
-    const paymentIntentId = this.route.snapshot.queryParamMap.get('payment_intent');
-    const redirectStatus = this.route.snapshot.queryParamMap.get('redirect_status');
-    const orderId = localStorage.getItem('pendingOrderId');
+async ngOnInit(): Promise<void> {
+    const sessionId = this.route.snapshot.queryParamMap.get('session_id');
+    const orderId = this.route.snapshot.queryParamMap.get('order_id') 
+                    ?? localStorage.getItem('pendingOrderId');
 
-    if (!paymentIntentId || !orderId) {
+    if (!sessionId || !orderId) {
       this.loading = false;
       this.errorMessage = 'Missing payment information';
       return;
     }
 
-    if (redirectStatus !== 'succeeded') {
-      this.loading = false;
-      this.errorMessage = 'Payment was not completed';
-      return;
-    }
-
     try {
-      await this.paymentService.confirmPayment(paymentIntentId, Number(orderId));
+      await this.paymentService.confirmPayment(sessionId, Number(orderId));
       localStorage.removeItem('pendingOrderId');
       this.loading = false;
       this.success = true;

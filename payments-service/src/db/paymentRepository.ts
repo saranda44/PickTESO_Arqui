@@ -82,3 +82,14 @@ export const getPaymentIntentByOrderId = async (orderId: number) => {
     );
     return result.rows[0];
 };
+/**
+ * Checks if a payment already exists for a given order id.
+ * Used to avoid duplicate key errors when confirming a payment.
+ */
+export const paymentExistsByOrderId = async (orderId: number): Promise<boolean> => {
+    const result = await pool.query(
+        'SELECT id FROM payments WHERE order_id = $1',
+        [orderId]
+    );
+    return result.rows.length > 0;
+};

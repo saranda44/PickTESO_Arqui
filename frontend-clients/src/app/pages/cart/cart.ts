@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { CartService } from '../../services/cart.service';
 import { OrderService } from '../../services/orders';
 import { RouterModule } from '@angular/router';
+import { PaymentService } from '../../services/payment.service';
 
 @Component({
   selector: 'app-cart',
@@ -19,22 +20,23 @@ export class Cart {
 
   constructor(
     private cartService: CartService,
-    private orderService: OrderService
+    private orderService: OrderService,
+    private paymentService: PaymentService
   ) {
     this.items = this.cartService.items;
     this.cartCount = this.cartService.count;
   }
 
-  increase(item: any) { 
-    this.cartService.addToCart(item); 
+  increase(item: any) {
+    this.cartService.addToCart(item);
   }
 
-  decrease(item: any) { 
-    this.cartService.removeFromCart(item.id); 
+  decrease(item: any) {
+    this.cartService.removeFromCart(item.id);
   }
 
   getTotal(): number {
-    return this.cartService.getTotal(); 
+    return this.cartService.getTotal();
   }
 
   async checkout(): Promise<void> {
@@ -55,8 +57,18 @@ export class Cart {
     try {
       const result = await this.orderService.createOrder(storeId, items);
       this.cartService.clearCart();
-      // Redirigir a la página de pago con el client_secret
+      // Redirect to Stripe ← esto es lo nuevo
+
+      const userId = Number(localStorage.getItem('id'));
+      await this.paymentService.checkout(
+        result.order.id,
+        Math.round(result.order.total * 100), // pesos a centavos
+        'mxn',
+        userId
+      );
+
     } catch (err: any) {
+      console.log(err);
       this.errorMessage = err?.error?.message ?? err?.message ?? 'Error al crear la orden';
     } finally {
       this.loading = false;
