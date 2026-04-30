@@ -1,6 +1,5 @@
-import { SendEmailCommand } from '@aws-sdk/client-ses';
-import sesClient from '../config/ses';
-import { SESError } from '../errors';
+import transporter from '../config/nodemailer';
+import { MailError } from '../errors';
 import {
   OrderConfirmedDTO,
   OrderStatusUpdatedDTO,
@@ -15,27 +14,21 @@ import { orderStatusUpdatedTemplate } from '../templates/order-status-updated';
 import { orderCancelledByStoreTemplate } from '../templates/order-cancelled-by-store';
 import { orderCancelledByPaymentTemplate } from '../templates/order-cancelled-by-payment';
 
-const FROM_EMAIL = process.env.SES_FROM_EMAIL ?? '';
+const FROM_EMAIL = process.env.SMTP_USER ?? '';
 
 // =========================================================
-// Core email sender — wraps SES SendEmailCommand
+// Core email sender
 // =========================================================
 async function sendEmail(to: string, subject: string, body: string): Promise<void> {
-  const command = new SendEmailCommand({
-    Source: FROM_EMAIL,
-    Destination: { ToAddresses: [to] },
-    Message: {
-      Subject: { Data: subject, Charset: 'UTF-8' },
-      Body: {
-        Html: { Data: body, Charset: 'UTF-8' },
-      },
-    },
-  });
-
   try {
-    await sesClient.send(command);
+    await transporter.sendMail({
+      from: FROM_EMAIL,
+      to,
+      subject,
+      html: body,
+    });
   } catch (err: any) {
-    throw new SESError(`Failed to send email to ${to}: ${err?.message}`);
+    throw new MailError(`Failed to send email to ${to}: ${err?.message}`);
   }
 }
 

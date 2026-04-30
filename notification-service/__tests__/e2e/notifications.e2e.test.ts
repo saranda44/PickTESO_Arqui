@@ -2,13 +2,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
 import app from '../../src/app';
 
-vi.mock('../../src/config/ses', () => ({
+vi.mock('../../src/config/nodemailer', () => ({
   default: {
-    send: vi.fn(),
+    sendMail: vi.fn(),
   },
 }));
 
-import sesClient from '../../src/config/ses';
+import transporter from '../../src/config/nodemailer';
 
 describe('Notifications E2E Tests', () => {
   const mockOrder = {
@@ -41,7 +41,7 @@ describe('Notifications E2E Tests', () => {
 
   describe('POST /notifications/order-confirmed', () => {
     it('should send order confirmed emails successfully', async () => {
-      (sesClient.send as any).mockResolvedValue({ MessageId: 'msg123' });
+      (transporter.sendMail as any).mockResolvedValue({});
 
       const response = await request(app)
         .post('/notifications/order-confirmed')
@@ -55,7 +55,7 @@ describe('Notifications E2E Tests', () => {
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual({ ok: true });
-      expect(sesClient.send).toHaveBeenCalledTimes(2);
+      expect(transporter.sendMail).toHaveBeenCalledTimes(2);
     });
 
     it('should return 400 when missing required fields', async () => {
@@ -70,8 +70,8 @@ describe('Notifications E2E Tests', () => {
       expect(response.status).toBe(400);
     });
 
-    it('should return 502 when SES fails', async () => {
-      (sesClient.send as any).mockRejectedValue(new Error('SES error'));
+    it('should return 502 when mail service fails', async () => {
+      (transporter.sendMail as any).mockRejectedValue(new Error('Mail service error'));
 
       const response = await request(app)
         .post('/notifications/order-confirmed')
@@ -89,7 +89,7 @@ describe('Notifications E2E Tests', () => {
 
   describe('POST /notifications/order-status-updated', () => {
     it('should send order status update email successfully', async () => {
-      (sesClient.send as any).mockResolvedValue({ MessageId: 'msg123' });
+      (transporter.sendMail as any).mockResolvedValue({});
 
       const response = await request(app)
         .post('/notifications/order-status-updated')
@@ -102,7 +102,7 @@ describe('Notifications E2E Tests', () => {
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual({ ok: true });
-      expect(sesClient.send).toHaveBeenCalledOnce();
+      expect(transporter.sendMail).toHaveBeenCalledOnce();
     });
 
     it('should return 400 when missing required fields', async () => {
@@ -116,8 +116,8 @@ describe('Notifications E2E Tests', () => {
       expect(response.status).toBe(400);
     });
 
-    it('should return 502 when SES fails', async () => {
-      (sesClient.send as any).mockRejectedValue(new Error('SES error'));
+    it('should return 502 when mail service fails', async () => {
+      (transporter.sendMail as any).mockRejectedValue(new Error('Mail service error'));
 
       const response = await request(app)
         .post('/notifications/order-status-updated')
@@ -134,7 +134,7 @@ describe('Notifications E2E Tests', () => {
 
   describe('POST /notifications/order-cancelled-by-store', () => {
     it('should send order cancelled by store email successfully', async () => {
-      (sesClient.send as any).mockResolvedValue({ MessageId: 'msg123' });
+      (transporter.sendMail as any).mockResolvedValue({});
 
       const response = await request(app)
         .post('/notifications/order-cancelled-by-store')
@@ -146,7 +146,7 @@ describe('Notifications E2E Tests', () => {
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual({ ok: true });
-      expect(sesClient.send).toHaveBeenCalledOnce();
+      expect(transporter.sendMail).toHaveBeenCalledOnce();
     });
 
     it('should return 400 when missing required fields', async () => {
@@ -160,8 +160,8 @@ describe('Notifications E2E Tests', () => {
       expect(response.status).toBe(400);
     });
 
-    it('should return 502 when SES fails', async () => {
-      (sesClient.send as any).mockRejectedValue(new Error('SES error'));
+    it('should return 502 when mail service fails', async () => {
+      (transporter.sendMail as any).mockRejectedValue(new Error('Mail service error'));
 
       const response = await request(app)
         .post('/notifications/order-cancelled-by-store')
@@ -177,7 +177,7 @@ describe('Notifications E2E Tests', () => {
 
   describe('POST /notifications/order-cancelled-by-payment', () => {
     it('should send order cancelled by payment email successfully', async () => {
-      (sesClient.send as any).mockResolvedValue({ MessageId: 'msg123' });
+      (transporter.sendMail as any).mockResolvedValue({});
 
       const response = await request(app)
         .post('/notifications/order-cancelled-by-payment')
@@ -189,7 +189,7 @@ describe('Notifications E2E Tests', () => {
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual({ ok: true });
-      expect(sesClient.send).toHaveBeenCalledOnce();
+      expect(transporter.sendMail).toHaveBeenCalledOnce();
     });
 
     it('should return 400 when missing required fields', async () => {
@@ -203,8 +203,8 @@ describe('Notifications E2E Tests', () => {
       expect(response.status).toBe(400);
     });
 
-    it('should return 502 when SES fails', async () => {
-      (sesClient.send as any).mockRejectedValue(new Error('SES error'));
+    it('should return 502 when mail service fails', async () => {
+      (transporter.sendMail as any).mockRejectedValue(new Error('Mail service error'));
 
       const response = await request(app)
         .post('/notifications/order-cancelled-by-payment')

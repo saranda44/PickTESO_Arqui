@@ -1,14 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NotificationService } from '../../../src/services/notifications.service';
-import { SESError } from '../../../src/errors';
+import { MailError } from '../../../src/errors';
 
-vi.mock('../../../src/config/ses', () => ({
+vi.mock('../../../src/config/nodemailer', () => ({
   default: {
-    send: vi.fn(),
+    sendMail: vi.fn(),
   },
 }));
 
-import sesClient from '../../../src/config/ses';
+import transporter from '../../../src/config/nodemailer';
 
 describe('Notifications Service', () => {
   const mockOrder = {
@@ -41,7 +41,7 @@ describe('Notifications Service', () => {
 
   describe('sendOrderConfirmed', () => {
     it('should send order confirmed email to customer and store', async () => {
-      (sesClient.send as any).mockResolvedValue({ MessageId: 'msg123' });
+      (transporter.sendMail as any).mockResolvedValue({});
 
       await NotificationService.sendOrderConfirmed({
         order_id: 100,
@@ -51,12 +51,12 @@ describe('Notifications Service', () => {
         order: mockOrder,
       });
 
-      expect(sesClient.send).toHaveBeenCalledTimes(2);
+      expect(transporter.sendMail).toHaveBeenCalledTimes(2);
     });
 
-    it('should throw SESError when send fails', async () => {
+    it('should throw MailError when send fails', async () => {
       const error = new Error('Network error');
-      (sesClient.send as any).mockRejectedValue(error);
+      (transporter.sendMail as any).mockRejectedValue(error);
 
       await expect(
         NotificationService.sendOrderConfirmed({
@@ -66,13 +66,13 @@ describe('Notifications Service', () => {
           otp: '123456',
           order: mockOrder,
         })
-      ).rejects.toThrow(SESError);
+      ).rejects.toThrow(MailError);
     });
   });
 
   describe('sendOrderStatusUpdated', () => {
     it('should send order status update email to customer', async () => {
-      (sesClient.send as any).mockResolvedValue({ MessageId: 'msg123' });
+      (transporter.sendMail as any).mockResolvedValue({});
 
       await NotificationService.sendOrderStatusUpdated({
         order_id: 100,
@@ -81,12 +81,12 @@ describe('Notifications Service', () => {
         order: mockOrder,
       });
 
-      expect(sesClient.send).toHaveBeenCalledOnce();
+      expect(transporter.sendMail).toHaveBeenCalledOnce();
     });
 
-    it('should throw SESError when send fails', async () => {
-      const error = new Error('SES unavailable');
-      (sesClient.send as any).mockRejectedValue(error);
+    it('should throw MailError when send fails', async () => {
+      const error = new Error('Mail service unavailable');
+      (transporter.sendMail as any).mockRejectedValue(error);
 
       await expect(
         NotificationService.sendOrderStatusUpdated({
@@ -95,13 +95,13 @@ describe('Notifications Service', () => {
           status: 'preparing',
           order: mockOrder,
         })
-      ).rejects.toThrow(SESError);
+      ).rejects.toThrow(MailError);
     });
   });
 
   describe('sendOrderCancelledByStore', () => {
     it('should send order cancelled by store email to customer', async () => {
-      (sesClient.send as any).mockResolvedValue({ MessageId: 'msg123' });
+      (transporter.sendMail as any).mockResolvedValue({});
 
       await NotificationService.sendOrderCancelledByStore({
         order_id: 100,
@@ -109,11 +109,11 @@ describe('Notifications Service', () => {
         order: mockOrder,
       });
 
-      expect(sesClient.send).toHaveBeenCalledOnce();
+      expect(transporter.sendMail).toHaveBeenCalledOnce();
     });
 
-    it('should throw SESError on send failure', async () => {
-      (sesClient.send as any).mockRejectedValue(new Error('Send failed'));
+    it('should throw MailError on send failure', async () => {
+      (transporter.sendMail as any).mockRejectedValue(new Error('Send failed'));
 
       await expect(
         NotificationService.sendOrderCancelledByStore({
@@ -121,13 +121,13 @@ describe('Notifications Service', () => {
           customer_email: 'john@example.com',
           order: mockOrder,
         })
-      ).rejects.toThrow(SESError);
+      ).rejects.toThrow(MailError);
     });
   });
 
   describe('sendOrderCancelledByPayment', () => {
     it('should send order cancelled by payment email to customer', async () => {
-      (sesClient.send as any).mockResolvedValue({ MessageId: 'msg123' });
+      (transporter.sendMail as any).mockResolvedValue({});
 
       await NotificationService.sendOrderCancelledByPayment({
         order_id: 100,
@@ -135,11 +135,11 @@ describe('Notifications Service', () => {
         order: mockOrder,
       });
 
-      expect(sesClient.send).toHaveBeenCalledOnce();
+      expect(transporter.sendMail).toHaveBeenCalledOnce();
     });
 
-    it('should throw SESError on send failure', async () => {
-      (sesClient.send as any).mockRejectedValue(new Error('Send failed'));
+    it('should throw MailError on send failure', async () => {
+      (transporter.sendMail as any).mockRejectedValue(new Error('Send failed'));
 
       await expect(
         NotificationService.sendOrderCancelledByPayment({
@@ -147,7 +147,7 @@ describe('Notifications Service', () => {
           customer_email: 'john@example.com',
           order: mockOrder,
         })
-      ).rejects.toThrow(SESError);
+      ).rejects.toThrow(MailError);
     });
   });
 });
