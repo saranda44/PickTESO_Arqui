@@ -263,8 +263,8 @@ export const createCheckoutSession = async (req: Request, res: Response, next: N
                 quantity: 1,
             }],
             mode: 'payment',
-            success_url: `http://localhost:4200/payment/result?session_id={CHECKOUT_SESSION_ID}&order_id=${orderId}`,
-            cancel_url: `http://localhost:4200/cart`,
+            success_url: `${process.env.FRONTEND_URL}/payment/result?session_id={CHECKOUT_SESSION_ID}&order_id=${orderId}`,
+            cancel_url: `${process.env.FRONTEND_URL}/cart`,
         });
 
         res.status(200).json({ url: session.url });

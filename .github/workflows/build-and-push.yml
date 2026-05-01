@@ -25,6 +25,7 @@ jobs:
           - payments-service
           - sellers-service
           - frontend-sellers
+          - frontend-clients
 
     steps:
       - name: Checkout code
