@@ -1,4 +1,4 @@
-<div class="card">
+<div class="card" data-testid="product-card">
   <div class="card__image">
     @if (product.product_image) {
     <img [src]="imageUrl" [alt]="product.name" />
@@ -34,7 +34,7 @@
     </div>
 
     <div class="card__actions">
-      <button class="btn btn--primary" (click)="onEdit()" title="Editar producto"> <svg viewBox="0 0 24 24" width="18"
+      <button class="btn btn--primary" (click)="onEdit()" title="Editar producto" data-testid="edit-product-btn"> <svg viewBox="0 0 24 24" width="18"
           height="18">
           <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z" fill="currentColor" />
           <path
@@ -42,7 +42,7 @@
             fill="currentColor" />
         </svg>
         Editar</button>
-      <button class="btn btn--danger" (click)="onDelete()" title="Eliminar producto">X Eliminar</button>
+      <button class="btn btn--danger" (click)="onDelete()" title="Eliminar producto" data-testid="delete-product-btn">X Eliminar</button>
     </div>
 
     <div class="card__adjustment">

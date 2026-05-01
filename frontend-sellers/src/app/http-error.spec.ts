@@ -1,16 +1,4 @@
-import { TestBed } from '@angular/core/testing';
-
-import { HttpError } from './http-error';
-
-describe('HttpError', () => {
-  let service: HttpError;
-
-  beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(HttpError);
-  });
-
-  it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
+// Tests moved to src/app/services/http-error.spec.ts
+describe('http-error', () => {
+  it('see services/http-error.spec.ts', () => expect(true).toBe(true));
 });

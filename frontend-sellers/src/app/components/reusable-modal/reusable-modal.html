@@ -1,5 +1,5 @@
 <div class="overlay" *ngIf="visible" (click)="close.emit()">
-  <div class="modal" (click)="$event.stopPropagation()">
+  <div class="modal" role="dialog" (click)="$event.stopPropagation()">
     <header class="modal-header">
       <h3>{{ title }}</h3>
       <button class="close" (click)="close.emit()" title="Cerrar">✕</button>

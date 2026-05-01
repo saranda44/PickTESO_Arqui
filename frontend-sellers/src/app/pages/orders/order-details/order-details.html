@@ -113,6 +113,7 @@
       [ngModel]="otp()"
       (ngModelChange)="otp.set($event)"
       class="otp__input"
+      data-testid="otp-input"
     />
 
     <div class="otp__actions">
@@ -129,6 +130,7 @@
         class="btn btn--success"
         (click)="submitOtp()"
         [disabled]="updating()"
+        data-testid="confirm-otp-btn"
       >
         Validar y completar
       </button>
