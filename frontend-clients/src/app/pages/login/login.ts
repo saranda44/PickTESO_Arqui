@@ -28,7 +28,9 @@ export class Login implements OnInit {
         id,
         role: role ?? 'customer',
         email: '',
-        firstName: '',
+        first_name: '',
+        paternal_last_name: '',
+        maternal_last_name: '',
         storeId: null,
       };
       this.auth.handleAuthSuccess(token, user);

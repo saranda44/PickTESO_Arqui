@@ -11,7 +11,6 @@ import { userFromHeaders } from './middlewares/user-from-headers.middleware';
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// ✅ ESTE ES EL FIX
 app.use(cors({
     origin: 'http://localhost:4200'
 }));

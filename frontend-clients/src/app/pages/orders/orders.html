@@ -8,33 +8,45 @@
     Todo lo que pediste, en un solo lugar
   </p>
 
-  <!-- CARD -->
   <div class="orders-card">
 
-    <!-- 🟡 SI HAY ÓRDENES -->
     <ng-container *ngIf="orders().length > 0; else emptyOrders">
 
-      <div class="order-item" *ngFor="let order of orders()">
+      <div class="order-block" *ngFor="let order of orders()">
 
-        <div class="order-info">
-          <span class="order-id">
-            Orden #{{ order.id }}
-          </span>
-
-          <span class="order-total">
-            ${{ order.total }}
-          </span>
+        <div class="order-header">
+          <span class="order-id">Orden #{{ order.id }}</span>
+          <span class="order-date">{{ order.created_at | date:'short' }}</span>
         </div>
 
-        <div class="order-meta">
-          {{ order.created_at | date:'short' }}
+        <table class="items-table">
+          <thead>
+            <tr>
+              <th>Artículo</th>
+              <th>P. unitario</th>
+              <th>Cant.</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of order.products">
+              <td>{{ item.name }}</td>
+              <td>${{ item.unit_price | number:'1.2-2' }}</td>
+              <td>{{ item.quantity }}</td>
+              <td>${{ (item.unit_price * item.quantity) | number:'1.2-2' }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="order-total-row">
+          <span>Total de la orden</span>
+          <span class="order-total">${{ order.total | number:'1.2-2' }}</span>
         </div>
 
       </div>
 
     </ng-container>
 
-    <!-- 🔵 EMPTY STATE -->
     <ng-template #emptyOrders>
       <div class="empty-orders">
         Todo empieza con una primera orden.
@@ -43,24 +55,15 @@
 
   </div>
 
-  <!-- FLOATING BUTTONS -->
   <div class="floating-buttons">
-
-    <button class="fab" routerLink="/">
-      🏠
-    </button>
-
+    <button class="fab" routerLink="/">🏠</button>
     <button class="fab" routerLink="/cart">
       🛒
-      <span class="badge" *ngIf="cartCount() > 0">
-        {{ cartCount() }}
-      </span>
+      <span class="badge" *ngIf="cartCount() > 0">{{ cartCount() }}</span>
     </button>
+    <button class="fab active" routerLink="/orders">🧾</button>
 
-    <button class="fab active" routerLink="/orders">
-      🧾
-    </button>
-
+  <button class="fab" routerLink="/profile">👤</button>
   </div>
 
 </div>

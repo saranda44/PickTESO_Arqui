@@ -1,1 +1,53 @@
-<p>profile works!</p>
+<div class="profile-container">
+
+  <h1 class="title">
+    Tu <span class="bold">perfil</span> 👤
+  </h1>
+
+  <p class="subtitle">
+    Tu espacio personal
+  </p>
+
+  <ng-container *ngIf="user(); else loading">
+
+    <div class="profile-card">
+
+      <div class="avatar">
+        {{ getInitials(user()!.first_name) }}
+      </div>
+
+      <h2 class="user-name">
+        <span class="name-light">{{ user()!.first_name }}</span>
+        <span class="name-bold">{{ user()!.paternal_last_name }}</span>
+      </h2>
+
+      <p class="user-email-label">Correo</p>
+      <p class="user-email">{{ user()!.email }}</p>
+
+      <button class="logout-btn" (click)="logout()">Cerrar sesión</button>
+
+    </div>
+
+  </ng-container>
+
+  <ng-template #loading>
+    <div class="loading">Cargando...</div>
+  </ng-template>
+
+  <!-- FLOATING BUTTONS -->
+  <div class="floating-buttons">
+
+    <button class="fab" routerLink="/">🏠</button>
+
+    <button class="fab" routerLink="/cart">
+      🛒
+      <span class="badge" *ngIf="cartCount() > 0">{{ cartCount() }}</span>
+    </button>
+
+    <button class="fab" routerLink="/orders">🧾</button>
+
+    <button class="fab active" routerLink="/profile">👤</button>
+
+  </div>
+
+</div>

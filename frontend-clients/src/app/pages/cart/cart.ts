@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CartService } from '../../services/cart.service';
-import { OrderService } from '../../services/orders';
+import { OrderService } from '../../services/orders.service';
 import { RouterModule } from '@angular/router';
 import { PaymentService } from '../../services/payment.service';
 
@@ -61,8 +61,8 @@ export class Cart {
 
       const userId = Number(localStorage.getItem('id'));
       await this.paymentService.checkout(
-        result.order.id,
-        Math.round(result.order.total * 100), // pesos a centavos
+        Number (result.order.id),
+        Math.round(parseFloat(result.order.total) * 100), // pesos a centavos
         'mxn',
         userId
       );

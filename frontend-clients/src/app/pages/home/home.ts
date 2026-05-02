@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { StoreService, Store } from '../../services/store.service';
 import { CartService } from '../../services/cart.service';
-import { OrderService } from '../../services/orders';
-import { UserService } from '../../services/user';
+import { OrderService } from '../../services/orders.service';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-home',
