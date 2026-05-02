@@ -181,6 +181,10 @@ jobs:
           docker-compose -f \$HOME/docker-compose.prod.yaml up -d --remove-orphans
 
           echo ""
+          echo "=== Cleaning unused images ==="
+          docker image prune -a -f
+
+          echo ""
           echo "=== Waiting for services to stabilize ==="
           sleep 5
 

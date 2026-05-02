@@ -1,25 +1,20 @@
 import { Pool } from "pg";
 
-let pool: Pool | null = null;
-
-function getPool(): Pool {
-  if (!pool) {
-    if (!process.env.DATABASE_URL) {
-      throw new Error("DATABASE_URL no está definido");
-    }
-    pool = new Pool({
-      connectionString: process.env.DATABASE_URL,
-      ssl: {
-        rejectUnauthorized: false
-      }
-    });
-  }
-  return pool;
-}
-
-export default new Proxy({} as Pool, {
-  get: (target, prop) => {
-    const pool = getPool();
-    return (pool as any)[prop];
-  }
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false,
+  },
+  max: 5,
+  connectionTimeoutMillis: 10000,
+  idleTimeoutMillis: 30000,
+  maxLifetimeSeconds: 1800,
+  query_timeout: 15000,
+  statement_timeout: 15000,
 });
+
+pool.on("error", (err) => {
+  console.error("PostgreSQL pool error:", err);
+});
+
+export default pool;
