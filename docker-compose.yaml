@@ -3,10 +3,10 @@ services:
     build: ./api-gateway
     ports:
       - "3000:3000"
-    env_file:
-      - ./api-gateway/.env
+    volumes:
+      - ./.env/api-gateway.env:/app/.env:ro
     depends_on:
-      #- catalog-service
+      - catalog-service
       - order-service
       - notification-service
       - payments-service
@@ -15,43 +15,48 @@ services:
     build: ./catalog-service
     ports:
       - "3001:3001"
-    env_file:
-      - ./catalog-service/.env
+    volumes:
+      - ./.env/catalog-service.env:/app/.env:ro
 
   order-service:
     build: ./order-service
     ports:
       - "3002:3002"
-    env_file:
-      - ./order-service/.env
+    volumes:
+      - ./.env/order-service.env:/app/.env:ro
 
   notification-service:
     build: ./notification-service
     ports:
       - "3003:3003"
-    env_file:
-      - ./notification-service/.env
+    volumes:
+      - ./.env/notification-service.env:/app/.env:ro
 
   payments-service:
     build: ./payments-service
     ports:
       - "3004:3004"
-    env_file:
-      - ./payments-service/.env
+    volumes:
+      - ./.env/payments-service.env:/app/.env:ro
 
   sellers-service:
     build: ./sellers-service
     ports:
       - "3005:3005"
-    env_file:
-      - ./sellers-service/.env
+    volumes:
+      - ./.env/sellers-service.env:/app/.env:ro
 
-    #frontend-client:
-    # build: ./front-end
-    #ports:
-    # - "4200:4200"
+  frontend-clients:
+    build: ./frontend-clients
+    ports:
+      - 4200:80
 
-    # frontend-sellers:
-    #  build: ./front-end-sellers
-    # ports:
-    #  - "4300:4300"
+  frontend-sellers:
+    build:
+      context: ./frontend-sellers
+      args:
+        # En local se usa "/" porque se accede directo por http://localhost:4300.
+        # En producción se usa predeterminado "/vendedores/" porque la app se sirve bajo https://dominio/vendedores.
+        BASE_HREF: /
+    ports:
+      - "4300:80"
