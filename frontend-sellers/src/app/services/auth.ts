@@ -1,7 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { environment } from '../../environment';
+import { environment } from '../../environments/environment';
 import { tap } from 'rxjs/operators';
 
 interface LoginResponse {

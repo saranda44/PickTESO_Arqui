@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { firstValueFrom, Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { environment } from '../../environments/environment';
 import { AuthService } from './auth.service';
 
 // Para CREAR una orden (lo que envías al backend)
@@ -42,7 +42,7 @@ export interface CreateOrderResponse {
 export class OrderService {
   private readonly apiUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient, private authService: AuthService) {}
+  constructor(private http: HttpClient, private authService: AuthService) { }
 
   private get headers(): HttpHeaders {
     return new HttpHeaders({ Authorization: `Bearer ${this.authService.getToken()}` });

@@ -47,14 +47,19 @@ services:
       - ./.env/sellers-service.env:/app/.env:ro
 
   frontend-clients:
-    build: ./frontend-clients
+    build:
+      context: ./frontend-clients
+      args:
+        BUILD_CONFIGURATION: development
     ports:
-      - 4200:80
+      - "4200:80"
 
   frontend-sellers:
     build:
       context: ./frontend-sellers
       args:
+        BUILD_CONFIGURATION: development
+        
         # En local se usa "/" porque se accede directo por http://localhost:4300.
         # En producción se usa predeterminado "/vendedores/" porque la app se sirve bajo https://dominio/vendedores.
         BASE_HREF: /

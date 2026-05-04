@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs/internal/firstValueFrom';
-import { environment } from '../../../environments/environment';
+import { environment } from '../../environments/environment';
 
 export interface AuthUser {
   id: string;
@@ -24,22 +24,22 @@ export class AuthService {
 
   currentUser = signal<AuthUser | null>(this.loadUserFromStorage());
 
-  constructor(private router: Router) {}
+  constructor(private router: Router) { }
 
   loginWithGoogle(): void {
     window.location.href = `${this.apiUrl}/auth/google`;
   }
 
   handleAuthSuccess(token: string, user: AuthUser): void {
-  localStorage.setItem(this.TOKEN_KEY, token);
+    localStorage.setItem(this.TOKEN_KEY, token);
 
-  localStorage.setItem('id', user.id);
-  localStorage.setItem('role', user.role);
+    localStorage.setItem('id', user.id);
+    localStorage.setItem('role', user.role);
 
-  this.currentUser.set(user);
+    this.currentUser.set(user);
 
-  this.router.navigate(['/']);
-}
+    this.router.navigate(['/']);
+  }
 
   getToken(): string | null {
     return localStorage.getItem(this.TOKEN_KEY);
@@ -71,5 +71,5 @@ export class AuthService {
       return null;
     }
   }
-  
+
 }

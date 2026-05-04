@@ -8,7 +8,11 @@ RUN npm install
 
 COPY . .
 
-RUN npm run build -- --base-href=/
+# BUILD_CONFIGURATION define qué environment usa Angular.
+# Por defecto usa production.
+ARG BUILD_CONFIGURATION=production
+
+RUN npm run build -- --configuration=${BUILD_CONFIGURATION} --base-href=/
 
 # Producción con NGINX
 FROM nginx:alpine

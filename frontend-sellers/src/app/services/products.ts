@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../environment';
+import { environment } from '../../environments/environment';
 import { IProductWithTags } from '../interfaces';
 import { AuthService } from './auth';
 import { map } from 'rxjs/internal/operators/map';

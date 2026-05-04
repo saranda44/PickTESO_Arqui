@@ -8,11 +8,16 @@ RUN npm install
 
 COPY . .
 
+# BUILD_CONFIGURATION define qué environment usa Angular.
+# Por defecto usa production.
+ARG BUILD_CONFIGURATION=production
+
 # BASE_HREF define la ruta base pública donde se servirá Angular.
 # Por defecto es /vendedores/ porque en producción la app se monta en https://dominio/vendedores/.
 # En local puede sobrescribirse a / desde docker-compose para usar http://localhost:4300/.
 ARG BASE_HREF=/vendedores/
-RUN npm run build -- --base-href=${BASE_HREF}
+
+RUN npm run build -- --configuration=${BUILD_CONFIGURATION} --base-href=${BASE_HREF}
 
 # Producción con NGINX
 FROM nginx:alpine
