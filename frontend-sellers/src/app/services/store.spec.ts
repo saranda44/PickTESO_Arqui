@@ -3,7 +3,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { StoreService } from './store';
 import { AuthService } from './auth';
-import { environment } from '../../environment';
+import { environment } from '../../environments/environment';
 
 const mockAuthService = {
   getStoreId: () => '5',
