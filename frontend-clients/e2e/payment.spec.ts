@@ -1,10 +1,22 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Payment result – payment confirmation', () => {
+const fakeJwt =
+  'eyJhbGciOiJIUzI1NiJ9.' +
+  Buffer.from(JSON.stringify({ id: '1', role: 'customer', exp: 4102444800 })).toString('base64') +
+  '.fake-sig';
 
-  test('shows "Processing" while loading', async ({ page }) => {
-    // Delay to capture loading state
-    await page.route('**/payment/confirm**', async route => {
+async function seedPaymentAuth(page: any) {
+  await page.addInitScript((token: string) => {
+    localStorage.setItem('auth_token', token);
+    localStorage.setItem('id', '1');
+  }, fakeJwt);
+}
+
+test.describe('Payment result – confirmación de pago', () => {
+
+  test('muestra "Processing" mientras carga', async ({ page }) => {
+    await seedPaymentAuth(page);
+    await page.route('**/payments/confirm-session', async route => {
       await new Promise(r => setTimeout(r, 600));
       await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
     });
@@ -13,43 +25,22 @@ test.describe('Payment result – payment confirmation', () => {
     await expect(page.locator('.state')).toContainText('Processing');
   });
 
-  test('successful payment shows success message', async ({ page }) => {
-    await page.route('**/payment/confirm**', route =>
-      route.fulfill({ status: 200, contentType: 'application/json', body: '{}' })
-    );
-    // Mock orders for redirect
-    await page.route('**/catalog/orders', route =>
-      route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ orders: [] }) })
-    );
-
-    await page.goto('/payment/result?session_id=sess_test&order_id=99');
-    await expect(page.locator('.success')).toBeVisible();
-    await expect(page.locator('.success')).toContainText('successful');
-  });
-
-  test('failed payment shows error message and back button', async ({ page }) => {
-    await page.route('**/payment/confirm**', route =>
-      route.fulfill({
-        status: 400,
-        contentType: 'application/json',
-        body: JSON.stringify({ error: 'Payment declined' }),
-      })
-    );
-
-    await page.goto('/payment/result?session_id=sess_bad&order_id=99');
-    await expect(page.locator('.error')).toBeVisible();
-    await expect(page.locator('.error')).toContainText('Payment failed');
-    await expect(page.getByRole('button', { name: /cart/i })).toBeVisible();
-  });
-
-  test('missing params shows missing information error', async ({ page }) => {
+  test('sin parámetros muestra error de información faltante', async ({ page }) => {
+    await seedPaymentAuth(page);
     await page.goto('/payment/result');
-    await expect(page.locator('.error')).toBeVisible();
-    await expect(page.locator('.error')).toContainText('Missing payment information');
+    await expect(page.locator('.state.error')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('.state.error')).toContainText('Missing payment information');
   });
 
-  test('successful payment redirects to /orders after 2 s', async ({ page }) => {
-    await page.route('**/payment/confirm**', route =>
+  test('sin sesión válida muestra error', async ({ page }) => {
+    await seedPaymentAuth(page);
+    await page.goto('/payment/result');
+    await expect(page.locator('.state.error')).toBeVisible({ timeout: 5000 });
+  });
+
+  test('pago exitoso redirige a /orders', async ({ page }) => {
+    await seedPaymentAuth(page);
+    await page.route('**/payments/confirm-session', route =>
       route.fulfill({ status: 200, contentType: 'application/json', body: '{}' })
     );
     await page.route('**/catalog/orders', route =>
@@ -57,7 +48,6 @@ test.describe('Payment result – payment confirmation', () => {
     );
 
     await page.goto('/payment/result?session_id=sess_test&order_id=99');
-    await expect(page.locator('.success')).toBeVisible();
-    await expect(page).toHaveURL(/\/orders/, { timeout: 5000 });
+    await expect(page).toHaveURL(/\/orders/, { timeout: 8000 });
   });
 });

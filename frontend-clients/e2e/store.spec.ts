@@ -2,82 +2,72 @@ import { test, expect } from '@playwright/test';
 import { seedAuth, mockMyOrders } from './helpers';
 
 const mockProducts = [
-  { id: 1, name: 'Charred Citrus Salmon', description: 'Delicious', price: 50,  product_image: null, tags: [] },
-  { id: 2, name: 'Midnight Mushroom Tart', description: 'Earthy, crisp, quietly rich',  price: 40,  product_image: null, tags: [] },
-  { id: 3, name: 'Vanilla Bean Panna Cotta', description: null, price: 25,  product_image: null, tags: [] },
+  { id: 1, name: 'Taco al pastor', description: 'Delicioso', price: 50, product_image: null, tags: [] },
+  { id: 2, name: 'Quesadilla',     description: 'Con queso',  price: 40, product_image: null, tags: [] },
+  { id: 3, name: 'Agua de horchata', description: null,       price: 25, product_image: null, tags: [] },
 ];
 
-test.describe('Store – product catalog', () => {
+test.describe('Store – catálogo de productos', () => {
 
   test.beforeEach(async ({ page }) => {
     await seedAuth(page);
+    await mockMyOrders(page);
 
-    // Store info
     await page.route('**/catalog/stores/1', route =>
       route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({ id: 1, name: 'Marble & Finch', location: 'Building A' }),
+        status: 200, contentType: 'application/json',
+        body: JSON.stringify({ id: 1, name: 'Tacos El Güero', location: 'Edificio A' }),
       })
     );
-
-    // Store products
     await page.route('**/catalog/stores/1/products', route =>
-      route.fulfill({   
-        status: 200,
-        contentType: 'application/json',
+      route.fulfill({
+        status: 200, contentType: 'application/json',
         body: JSON.stringify(mockProducts),
       })
     );
-
-    await mockMyOrders(page);
   });
 
-  test('renders store products', async ({ page }) => {
+  test('renderiza los productos de la tienda', async ({ page }) => {
     await page.goto('/store/1');
-    const cards = page.locator('.product-card');
-    await expect(cards).toHaveCount(3);
+    await expect(page.locator('.product-card')).toHaveCount(3, { timeout: 5000 });
   });
 
-  test('displays product name and price', async ({ page }) => {
+  test('muestra el nombre y precio de cada producto', async ({ page }) => {
     await page.goto('/store/1');
-    await expect(page.getByText('Charred Citrus Salmon')).toBeVisible();
+    await expect(page.getByText('Taco al pastor')).toBeVisible({ timeout: 5000 });
     await expect(page.getByText('$50')).toBeVisible();
   });
 
-  test('shows store name in the title', async ({ page }) => {
+  test('muestra el nombre de la tienda en el título', async ({ page }) => {
     await page.goto('/store/1');
-    await expect(page.locator('.store-title')).toContainText('Marble & Finch');
+    await expect(page.locator('.store-title')).toContainText('Tacos El Güero', { timeout: 5000 });
   });
 
-  test('adding a product increments cart badge', async ({ page }) => {
+  test('añadir producto incrementa el badge del carrito', async ({ page }) => {
     await page.goto('/store/1');
     await page.locator('.add-btn').first().click();
-    const badge = page.locator('.fab.cart .badge');
-    await expect(badge).toBeVisible();
-    await expect(badge).toHaveText('1');
+    await expect(page.locator('.fab.cart .badge')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('.fab.cart .badge')).toHaveText('1');
   });
 
-  test('adding products from another store shows alert', async ({ page }) => {
-    // Simulate cart already containing a product from store 2
+  test('añadir productos de otra tienda muestra alerta', async ({ page }) => {
     await page.addInitScript(() => {
       localStorage.setItem('cart', JSON.stringify([
-        { id: 99, name: 'Other product', price: 100, quantity: 1 }
+        { id: 99, name: 'Otro producto', price: 100, quantity: 1 }
       ]));
       localStorage.setItem('cart_store_id', '2');
     });
 
     await page.goto('/store/1');
     await page.locator('.add-btn').first().click();
-    await expect(page.locator('.store-alert')).toBeVisible();
+    await expect(page.locator('.store-alert')).toBeVisible({ timeout: 5000 });
   });
 
-  test('empty state when store has no products', async ({ page }) => {
+  test('estado vacío cuando la tienda no tiene productos', async ({ page }) => {
     await page.route('**/catalog/stores/1/products', route =>
       route.fulfill({ status: 200, contentType: 'application/json', body: '[]' })
     );
     await page.goto('/store/1');
-    const cards = page.locator('.product-card');
-    await expect(cards).toHaveCount(0);
+    await expect(page.locator('.product-card')).toHaveCount(0);
   });
 });
