@@ -31,28 +31,4 @@
 
   </div>
 
-  <!-- Buttons -->
-  <div class="floating-buttons">
-
-    <!-- Home -->
-    <button class="fab active">
-      🏠
-    </button>
-
-    <!-- Cart -->
-    <button class="fab cart" routerLink="/cart">
-      🛒
-      <span class="badge" *ngIf="cartCount() > 0">
-        {{ cartCount() }}
-      </span>
-    </button>
-
-    <button class="fab" routerLink="/orders">
-      🧾
-    </button>
-
-    <button class="fab" routerLink="/profile">👤</button>
-
-  </div>
-
 </div>

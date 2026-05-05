@@ -28,30 +28,23 @@ export class Home implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    console.log('HOME CARGÓ');
-
     this.cartCount = this.cartService.count;
 
     this.storeService.getStores().subscribe({
       next: (data) => {
-        console.log('STORES:', data);
         this.restaurants.set(data);
       },
-      error: (err) => console.error('ERROR:', err)
+      error: (err) => console.error('Error loading stores:', err)
     });
 
     this.orderService.getMyOrders().subscribe({
       next: (data) => {
-        console.log('ORDERS:', data);
+        // Orders loaded
       },
-      error: (err) => console.error('ERROR:', err)
+      error: (err) => console.error('Error loading orders:', err)
     });
 
-    this.userService.getUserInfo()
-      .then((data: any) => {
-        console.log('USER INFO:', data);
-      })
-      .catch((err: any) => console.error('ERROR:', err));
+    this.userService.getUserInfo().catch((err: any) => console.error('Error loading user info:', err));
   }
 
   goToStore(id: number): void {

@@ -1,75 +1,39 @@
 <div class="store-container">
-
   <h1 class="store-title">
     {{ storeName }}
   </h1>
 
   <h2 class="title">
-    Un <span class="bold">menú</span><br /> pensado para ti ✨
+    Un <span class="bold">menú</span><br />
+    pensado para ti ✨
   </h2>
 
-  <p class="subtitle">
-    Cada elección tiene su propio sabor
-  </p>
+  <p class="subtitle">Cada elección tiene su propio sabor</p>
+
+  <button class="back-btn" (click)="goBack()" title="Regresar">← Atrás</button>
 
   <h2 class="section-title">Nuestros Productos:</h2>
 
   <div class="cards-container">
-
     <div class="card product-card" *ngFor="let product of products()">
-
-      <img 
-        [src]="product.product_image ?? 'https://via.placeholder.com/300'"
-        alt="product image"
-      />
+      <img [src]="product.product_image ?? 'https://via.placeholder.com/300'" alt="product image" />
 
       <div class="card-content">
-
         <h2>{{ product.name }}</h2>
 
         <p class="description">
           {{ product.description }}
         </p>
 
-        <p class="price">
-          ${{ product.price }}
-        </p>
+        <p class="price">${{ product.price }}</p>
 
-        <button class="add-btn" (click)="addToCart(product)">
-          Añadir al Carrito
-        </button>
-
+        <button class="add-btn" (click)="addToCart(product)">Añadir al Carrito</button>
       </div>
-
     </div>
-
   </div>
 
   <!-- ALERTA TIENDA DIFERENTE -->
   <div class="store-alert" *ngIf="addedAlert()">
     {{ addedAlert() }}
   </div>
-
-  <!-- BUTTONS -->
-  <div class="floating-buttons">
-
-    <!-- HOME -->
-    <button class="fab" routerLink="/">
-      🏠
-    </button>
-
-    <!-- CART -->
-    <button class="fab cart" routerLink="/cart">
-      🛒
-      <span class="badge" *ngIf="cartCount() > 0">
-        {{ cartCount() }}
-      </span>
-    </button>
-
-    <button class="fab" routerLink="/orders">
-      🧾
-    </button>
-
-  </div>
-
 </div>

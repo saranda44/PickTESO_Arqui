@@ -1,1 +1,9 @@
-<p>header works!</p>
+<div class="floating-buttons">
+  <button class="fab" [class.active]="isActive('') || isActive('home')" routerLink="/">🏠</button>
+  <button class="fab" [class.active]="isActive('cart')" routerLink="/cart">
+    🛒
+    <span class="badge" *ngIf="cartCount() > 0">{{ cartCount() }}</span>
+  </button>
+  <button class="fab" [class.active]="isActive('orders')" routerLink="/orders">🧾</button>
+  <button class="fab" [class.active]="isActive('profile')" routerLink="/profile">👤</button>
+</div>

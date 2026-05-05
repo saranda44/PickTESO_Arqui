@@ -34,20 +34,4 @@
     <div class="loading">Cargando...</div>
   </ng-template>
 
-  <!-- FLOATING BUTTONS -->
-  <div class="floating-buttons">
-
-    <button class="fab" routerLink="/">🏠</button>
-
-    <button class="fab" routerLink="/cart">
-      🛒
-      <span class="badge" *ngIf="cartCount() > 0">{{ cartCount() }}</span>
-    </button>
-
-    <button class="fab" routerLink="/orders">🧾</button>
-
-    <button class="fab active" routerLink="/profile">👤</button>
-
-  </div>
-
 </div>

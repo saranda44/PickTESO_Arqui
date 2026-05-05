@@ -1,22 +1,33 @@
 <div class="orders-container">
+  <h1 class="title">Tus <span class="bold">órdenes</span> 🧾</h1>
 
-  <h1 class="title">
-    Tus <span class="bold">órdenes</span> 🧾
-  </h1>
-
-  <p class="subtitle">
-    Todo lo que pediste, en un solo lugar
-  </p>
+  <p class="subtitle">Todo lo que pediste, en un solo lugar</p>
 
   <div class="orders-card">
-
     <ng-container *ngIf="orders().length > 0; else emptyOrders">
-
       <div class="order-block" *ngFor="let order of orders()">
-
         <div class="order-header">
-          <span class="order-id">Orden #{{ order.id }}</span>
-          <span class="order-date">{{ order.created_at | date:'short' }}</span>
+          <div class="order-header-left">
+            <span class="order-id">Orden #{{ order.id }}</span>
+            <span class="order-status" [ngClass]="'status-' + order.status.toLowerCase()">
+              {{ getStatusLabel(order.status) }}
+            </span>
+          </div>
+          <div class="order-header-right">
+            <button
+              *ngIf="order.status.toLowerCase() === 'pending'"
+              class="pay-btn"
+              (click)="pay(order)"
+              [disabled]="loading()"
+            >
+              <span *ngIf="loading()">Procesando...</span>
+              <span *ngIf="!loading()">Pagar</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="order-date-row">
+          <span class="order-date">{{ order.created_at | date: 'short' }}</span>
         </div>
 
         <table class="items-table">
@@ -31,39 +42,22 @@
           <tbody>
             <tr *ngFor="let item of order.products">
               <td>{{ item.name }}</td>
-              <td>${{ item.unit_price | number:'1.2-2' }}</td>
+              <td>${{ item.unit_price | number: '1.2-2' }}</td>
               <td>{{ item.quantity }}</td>
-              <td>${{ (item.unit_price * item.quantity) | number:'1.2-2' }}</td>
+              <td>${{ item.unit_price * item.quantity | number: '1.2-2' }}</td>
             </tr>
           </tbody>
         </table>
 
         <div class="order-total-row">
           <span>Total de la orden</span>
-          <span class="order-total">${{ order.total | number:'1.2-2' }}</span>
+          <span class="order-total">${{ order.total | number: '1.2-2' }}</span>
         </div>
-
       </div>
-
     </ng-container>
 
     <ng-template #emptyOrders>
-      <div class="empty-orders">
-        Todo empieza con una primera orden.
-      </div>
+      <div class="empty-orders">Todo empieza con una primera orden.</div>
     </ng-template>
-
   </div>
-
-  <div class="floating-buttons">
-    <button class="fab" routerLink="/">🏠</button>
-    <button class="fab" routerLink="/cart">
-      🛒
-      <span class="badge" *ngIf="cartCount() > 0">{{ cartCount() }}</span>
-    </button>
-    <button class="fab active" routerLink="/orders">🧾</button>
-
-  <button class="fab" routerLink="/profile">👤</button>
-  </div>
-
 </div>

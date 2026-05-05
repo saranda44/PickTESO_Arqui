@@ -23,6 +23,7 @@ export class AuthService {
   private readonly apiUrl = environment.apiUrl;
 
   currentUser = signal<AuthUser | null>(this.loadUserFromStorage());
+  isLoggedIn = signal(this.isAuthenticated());
 
   constructor(private router: Router) { }
 
@@ -37,6 +38,7 @@ export class AuthService {
     localStorage.setItem('role', user.role);
 
     this.currentUser.set(user);
+    this.isLoggedIn.set(true);
 
     this.router.navigate(['/']);
   }
@@ -59,7 +61,9 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
+    localStorage.clear();
     this.currentUser.set(null);
+    this.isLoggedIn.set(false);
     this.router.navigate(['/login']);
   }
 

@@ -35,6 +35,10 @@ export class Cart {
     this.cartService.removeFromCart(item.id);
   }
 
+  removeItem(itemId: any) {
+    this.cartService.removeFromCart(itemId);
+  }
+
   getTotal(): number {
     return this.cartService.getTotal();
   }
@@ -68,7 +72,7 @@ export class Cart {
       );
 
     } catch (err: any) {
-      console.log(err);
+      console.error('Checkout error:', err);
       this.errorMessage = err?.error?.message ?? err?.message ?? 'Error al crear la orden';
     } finally {
       this.loading = false;

@@ -1,6 +1,6 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ProductService } from '../../services/product.service';
 import { CartService } from '../../services/cart.service';
 
@@ -36,6 +36,7 @@ export class Store implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private productService: ProductService,
     private cartService: CartService
   ) {}
@@ -51,26 +52,29 @@ export class Store implements OnInit {
       next: (store) => {
         this.storeName = store.name;
       },
-      error: (err) => console.error('STORE ERROR:', err)
+      error: (err) => console.error('Error loading store:', err)
     });
 
     // Obtener productos
     this.productService.getProductsByStore(this.storeId).subscribe({
       next: (data) => {
-        console.log('PRODUCTS:', data);
         this.products.set(data);
       },
-      error: (err) => console.error('PRODUCTS ERROR:', err)
+      error: (err) => console.error('Error loading products:', err)
     });
   }
 
-    addToCart(product: Product) {
-      const added = this.cartService.addToCart(product, this.storeId);
-      if (added) {
-        this.cartService.setStoreId(this.storeId);
-      } else {
-        this.addedAlert.set('Solo puedes agregar productos de una tienda a la vez.');
-        setTimeout(() => this.addedAlert.set(''), 3000);
-      }
+  addToCart(product: Product) {
+    const added = this.cartService.addToCart(product, this.storeId);
+    if (added) {
+      this.cartService.setStoreId(this.storeId);
+    } else {
+      this.addedAlert.set('Solo puedes agregar productos de una tienda a la vez.');
+      setTimeout(() => this.addedAlert.set(''), 3000);
     }
+  }
+
+  goBack(): void {
+    this.router.navigate(['/']);
+  }
 }

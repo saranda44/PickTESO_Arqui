@@ -43,6 +43,7 @@
   justify-content: space-between;
   padding: 12px 0;
   border-bottom: 1px solid #e5e5e5;
+  gap: 12px;
 }
 
 .cart-item:last-child {
@@ -115,6 +116,29 @@
   text-align: center;
 }
 
+/* DELETE BUTTON */
+.delete-btn {
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  &:hover {
+    background: #ffe5e5;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
 /* CHECKOUT */
 .checkout {
   max-width: 600px;
@@ -134,44 +158,6 @@
   cursor: pointer;
 }
 
-/* FLOATING BUTTONS */
-.floating-buttons {
-  position: fixed;
-  top: 60px;
-  right: 40px;
-  display: flex;
-  gap: 12px;
-}
-
-.fab {
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  border: none;
-  background: #fff;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  font-size: 22px;
-  cursor: pointer;
-  position: relative;
-}
-
-.fab.active {
-  background: #111;
-  color: #fff;
-}
-
-/* BADGE */
-.badge {
-  position: absolute;
-  top: -5px;
-  right: -5px;
-  background: #085CF0;
-  color: #fff;
-  font-size: 11px;
-  font-weight: 700;
-  border-radius: 50%;
-  padding: 4px 7px;
-}
 
 /* EMPTY CART */
 .empty-cart {
@@ -180,4 +166,96 @@
   font-size: 16px;
   padding: 40px 0;
   font-weight: 400;
+}
+
+/* MOBILE RESPONSIVE */
+@media (max-width: 768px) {
+  .cart-container {
+    padding: 20px 16px;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    margin-top: -12px;
+    margin-bottom: 40px;
+  }
+
+  .cart-card {
+    max-width: 100%;
+    padding: 16px;
+  }
+
+  .cart-item {
+    padding: 10px 0;
+  }
+
+  .item-left {
+    gap: 10px;
+  }
+
+  .product-img {
+    width: 50px;
+    height: 50px;
+  }
+
+  .name {
+    font-size: 14px;
+  }
+
+  .item-total {
+    font-size: 13px;
+  }
+
+  .controls-pill {
+    padding: 4px 10px;
+    gap: 10px;
+  }
+
+  .controls-pill button {
+    font-size: 16px;
+  }
+
+  .quantity {
+    font-size: 12px;
+  }
+
+  .delete-btn {
+    font-size: 16px;
+    padding: 4px;
+  }
+
+  .checkout {
+    max-width: 100%;
+    margin-top: 20px;
+  }
+
+  .checkout-btn {
+    padding: 12px 30px;
+    font-size: 14px;
+    width: 100%;
+  }
+
+  .error-msg {
+    font-size: 12px;
+    margin-bottom: 10px;
+  }
+}
+
+/* TABLET */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .cart-container {
+    padding: 24px 24px;
+  }
+
+  .title {
+    font-size: 28px;
+  }
+
+  .cart-card {
+    max-width: 100%;
+  }
 }

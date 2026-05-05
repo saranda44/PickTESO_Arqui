@@ -29,7 +29,7 @@ export class Profile implements OnInit {
     this.userService.getUserInfo().then((data) => {
       this.user.set(data);
     }).catch((err) => {
-      console.error('ERROR:', err);
+      console.error('Error loading user profile:', err);
     });
   }
 

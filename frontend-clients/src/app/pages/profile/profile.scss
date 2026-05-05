@@ -101,42 +101,6 @@
   padding: 40px 0;
 }
 
-.floating-buttons {
-  position: fixed;
-  top: 60px;
-  right: 40px;
-  display: flex;
-  gap: 12px;
-}
-
-.fab {
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  border: none;
-  background: #fff;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  font-size: 22px;
-  cursor: pointer;
-  position: relative;
-}
-
-.fab.active {
-  background: #111;
-  color: #fff;
-}
-
-.badge {
-  position: absolute;
-  top: -5px;
-  right: -5px;
-  background: #085CF0;
-  color: #fff;
-  font-size: 11px;
-  font-weight: 700;
-  border-radius: 50%;
-  padding: 4px 7px;
-}
 
 .user-email {
   font-size: 15px;
@@ -185,5 +149,68 @@
   &:hover {
     background: #111;
     color: #fff;
+  }
+}
+
+/* MOBILE RESPONSIVE */
+@media (max-width: 768px) {
+  .profile-container {
+    padding: 20px 16px;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    margin-top: -12px;
+    margin-bottom: 40px;
+  }
+
+  .profile-card {
+    max-width: 100%;
+    padding: 24px 20px;
+  }
+
+  .avatar {
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+    margin-bottom: 12px;
+  }
+
+  .user-name {
+    font-size: 18px;
+    margin-bottom: 20px;
+  }
+
+  .info-label {
+    font-size: 11px;
+  }
+
+  .info-value {
+    font-size: 14px;
+  }
+
+  .logout-btn {
+    margin-top: 20px;
+    padding: 8px 20px;
+    font-size: 13px;
+  }
+}
+
+/* TABLET */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .profile-container {
+    padding: 24px 24px;
+  }
+
+  .title {
+    font-size: 28px;
+  }
+
+  .profile-card {
+    max-width: 100%;
   }
 }
