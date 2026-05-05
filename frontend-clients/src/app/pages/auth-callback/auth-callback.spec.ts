@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute } from '@angular/router';
+import { of } from 'rxjs';
 
 import { AuthCallback } from './auth-callback';
 
@@ -9,6 +11,7 @@ describe('AuthCallback', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [AuthCallback],
+      providers: [{ provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => null } }, queryParams: of({}) } }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AuthCallback);
