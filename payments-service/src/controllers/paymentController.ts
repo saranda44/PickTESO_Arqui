@@ -231,9 +231,9 @@ export const cancelPaymentIntent = async (req: Request, res: Response, next: Nex
 
         await updatePaymentIntentStatus(record.stripe_payment_intent_id, paymentIntent.status);
 
-        await axios.delete(
-            `${process.env.ORDERS_SERVICE_URL}/orders/${orderId}/cancel`
-        );
+        // await axios.delete(
+        //     `${process.env.ORDERS_SERVICE_URL}/orders/${orderId}/cancel`
+        // );
 
         res.status(200).json({
             id: paymentIntent.id,

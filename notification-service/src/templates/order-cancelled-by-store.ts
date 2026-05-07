@@ -25,7 +25,7 @@ export function orderCancelledByStoreTemplate({
       <div style="margin: 16px 0; padding: 12px 16px; background-color: #fff3e0; border-left: 4px solid #ff9800; border-radius: 4px;">
         <p style="margin: 0;"><strong>Reembolso en proceso</strong></p>
         <p style="margin: 8px 0 0 0;">
-          El monto de <strong>$${order.total.toFixed(2)}</strong> será reembolsado 
+          El monto de <strong>$${Number(order.total).toFixed(2)}</strong> será reembolsado 
           a tu método de pago original en los próximos días hábiles.
         </p>
       </div>
